@@ -15,8 +15,8 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
 
   def after_initialize
     @queue            = Queue.new    # Global Work Queue
-    @schedules        = Hash.new
-    self.initialize_rufus
+    @schedules        = {}
+    initialize_rufus
   end
 
   def initialize_rufus
@@ -31,7 +31,7 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
 
   def check_dst
     return if @dst == dst?
-    self.run_callbacks(:dst_change) do
+    run_callbacks(:dst_change) do
       reset_dst
     end
   end
@@ -60,12 +60,12 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
 
   def load_user_schedules
     return unless @active_roles.include?("scheduler")
-    self.sync_all_user_schedules
+    sync_all_user_schedules
   end
 
-  def worker_setting_or_default(keys, default=nil)
+  def worker_setting_or_default(keys, default = nil)
     keys    = [keys] unless keys.kind_of?(Array)
-    value   = self.worker_settings.fetch_path(keys)
+    value   = worker_settings.fetch_path(keys)
     value ||= begin
       fq_keys = [:workers] + @worker.class.path_to_my_worker_settings + keys
       v = VMDB::Config.new("vmdb").template_configuration.fetch_path(fq_keys)
@@ -207,9 +207,9 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
 
     builder = MiqScheduleWorker::SchedulesBuilder.new(@system_scheduler, :database_operations)
 
-    database_metrics_collection_schedule     = [ :database, :metrics_collection, :collection_schedule   ]
-    database_metrics_daily_rollup_schedule   = [ :database, :metrics_collection, :daily_rollup_schedule ]
-    database_metrics_purge_schedule          = [ :database, :metrics_history,    :purge_schedule        ]
+    database_metrics_collection_schedule     = [:database, :metrics_collection, :collection_schedule]
+    database_metrics_daily_rollup_schedule   = [:database, :metrics_collection, :daily_rollup_schedule]
+    database_metrics_purge_schedule          = [:database, :metrics_history,    :purge_schedule]
 
     cfg = VMDB::Config.new("vmdb")
     cfg.merge_from_template_if_missing(*database_metrics_collection_schedule)
@@ -243,7 +243,7 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
     builder = MiqScheduleWorker::SchedulesBuilder.new(@system_scheduler, :ldap_synchronization)
 
     ldap_synchronization_schedule_default = "0 2 * * *"
-    ldap_synchronization_schedule         = [ :ldap_synchronization, :ldap_synchronization_schedule ]
+    ldap_synchronization_schedule         = [:ldap_synchronization, :ldap_synchronization_schedule]
 
     sched = VMDB::Config.new("vmdb").config.fetch_path(ldap_synchronization_schedule) || ldap_synchronization_schedule_default
     _log.info("ldap_synchronization_schedule: #{sched}")
@@ -305,12 +305,12 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
     return unless @active_roles.include?("storage_metrics_coordinator")
     builder = MiqScheduleWorker::SchedulesBuilder.new(@system_scheduler)
 
-    base_path = [ :storage, :metrics_collection ]
-    storage_metrics_collection_schedule     = base_path + [ :collection_schedule    ]
-    storage_metrics_hourly_rollup_schedule  = base_path + [ :hourly_rollup_schedule ]
-    storage_metrics_daily_rollup_schedule   = base_path + [ :daily_rollup_schedule  ]
-    storage_metrics_purge_schedule          = [ :storage, :metrics_history, :purge_schedule ]
-    storage_inventory_full_refresh_schedule = [ :storage, :inventory, :full_refresh_schedule ]
+    base_path = [:storage, :metrics_collection]
+    storage_metrics_collection_schedule     = base_path + [:collection_schedule]
+    storage_metrics_hourly_rollup_schedule  = base_path + [:hourly_rollup_schedule]
+    storage_metrics_daily_rollup_schedule   = base_path + [:daily_rollup_schedule]
+    storage_metrics_purge_schedule          = [:storage, :metrics_history, :purge_schedule]
+    storage_inventory_full_refresh_schedule = [:storage, :inventory, :full_refresh_schedule]
 
     cfg = VMDB::Config.new("vmdb")
     # TODO: change to merge_from_template_if_missing() after beta.
@@ -353,25 +353,25 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
   end
 
   def sync_all_user_schedules
-    self.rufus_remove_stale_schedules
+    rufus_remove_stale_schedules
     schedules = MiqSchedule.in_my_region.to_a
     @last_checked = Time.now.utc
-    self.reload_schedules(schedules)
+    reload_schedules(schedules)
   end
 
   def sync_updated_user_schedules
-    self.rufus_remove_stale_schedules
+    rufus_remove_stale_schedules
     threshold = @last_checked || Time.at(0)
     schedules = MiqSchedule.updated_since(threshold)
     @last_checked = Time.now.utc
-    self.reload_schedules(schedules)
+    reload_schedules(schedules)
   end
 
   def reload_schedules(schedules)
     schedules.each do |sch|
       _log.info("Reloading schedule: [#{sch.name}] with id: [#{sch.id}]")
-      self.rufus_remove_schedules_by_tag(sch.tag)
-      self.rufus_add_schedule(sch.rufus_schedule_opts) if sch.enabled == true
+      rufus_remove_schedules_by_tag(sch.tag)
+      rufus_add_schedule(sch.rufus_schedule_opts) if sch.enabled == true
     end
     schedules
   end
@@ -386,9 +386,9 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
     options[:tags].to_miq_a << CLASS_TAG
     @schedules[:scheduler] ||= []
     if options[:months]
-      self.rufus_add_monthly_schedule(options)
+      rufus_add_monthly_schedule(options)
     else
-      self.rufus_add_normal_schedule(options)
+      rufus_add_normal_schedule(options)
     end
   end
 
@@ -417,14 +417,14 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
     end
 
     # Schedule every X months for up to 5 years in the future
-    remaining_months = ( (5 * 12) / months) - 1
+    remaining_months = ((5 * 12) / months) - 1
     remaining_months.times do
       next_run += months.months
       @schedules[:scheduler] << @user_scheduler.send(method, next_run, options) do |rufus_job|
         enqueue([:miq_schedule_queue_scheduled_work, schedule_id, rufus_job])
       end
     end
-    return @schedules[:scheduler]
+    @schedules[:scheduler]
   end
 
   def rufus_remove_stale_schedules
@@ -449,7 +449,7 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
 
   BRUTE_FORCE = false
   def check_roles_changed
-    added   = @active_roles  - @current_roles
+    added   = @active_roles - @current_roles
     removed = @current_roles - @active_roles
 
     if BRUTE_FORCE
@@ -464,14 +464,14 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
           m = "schedules_for_#{r}_role"
           next unless self.respond_to?(m)
           _log.info("Adding Schedules for Role=[#{r}]")
-          self.send(m)
+          send(m)
         end
 
-        self.load_user_schedules if added.include?("scheduler")
+        load_user_schedules if added.include?("scheduler")
 
         removed.each do |r|
           rs = r.to_sym
-          next unless @schedules.has_key?(rs)
+          next unless @schedules.key?(rs)
           _log.info("Removing Schedules for Role=[#{r}]")
           @schedules[rs].each do |j|
             # In Rufus::Scheduler Version 1, schedule returns a JobID
@@ -482,7 +482,7 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
               @system_scheduler.unschedule(j)
             else
               if j.respond_to?(:tags)
-                if j.tags.any? {|t| t.to_s.starts_with?("miq_schedules_")}
+                if j.tags.any? { |t| t.to_s.starts_with?("miq_schedules_") }
                   _log.info("Removing user schedule with Tags: #{j.tags.inspect}")
                 end
                 j.unschedule
@@ -507,7 +507,7 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
     @current_roles = @active_roles.dup
     load_system_schedules
     load_user_schedules
-    self.reset_dst
+    reset_dst
   end
 
   def do_work
@@ -528,10 +528,10 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
       Thread.pass
     end
 
-    self.check_dst
+    check_dst
 
     # If no work in queue, update users schedules which have been updated since last check
-    self.sync_updated_user_schedules if @active_roles.include?("scheduler")
+    sync_updated_user_schedules if @active_roles.include?("scheduler")
   end
 
   private
