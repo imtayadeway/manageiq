@@ -24,6 +24,12 @@ Vmdb::Application.routes.draw do
       }.freeze
     end
 
+    def create?(request)
+      action = JSON.parse(request.body.read)["action"]
+      request.body.rewind
+      action.blank? || action == "create" || action == "add"
+    end
+
     Api::ApiConfig.collections.each do |collection_name, collection|
       # OPTIONS action for each collection
       match collection_name.to_s, :controller => collection_name, :action => :options, :via => :options
@@ -48,7 +54,12 @@ Vmdb::Application.routes.draw do
               root :action => :index
               get "/:c_id", :action => :show
             else
-              match "(/:c_id)", :action => API_ACTIONS[verb], :via => verb
+              if verb == :post
+                post "(/:c_id)", :action => "update", :constraints => ->(request) { !create?(request) }
+                post "/", :action => "create", :constraints => ->(request) { create?(request) }
+              else
+                match "(/:c_id)", :action => API_ACTIONS[verb], :via => verb
+              end
             end
           end
         end

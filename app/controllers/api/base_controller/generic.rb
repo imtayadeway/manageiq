@@ -26,6 +26,13 @@ module Api
         render_resource(@req.subject, resource_search(@req.subject_id, @req.subject, klass), opts)
       end
 
+      def create
+        render_resource(
+          @req.collection.to_sym,
+          get_and_update_multiple_collections(@req.subcollection?, "create_resource", @req.subject.to_sym)
+        )
+      end
+
       def update
         render_normal_update @req.collection.to_sym, update_collection(@req.subject.to_sym, @req.subject_id)
       end
@@ -52,7 +59,7 @@ module Api
       # For type specified, name is <action>_resource_<collection>
       # Same signature.
       #
-      def add_resource(type, _id, data)
+      def create_resource(type, _id, data)
         assert_id_not_specified(data, "#{type} resource")
         klass = collection_class(type)
         subcollection_data = collection_config.subcollections(type).each_with_object({}) do |sc, hash|
@@ -69,8 +76,6 @@ module Api
           raise BadRequestError, "Failed to add a new #{type} resource - #{resource.errors.full_messages.join(', ')}"
         end
       end
-
-      alias_method :create_resource, :add_resource
 
       def query_resource(type, id, data)
         unless id

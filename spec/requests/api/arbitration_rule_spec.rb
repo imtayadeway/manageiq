@@ -122,8 +122,7 @@ RSpec.describe 'Arbitration Rule API' do
 
       run_post(arbitration_rules_url(999_999), request_body.merge(:id => 999_999))
 
-      expect_bad_request(/Unsupported Action create for the arbitration_rules resource/)
-      expect(response).to have_http_status(:bad_request)
+      expect(response).to have_http_status(:not_found)
     end
   end
 
