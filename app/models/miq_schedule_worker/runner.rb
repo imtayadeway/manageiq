@@ -20,9 +20,8 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
   end
 
   def initialize_rufus
-    require 'rufus/scheduler'
-    @system_scheduler = Rufus::Scheduler.new
-    @user_scheduler   = Rufus::Scheduler.new
+    @system_scheduler = MiqScheduleWorker::Scheduler.new
+    @user_scheduler   = MiqScheduleWorker::Scheduler.new
   end
 
   def dst?
@@ -68,10 +67,7 @@ class MiqScheduleWorker::Runner < MiqWorker::Runner
   end
 
   def system_schedule_every(*args, &block)
-    raise ArgumentError if args.first.nil?
     @system_scheduler.schedule_every(*args, &block)
-  rescue ArgumentError => err
-    _log.error("#{err.class} for schedule_every with #{args.inspect}.  Called from: #{caller[1]}.")
   end
 
   def schedules_for_all_roles

@@ -100,10 +100,9 @@ describe MiqScheduleWorker::Runner do
       context "using Rufus::Scheduler" do
         before(:each) do
           rufus_frequency = 0.00001  # How often rufus will check for jobs to do
-          require 'rufus/scheduler'
           @schedule_worker.instance_eval do
-            @system_scheduler = Rufus::Scheduler.new(:frequency => rufus_frequency)
-            @user_scheduler   = Rufus::Scheduler.new(:frequency => rufus_frequency)
+            @system_scheduler = MiqScheduleWorker::Scheduler.new(:frequency => rufus_frequency)
+            @user_scheduler   = MiqScheduleWorker::Scheduler.new(:frequency => rufus_frequency)
           end
           @user = @schedule_worker.instance_variable_get(:@user_scheduler)
           @system = @schedule_worker.instance_variable_get(:@system_scheduler)
