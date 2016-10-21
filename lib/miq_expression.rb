@@ -578,7 +578,11 @@ class MiqExpression
     case operator.downcase
     when "equal", "="
       field = Field.parse(exp[operator]["field"])
-      field.model.where(field.column => exp[operator]["value"])
+      *intermediates, target = field.associations
+      includes = intermediates.inject(target) { |acc, association| {association => acc} }
+      relation = field.model.includes(includes)
+      where = field.associations.inject(field.column => exp[operator]["value"]) { |acc, association| {association => acc} }
+      relation.where(where)
     end
   end
 
