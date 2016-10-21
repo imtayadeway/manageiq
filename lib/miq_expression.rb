@@ -572,6 +572,16 @@ class MiqExpression
     [sql, incl, attrs]
   end
 
+  def to_relation
+    operator = exp.keys.first
+
+    case operator.downcase
+    when "equal", "="
+      field = Field.parse(exp[operator]["field"])
+      field.model.where(field.column => exp[operator]["value"])
+    end
+  end
+
   def preprocess_for_sql(exp, attrs = nil)
     attrs ||= {:supported_by_sql => true}
     operator = exp.keys.first
