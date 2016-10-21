@@ -30,6 +30,15 @@ describe MiqExpression do
 
       expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "foo"))
     end
+
+    it "!=" do
+      FactoryGirl.create(:vm_vmware, :name => "foo")
+      FactoryGirl.create(:vm_vmware, :name => "bar")
+
+      relation = described_class.new("!=" => {"field" => "Vm-name", "value" => "foo"}).to_relation
+
+      expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "bar"))
+    end
   end
 
   context "virtual custom attributes" do

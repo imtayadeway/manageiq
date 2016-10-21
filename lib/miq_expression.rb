@@ -583,6 +583,13 @@ class MiqExpression
       relation = field.model.includes(includes)
       where = field.associations.inject(field.column => exp[operator]["value"]) { |acc, association| {association => acc} }
       relation.where(where)
+    when "!="
+      field = Field.parse(exp[operator]["field"])
+      *intermediates, target = field.associations
+      includes = intermediates.inject(target) { |acc, association| {association => acc} }
+      relation = field.model.includes(includes)
+      where = field.associations.inject(field.column => exp[operator]["value"]) { |acc, association| {association => acc} }
+      relation.where.not(where)
     end
   end
 
