@@ -39,6 +39,42 @@ describe MiqExpression do
 
       expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "bar"))
     end
+
+    it "<" do
+      FactoryGirl.create(:vm_vmware, :name => "foo", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 1))
+      FactoryGirl.create(:vm_vmware, :name => "bar", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 2))
+
+      relation = described_class.new("<" => {"field" => "Vm.hardware-cpu_sockets", "value" => "2"}).to_relation
+
+      expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "foo"))
+    end
+
+    it "<=" do
+      FactoryGirl.create(:vm_vmware, :name => "foo", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 1))
+      FactoryGirl.create(:vm_vmware, :name => "bar", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 2))
+
+      relation = described_class.new("<=" => {"field" => "Vm.hardware-cpu_sockets", "value" => "1"}).to_relation
+
+      expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "foo"))
+    end
+
+    it ">" do
+      FactoryGirl.create(:vm_vmware, :name => "foo", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 1))
+      FactoryGirl.create(:vm_vmware, :name => "bar", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 2))
+
+      relation = described_class.new(">" => {"field" => "Vm.hardware-cpu_sockets", "value" => "1"}).to_relation
+
+      expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "bar"))
+    end
+
+    it ">=" do
+      FactoryGirl.create(:vm_vmware, :name => "foo", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 1))
+      FactoryGirl.create(:vm_vmware, :name => "bar", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 2))
+
+      relation = described_class.new(">=" => {"field" => "Vm.hardware-cpu_sockets", "value" => "2"}).to_relation
+
+      expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "bar"))
+    end
   end
 
   context "virtual custom attributes" do
