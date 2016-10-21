@@ -572,11 +572,15 @@ class MiqExpression
     [sql, incl, attrs]
   end
 
-  def to_relation(scope)
-    operator = exp.keys.first
+  def to_relation(scope, expression = exp)
+    operator = expression.keys.first
 
-    field = Field.parse(exp[operator]["field"])
-    value = exp[operator]["value"]
+    if operator.downcase == "and"
+      return exp[operator].inject(scope) { |acc, sub_expression| to_relation(acc, sub_expression) }
+    end
+
+    field = Field.parse(expression[operator]["field"])
+    value = expression[operator]["value"]
     *intermediates, target = field.associations
     includes = intermediates.inject(target) { |acc, association| {association => acc} }
     scope = scope.includes(includes).references(includes)

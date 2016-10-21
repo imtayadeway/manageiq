@@ -75,6 +75,16 @@ describe MiqExpression do
 
       expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "bar"))
     end
+
+    it "AND" do
+      FactoryGirl.create(:vm_vmware, :name => "foo", :retired => true, :smart => true)
+      FactoryGirl.create(:vm_vmware, :name => "bar", :retired => true, :smart => false)
+      FactoryGirl.create(:vm_vmware, :name => "baz", :retired => false, :smart => true)
+
+      relation = described_class.new("AND" => [{"=" => {"field" => "Vm-retired", "value" => true}}, {"=" => {"field" => "Vm-smart", "value" => true}}]).to_relation(Vm)
+
+      expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "foo"))
+    end
   end
 
   context "virtual custom attributes" do
