@@ -579,6 +579,11 @@ class MiqExpression
       return exp[operator].inject(scope) { |acc, sub_expression| to_relation(acc, sub_expression) }
     end
 
+    if operator.downcase == "or"
+      first, *rest = exp[operator]
+      return rest.inject(to_relation(scope, first)) { |acc, sub_expression| acc.or(to_relation(scope, sub_expression)) }
+    end
+
     field = Field.parse(expression[operator]["field"])
     value = expression[operator]["value"]
     *intermediates, target = field.associations
