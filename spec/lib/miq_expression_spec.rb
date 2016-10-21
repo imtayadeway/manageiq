@@ -96,6 +96,17 @@ describe MiqExpression do
       expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "foo"),
                                               an_object_having_attributes(:name => "baz"))
     end
+
+    context "virtual attributes" do
+      it "EQUAL" do
+        _archived = FactoryGirl.create(:vm_vmware, :name => "foo", :ems_id => nil, :storage_id => nil)
+        _unarchived = FactoryGirl.create(:vm_vmware, :name => "bar", :ext_management_system => FactoryGirl.create(:ext_management_system))
+
+        relation = described_class.new("EQUAL" => {"field" => "Vm-archived", "value" => true}).to_relation(Vm)
+
+        expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "foo"))
+      end
+    end
   end
 
   context "virtual custom attributes" do
