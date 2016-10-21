@@ -574,26 +574,21 @@ class MiqExpression
 
   def to_relation
     operator = exp.keys.first
+    field = Field.parse(exp[operator]["field"])
+    value = exp[operator]["value"]
+    *intermediates, target = field.associations
+    includes = intermediates.inject(target) { |acc, association| {association => acc} }
+    relation = field.model.includes(includes).references(includes)
 
     case operator.downcase
     when "equal", "="
-      field = Field.parse(exp[operator]["field"])
-      *intermediates, target = field.associations
-      includes = intermediates.inject(target) { |acc, association| {association => acc} }
-      where = field.associations.inject(field.column => exp[operator]["value"]) { |acc, association| {association => acc} }
-      field.model.includes(includes).where(where)
+      where = field.associations.inject(field.column => value) { |acc, association| {association => acc} }
+      relation.where(where)
     when "!="
-      field = Field.parse(exp[operator]["field"])
-      *intermediates, target = field.associations
-      includes = intermediates.inject(target) { |acc, association| {association => acc} }
-      where = field.associations.inject(field.column => exp[operator]["value"]) { |acc, association| {association => acc} }
-      field.model.includes(includes).where.not(where)
+      where = field.associations.inject(field.column => value) { |acc, association| {association => acc} }
+      relation.where.not(where)
     when "<", "<=", ">", ">="
-      field = Field.parse(exp[operator]["field"])
-      *intermediates, target = field.associations
-      includes = intermediates.inject(target) { |acc, association| {association => acc} }
-      relation = field.model.includes(includes).references(includes)
-      relation.where("#{field.target.table_name}.#{field.column} #{operator} ?", exp[operator]["value"])
+      relation.where("#{field.target.table_name}.#{field.column} #{operator} ?", value)
     end
   end
 
