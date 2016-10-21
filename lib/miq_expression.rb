@@ -572,23 +572,24 @@ class MiqExpression
     [sql, incl, attrs]
   end
 
-  def to_relation
+  def to_relation(scope)
     operator = exp.keys.first
+
     field = Field.parse(exp[operator]["field"])
     value = exp[operator]["value"]
     *intermediates, target = field.associations
     includes = intermediates.inject(target) { |acc, association| {association => acc} }
-    relation = field.model.includes(includes).references(includes)
+    scope = scope.includes(includes).references(includes)
 
     case operator.downcase
     when "equal", "="
       where = field.associations.inject(field.column => value) { |acc, association| {association => acc} }
-      relation.where(where)
+      scope.where(where)
     when "!="
       where = field.associations.inject(field.column => value) { |acc, association| {association => acc} }
-      relation.where.not(where)
+      scope.where.not(where)
     when "<", "<=", ">", ">="
-      relation.where("#{field.target.table_name}.#{field.column} #{operator} ?", value)
+      scope.where("#{field.target.table_name}.#{field.column} #{operator} ?", value)
     end
   end
 

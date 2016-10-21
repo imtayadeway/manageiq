@@ -4,7 +4,7 @@ describe MiqExpression do
       FactoryGirl.create(:vm_vmware, :name => "foo")
       FactoryGirl.create(:vm_vmware, :name => "bar")
 
-      relation = described_class.new("EQUAL" => {"field" => "Vm-name", "value" => "foo"}).to_relation
+      relation = described_class.new("EQUAL" => {"field" => "Vm-name", "value" => "foo"}).to_relation(Vm)
 
       expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "foo"))
     end
@@ -13,7 +13,7 @@ describe MiqExpression do
       FactoryGirl.create(:vm_vmware, :name => "foo")
       FactoryGirl.create(:vm_vmware, :name => "bar")
 
-      relation = described_class.new("=" => {"field" => "Vm-name", "value" => "foo"}).to_relation
+      relation = described_class.new("=" => {"field" => "Vm-name", "value" => "foo"}).to_relation(Vm)
 
       expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "foo"))
     end
@@ -26,7 +26,7 @@ describe MiqExpression do
                          :name               => "bar",
                          :guest_applications => [FactoryGirl.create(:guest_application, :name => "qux")])
 
-      relation = described_class.new("EQUAL" => {"field" => "Vm.guest_applications-name", "value" => "baz"}).to_relation
+      relation = described_class.new("EQUAL" => {"field" => "Vm.guest_applications-name", "value" => "baz"}).to_relation(Vm)
 
       expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "foo"))
     end
@@ -35,7 +35,7 @@ describe MiqExpression do
       FactoryGirl.create(:vm_vmware, :name => "foo")
       FactoryGirl.create(:vm_vmware, :name => "bar")
 
-      relation = described_class.new("!=" => {"field" => "Vm-name", "value" => "foo"}).to_relation
+      relation = described_class.new("!=" => {"field" => "Vm-name", "value" => "foo"}).to_relation(Vm)
 
       expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "bar"))
     end
@@ -44,7 +44,7 @@ describe MiqExpression do
       FactoryGirl.create(:vm_vmware, :name => "foo", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 1))
       FactoryGirl.create(:vm_vmware, :name => "bar", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 2))
 
-      relation = described_class.new("<" => {"field" => "Vm.hardware-cpu_sockets", "value" => "2"}).to_relation
+      relation = described_class.new("<" => {"field" => "Vm.hardware-cpu_sockets", "value" => "2"}).to_relation(Vm)
 
       expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "foo"))
     end
@@ -53,7 +53,7 @@ describe MiqExpression do
       FactoryGirl.create(:vm_vmware, :name => "foo", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 1))
       FactoryGirl.create(:vm_vmware, :name => "bar", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 2))
 
-      relation = described_class.new("<=" => {"field" => "Vm.hardware-cpu_sockets", "value" => "1"}).to_relation
+      relation = described_class.new("<=" => {"field" => "Vm.hardware-cpu_sockets", "value" => "1"}).to_relation(Vm)
 
       expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "foo"))
     end
@@ -62,7 +62,7 @@ describe MiqExpression do
       FactoryGirl.create(:vm_vmware, :name => "foo", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 1))
       FactoryGirl.create(:vm_vmware, :name => "bar", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 2))
 
-      relation = described_class.new(">" => {"field" => "Vm.hardware-cpu_sockets", "value" => "1"}).to_relation
+      relation = described_class.new(">" => {"field" => "Vm.hardware-cpu_sockets", "value" => "1"}).to_relation(Vm)
 
       expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "bar"))
     end
@@ -71,7 +71,7 @@ describe MiqExpression do
       FactoryGirl.create(:vm_vmware, :name => "foo", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 1))
       FactoryGirl.create(:vm_vmware, :name => "bar", :hardware => FactoryGirl.create(:hardware, :cpu_sockets => 2))
 
-      relation = described_class.new(">=" => {"field" => "Vm.hardware-cpu_sockets", "value" => "2"}).to_relation
+      relation = described_class.new(">=" => {"field" => "Vm.hardware-cpu_sockets", "value" => "2"}).to_relation(Vm)
 
       expect(relation.all).to contain_exactly(an_object_having_attributes(:name => "bar"))
     end
