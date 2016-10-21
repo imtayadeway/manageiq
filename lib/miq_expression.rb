@@ -588,7 +588,7 @@ class MiqExpression
     value = expression[operator]["value"]
     *intermediates, target = field.associations
     includes = intermediates.inject(target) { |acc, association| {association => acc} }
-    scope = scope.includes(includes).references(includes)
+    scope = scope.includes(includes)
 
     case operator.downcase
     when "equal", "="
@@ -598,7 +598,7 @@ class MiqExpression
       where = field.associations.inject(field.column => value) { |acc, association| {association => acc} }
       scope.where.not(where)
     when "<", "<=", ">", ">="
-      scope.where("#{field.target.table_name}.#{field.column} #{operator} ?", value)
+      scope.references(includes).where("#{field.target.table_name}.#{field.column} #{operator} ?", value)
     end
   end
 
