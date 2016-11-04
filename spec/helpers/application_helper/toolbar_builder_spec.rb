@@ -2068,6 +2068,9 @@ describe ApplicationHelper do
       end
 
       it "includes the button group" do
+        puts "#" * 90
+        puts toolbar_to_build
+        puts "#" * 90
         expect(_toolbar_builder.build_toolbar(toolbar_to_build).first).to include(
           :id    => "generic_object_definition_choice",
           :type  => :buttonSelect,
