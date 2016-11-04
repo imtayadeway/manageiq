@@ -18,6 +18,12 @@ class ApplicationHelper::ToolbarBuilder
     @sep_added = false
 
     toolbar_class = toolbar_class(toolbar_name)
+
+    puts "#" * 90
+    puts toolbar_name
+    puts toolbar_class.inspect
+    puts "#" * 90
+
     toolbar_class.definition.each_with_index do |(name, group), group_index|
       next if group_skipped?(name)
 
@@ -67,6 +73,10 @@ class ApplicationHelper::ToolbarBuilder
   # Parses the generic toolbars name and returns his class
   def predefined_toolbar_class(tb_name)
     class_name = 'ApplicationHelper::Toolbar::' + ActiveSupport::Inflector.camelize(tb_name.sub(/_tb$/, ''))
+    puts "#" * 90
+    puts class_name
+    puts Kernel.const_get(class_name).inspect
+    puts "#" * 90
     Kernel.const_get(class_name)
   end
 
