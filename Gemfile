@@ -49,7 +49,7 @@ gem "ovirt-engine-sdk",               "~>4.0.6",       :require => false # Requi
 gem "ovirt_metrics",                  "~>1.3.1",       :require => false
 gem "paperclip",                      "~>4.3.0"
 gem "puma",                           "~>3.3.0"
-gem "rails",                          "~>5.0.0", ">= 5.0.0.1"
+gem "rails",                                                           :git => "https://github.com/rails/rails.git", :branch => "master"
 gem "rails-controller-testing",                        :require => false
 gem "rails-i18n",                     "~>5.x"
 gem "recursive-open-struct",          "~>1.0.0"
