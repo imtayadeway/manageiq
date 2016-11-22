@@ -10,4 +10,8 @@ class MiqExpression::Component::Base
   def to_arel(_timezone)
     raise "Called abstract method: #to_arel"
   end
+
+  def to_ruby
+    raise "Called abstract method: #to_ruby"
+  end
 end

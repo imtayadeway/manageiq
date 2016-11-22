@@ -21,6 +21,14 @@ class MiqExpression::Field
     @column = column
   end
 
+  def to_tag
+    ["/virtual", *associations, column].join("/")
+  end
+
+  def ref
+    model.name.downcase
+  end
+
   def date?
     column_type == :date
   end
