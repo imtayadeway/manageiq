@@ -203,16 +203,21 @@ module Rbac
 
       user_filters['match_via_descendants'] = to_class(options[:match_via_descendants])
 
-      exp_sql, exp_includes, exp_attrs = search_filter.to_sql(tz) if search_filter && !klass.try(:instances_are_derived?)
+      _exp_sql, _exp_includes, exp_attrs = search_filter.to_sql(tz) if search_filter && !klass.try(:instances_are_derived?)
       attrs[:apply_limit_in_sql] = (exp_attrs.nil? || exp_attrs[:supported_by_sql]) && user_filters["belongsto"].blank?
 
       # for belongs_to filters, scope_targets uses scope to make queries. want to remove limits for those.
       # if you note, the limits are put back into scope a few lines down from here
       scope = scope.except(:offset, :limit, :order)
       scope = scope_targets(klass, scope, user_filters, user, miq_group)
-              .where(conditions).where(sub_filter).where(where_clause).where(exp_sql).where(ids_clause)
-              .includes(include_for_find).includes(exp_includes)
+              .where(conditions)
+              .where(sub_filter)
+              .where(where_clause)
+              .where(ids_clause)
+              .includes(include_for_find)
               .order(order)
+
+      scope = search_filter.to_relation(scope)
 
       scope = include_references(scope, klass, include_for_find, exp_includes)
       scope = scope.limit(limit).offset(offset) if attrs[:apply_limit_in_sql]
