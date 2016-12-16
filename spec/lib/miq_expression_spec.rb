@@ -97,6 +97,16 @@ describe MiqExpression do
                                               an_object_having_attributes(:name => "baz"))
     end
 
+    it "CONTAINS" do
+      host = FactoryGirl.create(:host)
+      FactoryGirl.create(:vm_vmware, :name => "foo", :host => host, :retired => false)
+      FactoryGirl.create(:vm_vmware, :name => "bar", :host => host, :retired => true)
+
+      relation = described_class.new("CONTAINS" => {"field" => "Host.vms-retired", "value" => false}).to_relation(Host)
+
+      expect(relation.all).to eq([host])
+    end
+
     context "virtual attributes" do
       it "EQUAL" do
         _archived = FactoryGirl.create(:vm_vmware, :name => "foo", :ems_id => nil, :storage_id => nil)
