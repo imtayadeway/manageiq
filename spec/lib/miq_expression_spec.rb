@@ -98,13 +98,24 @@ describe MiqExpression do
     end
 
     it "CONTAINS" do
-      host = FactoryGirl.create(:host)
-      FactoryGirl.create(:vm_vmware, :name => "foo", :host => host, :retired => false)
-      FactoryGirl.create(:vm_vmware, :name => "bar", :host => host, :retired => true)
+      host_1 = FactoryGirl.create(:host)
+      host_2 = FactoryGirl.create(:host)
+      FactoryGirl.create(:vm_vmware, :name => "foo", :host => host_1, :retired => false)
+      FactoryGirl.create(:vm_vmware, :name => "bar", :host => host_2, :retired => true)
 
       relation = described_class.new("CONTAINS" => {"field" => "Host.vms-retired", "value" => false}).to_relation(Host)
 
-      expect(relation.all).to eq([host])
+      expect(relation.all).to eq([host_1])
+    end
+
+    it "CONTAINS with tag" do
+      tag = FactoryGirl.create(:tag, :name => "/managed/operations/analysis_failed")
+      vm_1 = FactoryGirl.create(:vm_vmware, :tags => [tag])
+      _vm_2 = FactoryGirl.create(:vm_vmware)
+
+      relation = described_class.new({"CONTAINS" => {"tag" => "VmInfra.managed-operations", "value" => "analysis_failed"}}).to_relation(Vm)
+
+      expect(relation.all).to eq([vm_1])
     end
 
     context "virtual attributes" do

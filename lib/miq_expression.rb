@@ -584,11 +584,14 @@ class MiqExpression
       return rest.inject(to_relation(scope, first)) { |acc, sub_expression| acc.or(to_relation(scope, sub_expression)) }
     end
 
-    field = Field.parse(expression[operator]["field"])
+    if expression[operator]["field"]
+      field = Field.parse(expression[operator]["field"])
+      *intermediates, target = field.associations
+      includes = intermediates.inject(target) { |acc, association| {association => acc} }
+      scope = scope.includes(includes)
+    end
+
     value = expression[operator]["value"]
-    *intermediates, target = field.associations
-    includes = intermediates.inject(target) { |acc, association| {association => acc} }
-    scope = scope.includes(includes)
 
     case operator.downcase
     when "equal", "="
@@ -600,7 +603,13 @@ class MiqExpression
     when "<", "<=", ">", ">="
       scope.references(includes).where("#{field.target.table_name}.#{field.column} #{operator} ?", value)
     when "contains"
-      scope.references(includes).where(field.model.table_name => {field.target.table_name => {field.column => value}})
+      if expression[operator]["field"]
+        scope.references(includes).where(field.model.table_name => {field.target.table_name => {field.column => value}})
+      else # tag
+        tag = Tag.parse(expression[operator]["tag"])
+        ids = tag.model.find_tagged_with(:any => value, :ns => tag.namespace).pluck(:id)
+        scope.where(:id => ids)
+      end
     end
   end
 
