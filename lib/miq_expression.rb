@@ -602,6 +602,8 @@ class MiqExpression
       scope.where.not(where)
     when "<", "<=", ">", ">="
       scope.references(includes).where("#{field.target.table_name}.#{field.column} #{operator} ?", value)
+    when "starts with"
+      scope.where("#{field.target.table_name}.#{field.column} LIKE ?", "#{value}%")
     when "contains"
       if expression[operator]["field"]
         scope.references(includes).where(field.model.table_name => {field.target.table_name => {field.column => value}})
