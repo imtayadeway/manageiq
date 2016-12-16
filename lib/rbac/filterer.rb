@@ -217,9 +217,9 @@ module Rbac
               .includes(include_for_find)
               .order(order)
 
-      scope = search_filter.to_relation(scope)
+      scope = search_filter.to_relation(scope) if search_filter
 
-      scope = include_references(scope, klass, include_for_find, exp_includes)
+      scope = include_references(scope, klass, include_for_find, nil)
       scope = scope.limit(limit).offset(offset) if attrs[:apply_limit_in_sql]
       targets = scope
 
