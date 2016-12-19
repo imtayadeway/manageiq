@@ -454,6 +454,8 @@ class MiqExpression
     return exp unless exp.kind_of?(Hash)
 
     operator = exp.keys.first
+    return Component.build(exp, tz).to_ruby
+
     case operator.downcase
     when "equal", "=", "<", ">", ">=", "<=", "!="
       clause = Component.build(exp, tz).to_ruby
