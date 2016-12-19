@@ -13,6 +13,7 @@ module MiqExpression::Component
     "contains"     => Contains,
     "ends with"    => EndsWith,
     "equal"        => Equal,
+    "find"         => MiqExpression::Component::Find,
     "from"         => From,
     "includes"     => Like,
     "is empty"     => IsEmpty,
