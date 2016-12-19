@@ -4,6 +4,6 @@ class MiqExpression::Component::Equal < MiqExpression::Component::Leaf
   end
 
   def to_ruby
-    "<value ref=#{target.ref}, type=#{target.column_type}>#{target.to_tag}</value> == \"#{value}\""
+    "<value ref=#{target.ref}, type=#{target.column_type}>#{target.to_tag}</value> == #{value}"
   end
 end
