@@ -3,17 +3,12 @@ class MiqExpression::Component::Leaf < MiqExpression::Component::Base
     target = if options.key?("field")
                MiqExpression::Field.parse(options["field"])
              elsif options.key?("count")
-               nil
+               MiqExpression::Count.new
              elsif options.key?("regkey")
-               nil
+               MiqExpression::Regkey.new
              end
 
-    value = if MiqExpression::Field.is_field?(options["value"])
-              MiqExpression::Field.parse(options["value"]).arel_attribute
-            else
-              options["value"]
-            end
-    new(target, value)
+    new(target, options["value"])
   end
 
   attr_reader :target, :value
@@ -24,9 +19,18 @@ class MiqExpression::Component::Leaf < MiqExpression::Component::Base
   end
 
   def supports_sql?
-    target.kind_of?(MiqExpression::Tag)
-    # target.kind_of?(MiqExpression::Regkey)
-    # target.kind_of?(MiqExpression::Count)
-    target.supports_sql?
+    target.supports_sql? && value_in_sql?
+  end
+
+  def value_in_sql?
+    !MiqExpression::Field.is_field?(value) || MiqExpression::Field.parse(value).attribute_supported_by_sql?
+  end
+
+  def sql_value
+    if value_in_sql?
+      MiqExpression::Field.parse(value).arel_attribute
+    else
+      value
+    end
   end
 end

@@ -10,7 +10,7 @@ class MiqExpression::Component::Not < MiqExpression::Component::Base
   end
 
   def to_arel(timezone)
-    Arel::Nodes::Not.new(sub_expression.to_arel(timezone))
+    Arel::Nodes::Not.new(sub_expression.to_arel(timezone)) if supports_sql?
   end
 
   def supports_sql?

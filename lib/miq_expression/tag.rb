@@ -17,4 +17,8 @@ class MiqExpression::Tag
     ids = model.find_tagged_with(:any => value, :ns => namespace).pluck(:id)
     model.arel_attribute(:id).in(ids)
   end
+
+  def supports_sql?
+    true
+  end
 end

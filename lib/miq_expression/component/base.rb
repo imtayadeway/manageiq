@@ -4,7 +4,8 @@ class MiqExpression::Component::Base
   end
 
   def to_sql(timezone)
-    to_arel(timezone).to_sql if supports_sql?
+    arel = to_arel(timezone)
+    arel && arel.to_sql
   end
 
   def to_arel(_timezone)

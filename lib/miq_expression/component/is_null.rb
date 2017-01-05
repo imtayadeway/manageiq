@@ -1,5 +1,5 @@
 class MiqExpression::Component::IsNull < MiqExpression::Component::Leaf
   def to_arel(_timezone)
-    target.eq(nil)
+    target.eq(nil) if supports_sql?
   end
 end

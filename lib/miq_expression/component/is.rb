@@ -1,5 +1,6 @@
 class MiqExpression::Component::Is < MiqExpression::Component::Leaf
   def to_arel(timezone)
+    return unless supports_sql?
     start_val = MiqExpression::RelativeDatetime.normalize(value, timezone, "beginning", target.date?)
     end_val = MiqExpression::RelativeDatetime.normalize(value, timezone, "end", target.date?)
 

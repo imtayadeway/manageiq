@@ -9,6 +9,6 @@ class MiqExpression::Component::Contains < MiqExpression::Component::Leaf
   end
 
   def to_arel(_timezone)
-    target.contains(value)
+    target.contains(value) if supports_sql?
   end
 end
