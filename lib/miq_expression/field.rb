@@ -21,6 +21,10 @@ class MiqExpression::Field
     @column = column
   end
 
+  def supports_sql?
+    reflections.each
+  end
+
   def date?
     column_type == :date
   end
