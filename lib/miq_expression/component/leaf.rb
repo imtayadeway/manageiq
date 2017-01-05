@@ -27,7 +27,7 @@ class MiqExpression::Component::Leaf < MiqExpression::Component::Base
   end
 
   def sql_value
-    if value_in_sql?
+    if MiqExpression::Field.is_field?(value)
       MiqExpression::Field.parse(value).arel_attribute
     else
       value
