@@ -21,4 +21,8 @@ class MiqExpression::Tag
   def supports_sql?
     true
   end
+
+  def associations
+    []
+  end
 end

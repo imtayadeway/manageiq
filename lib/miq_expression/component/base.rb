@@ -15,4 +15,8 @@ class MiqExpression::Component::Base
   def supports_sql?
     raise "Called abstract method: #supports_sql?"
   end
+
+  def includes
+    raise "Called abstract method: #includes"
+  end
 end

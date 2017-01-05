@@ -16,4 +16,8 @@ class MiqExpression::Component::Not < MiqExpression::Component::Base
   def supports_sql?
     sub_expression.supports_sql?
   end
+
+  def includes
+    sub_expression.includes
+  end
 end

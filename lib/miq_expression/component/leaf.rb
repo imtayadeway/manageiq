@@ -33,4 +33,9 @@ class MiqExpression::Component::Leaf < MiqExpression::Component::Base
       value
     end
   end
+
+  def includes
+    return {} unless supports_sql?
+    target.associations.reverse.inject({}) { |hsh, association| {association.to_sym => hsh}}
+  end
 end

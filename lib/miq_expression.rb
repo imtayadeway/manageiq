@@ -568,7 +568,7 @@ class MiqExpression
     tz ||= "UTC"
     components = Component.build(@exp)
     sql = components.to_sql(tz)
-    incl = includes_for_sql unless sql.blank?
+    incl = components.includes
     [sql, incl, {:supported_by_sql => components.supports_sql?}]
   end
 

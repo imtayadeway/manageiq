@@ -8,4 +8,8 @@ class MiqExpression::Component::Composite < MiqExpression::Component::Base
   def initialize(sub_expressions)
     @sub_expressions = sub_expressions
   end
+
+  def includes
+    sub_expressions.collect(&:includes)
+  end
 end
