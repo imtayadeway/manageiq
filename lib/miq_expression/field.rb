@@ -22,7 +22,7 @@ class MiqExpression::Field
   end
 
   def supports_sql?
-    reflections.each
+    true
   end
 
   def date?
