@@ -41,6 +41,7 @@ module VmOrTemplate::Scanning
       self.last_scan_attempt_on = Time.now.utc
       save
       Job.methods(false).each { |m| puts [m, Job.method(m).source_location].inspect }
+      Job.instance_methods(false).each { |m| puts [m, Job.instance_method(m).source_location].inspect }
       begin
         job = Job.create_job("VmScan", options)
       rescue NoMethodError => e
