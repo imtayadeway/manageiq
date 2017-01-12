@@ -27,7 +27,6 @@ Dir[ManageIQ::Gems::Pending.root.join("spec/support/custom_matchers/*.rb")].each
 RSpec.configure do |config|
   config.fail_fast = 1
   config.seed = 46777
-  config.format = :documentation
   config.after { Job.method(:create_job) }
 
   config.expect_with :rspec do |c|
