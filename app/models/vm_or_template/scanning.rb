@@ -40,7 +40,7 @@ module VmOrTemplate::Scanning
     begin
       self.last_scan_attempt_on = Time.now.utc
       save
-      puttfs Job.inspect
+      puttfs Job.method(:create_job)
       job = Job.create_job("VmScan", options)
       return job
     rescue => err
