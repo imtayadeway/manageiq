@@ -40,8 +40,13 @@ module VmOrTemplate::Scanning
     begin
       self.last_scan_attempt_on = Time.now.utc
       save
-      puttfs Job.methods(false).each { |m| puts [m, Job.method(m).source_location].inspect }
-      job = Job.create_job("VmScan", options)
+      Job.methods(false).each { |m| puts [m, Job.method(m).source_location].inspect }
+      begin
+        job = Job.create_job("VmScan", options)
+      rescue NoMethodError => e
+        puttfs e.backtrace
+        raise
+      end
       return job
     rescue => err
       _log.log_backtrace(err)
