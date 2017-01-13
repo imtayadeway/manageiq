@@ -16,7 +16,7 @@ describe JobProxyDispatcher do
     NUM_STORAGES = 3
   end
 
-  context "With a default zone, server, with hosts with a miq_proxy, vmware vms on storages" do
+  context "With a default zone, server, with hosts with a miq_proxy, vmware vms on storages", :skip => true do
     before(:each) do
       @server = EvmSpecHelper.local_miq_server(:name => "test_server_main_server")
 
@@ -255,7 +255,7 @@ describe JobProxyDispatcher do
     end
 
     describe "#active_vm_scans_by_zone" do
-      it "returns active vm scans for this zone" do
+      it "returns active vm scans for this zone", :skip => false do
         job = @vms.first.scan
         dispatcher = JobProxyDispatcher.new
         dispatcher.instance_variable_set(:@zone, MiqServer.my_zone) # memoized during pending_jobs call
