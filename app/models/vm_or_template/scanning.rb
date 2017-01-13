@@ -12,8 +12,12 @@ module VmOrTemplate::Scanning
     # Check if there are any current scan jobs already waiting to run
     puts self.class.name
     puts VmScan.ancestors.inspect
-    VmScan.methods(false).each { |m| puts [m, VmScan.method(m).source_location].inspect }
-    VmScan.instance_methods(false).each { |m| puts [m, VmScan.instance_method(m).source_location].inspect }
+    VmScan.ancestors.first.tap do |klass|
+      klass.methods(false).each { |m| puts [m, klass.method(m).source_location].inspect }
+      klass.instance_methods(false).each { |m| puts [m, klass.instance_method(m).source_location].inspect }
+    end
+    # VmScan.methods(false).each { |m| puts [m, VmScan.method(m).source_location].inspect }
+    # VmScan.instance_methods(false).each { |m| puts [m, VmScan.instance_method(m).source_location].inspect }
 
     j = VmScan.where(:state => 'waiting_to_start')
         .where(:sync_key => guid)
