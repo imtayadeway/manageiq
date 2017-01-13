@@ -11,6 +11,7 @@ module VmOrTemplate::Scanning
   def scan(userid = "system", options = {})
     # Check if there are any current scan jobs already waiting to run
     puts self.class.name
+    puts $LOAD_PATH.grep(/job/i).inspect
     puts VmScan.ancestors.inspect
     VmScan.ancestors.second.tap do |klass|
       klass.methods(false).each { |m| puts [m, klass.method(m).source_location].inspect }
