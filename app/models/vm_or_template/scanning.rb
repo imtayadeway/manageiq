@@ -43,7 +43,9 @@ module VmOrTemplate::Scanning
       # Job.methods(false).each { |m| puts [m, Job.method(m).source_location].inspect }
       # Job.instance_methods(false).each { |m| puts [m, Job.instance_method(m).source_location].inspect }
       begin
-        puttfs [Job.object_id, Job.reflect_on_all_associations]
+        $boop ||= Job.object_id
+        puttfs [Job.object_id, ObjectSpace._id2ref($boop).inspect, Job.object_id]
+
         job = Job.create_job("VmScan", options)
       rescue NoMethodError => e
         puttfs e.backtrace
