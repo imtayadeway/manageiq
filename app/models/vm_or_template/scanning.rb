@@ -11,6 +11,7 @@ module VmOrTemplate::Scanning
   def scan(userid = "system", options = {})
     # Check if there are any current scan jobs already waiting to run
     puts self.class.name
+    puts self.class.ancestors.inspect
     VmScan.methods(false).each { |m| puts [m, VmScan.method(m).source_location].inspect }
     VmScan.instance_methods(false).each { |m| puts [m, VmScan.instance_method(m).source_location].inspect }
 
