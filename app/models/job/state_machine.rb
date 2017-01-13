@@ -1,6 +1,4 @@
 class Job
-  puttfs "Loading StateMachine!"
-
   module StateMachine
     def transitions
       @transitions ||= load_transitions
