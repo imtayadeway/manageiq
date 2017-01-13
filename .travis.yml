@@ -25,7 +25,7 @@ before_install:
 before_script:
 - bundle exec rake test:$TEST_SUITE:setup
 script:
-- travis_wait bundle exec rspec spec/models --bisect=verbose --seed=46777
+- travis_wait 120 bundle exec rspec spec/models --bisect=verbose --seed=46777
 after_failure:
 - source ${TRAVIS_BUILD_DIR}/tools/ci/after_failure.sh
 notifications:
