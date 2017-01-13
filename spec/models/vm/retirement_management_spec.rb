@@ -123,7 +123,7 @@ describe "VM Retirement Management" do
   #   expect(@vm.retirement_last_warn).to be_nil
   # end
 
-  it "#retirement_due?" do
+  xit "#retirement_due?" do
     vm = FactoryGirl.create(:vm_vmware, :ems_id => @ems.id)
     expect(vm.retirement_due?).to be_falsey
     vm.update_attributes(:retires_on => Date.today + 1.day)
