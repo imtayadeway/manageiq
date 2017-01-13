@@ -1,5 +1,5 @@
 class Job
-  def self.boooooooooooooooooooooop; end
+  puttfs "Loading StateMachine!"
 
   module StateMachine
     def transitions

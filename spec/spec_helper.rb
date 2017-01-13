@@ -27,7 +27,11 @@ Dir[ManageIQ::Gems::Pending.root.join("spec/support/custom_matchers/*.rb")].each
 RSpec.configure do |config|
   config.fail_fast = 1
   config.seed = 46777
-  config.after { |example| Job.methods(false).include?(:create_job) or puttfs example.description }
+  config.after do |example|
+    unless Job.methods(false).include?(:create_job)
+      puttfs example.description
+    end
+  end
 
   config.expect_with :rspec do |c|
     c.syntax = :expect
