@@ -40,11 +40,7 @@ module VmOrTemplate::Scanning
     begin
       self.last_scan_attempt_on = Time.now.utc
       save
-      Job
-      $boop ||= $LOADED_FEATURES
-      puttfs $LOADED_FEATURES - $boop
-      $boop = $LOADED_FEATURES
-      job = Job.create_job("VmScan", options)
+      job = ::Job.create_job("VmScan", options)
       return job
     rescue => err
       _log.log_backtrace(err)
