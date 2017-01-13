@@ -28,7 +28,9 @@ RSpec.configure do |config|
   config.fail_fast = 1
   config.seed = 46777
   config.after do |example|
-    unless Job.methods(false).include?(:create_job)
+    begin
+      Job.method(:create_job)
+    rescue
       puttfs example.description
     end
   end
