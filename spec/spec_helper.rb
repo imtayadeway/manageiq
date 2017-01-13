@@ -27,7 +27,7 @@ Dir[ManageIQ::Gems::Pending.root.join("spec/support/custom_matchers/*.rb")].each
 RSpec.configure do |config|
   config.fail_fast = 1
   config.seed = 46777
-  config.after do |example|
+  config.before do |example|
     $boop ||= Job.object_id
     if $boop != Job.object_id
       puttfs example.description
