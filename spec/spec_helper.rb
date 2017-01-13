@@ -25,6 +25,8 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 Dir[ManageIQ::Gems::Pending.root.join("spec/support/custom_matchers/*.rb")].each { |f| require f }
 
 RSpec.configure do |config|
+  config.after { print "😄" }
+
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
