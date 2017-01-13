@@ -28,11 +28,11 @@ RSpec.configure do |config|
   config.fail_fast = 1
   config.seed = 46777
   config.after do |example|
-    # begin
-    #   Job.method(:create_job)
-    # rescue
-    #   puttfs example.description
-    # end
+    $boop ||= Job.object_id
+    if $boop != Job.object_id
+      puttfs example.description
+      $boop = Job.object_id
+    end
   end
 
   config.expect_with :rspec do |c|
