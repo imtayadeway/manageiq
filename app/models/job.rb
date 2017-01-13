@@ -1,4 +1,6 @@
 class Job < ApplicationRecord
+  puttfs "Loading job!"
+
   include_concern 'StateMachine'
   include UuidMixin
   include FilterableMixin
