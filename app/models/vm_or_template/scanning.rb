@@ -13,6 +13,7 @@ module VmOrTemplate::Scanning
     puts self.class.name
     puts VmScan.ancestors.inspect
     puts VmScan.ancestors.second.class
+    puts VmScan.ancestors.second.constants
     VmScan.ancestors.second.tap do |klass|
       klass.methods(false).each { |m| puts [m, klass.method(m).source_location].inspect }
       klass.instance_methods(false).each { |m| puts [m, klass.instance_method(m).source_location].inspect }
