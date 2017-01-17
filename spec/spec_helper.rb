@@ -29,7 +29,7 @@ RSpec.configure do |config|
     $tim_id ||= ManageIQ::Providers::Vmware::InfraManager::Vm.new.boop
     example.run
     if $tim_id != ManageIQ::Providers::Vmware::InfraManager::Vm.new.boop
-      puttfs example.description
+      puttfs "Job changed!: #{example.description}"
     end
   end
 
