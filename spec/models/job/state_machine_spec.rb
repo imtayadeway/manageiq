@@ -19,6 +19,7 @@ describe Job::StateMachine do
     end.new
 
     puttfs "Screwy anonymous class oid: #{@obj.object_id}"
+    puts "Screw anonymous class: #{@obj.inspect}"
   end
 
   after do
