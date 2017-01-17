@@ -24,6 +24,9 @@ describe JobProxyDispatcher do
         FactoryGirl.create(:miq_server, :zone => @server.zone, :name => "test_server_#{i}")
       end
 
+      vm_1 = ManageIQ::Providers::Vmware::InfraManager::Vm.new
+      job_id = vm_1.boop
+
       # TODO: We should be able to set values so we don't need to stub behavior
       allow_any_instance_of(MiqServer).to receive_messages(:is_vix_disk? => true)
       allow_any_instance_of(MiqServer).to receive_messages(:is_a_proxy? => true)
@@ -35,6 +38,9 @@ describe JobProxyDispatcher do
         :hosts => NUM_HOSTS, :storages => NUM_STORAGES, :vms => NUM_VMS, :repo_vms => NUM_REPO_VMS
       )
       @container_images = @container_providers.collect(&:container_images).flatten
+
+      vm_2 = ManageIQ::Providers::Vmware::InfraManager::Vm.new
+      puttfs "Job changed!!!" if vm_2.boop != job_id
     end
 
     describe "#dispatch" do

@@ -1,11 +1,3 @@
-class Object
-  attr_reader :init_location
-  def initialize(*args)
-    @init_location = [__FILE__, __LINE__]
-    super
-  end
-end
-
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 
 if ENV["TRAVIS"]
