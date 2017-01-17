@@ -17,6 +17,8 @@ describe Job::StateMachine do
     @obj = Class.new(Job) do
       include TestStateMachine
     end.new
+
+    puttfs "Screwy anonymous class oid: #{@obj.object_id}"
   end
 
   after do
