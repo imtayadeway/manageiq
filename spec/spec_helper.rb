@@ -26,9 +26,9 @@ Dir[ManageIQ::Gems::Pending.root.join("spec/support/custom_matchers/*.rb")].each
 
 RSpec.configure do |config|
   config.around do |example|
-    id = ManageIQ::Providers::VmWare::InfraManager::Vm.new.boop
+    id = ManageIQ::Providers::Vmware::InfraManager::Vm.new.boop
     example.run
-    if id != ManageIQ::Providers::VmWare::InfraManager::Vm.new.boop
+    if id != ManageIQ::Providers::Vmware::InfraManager::Vm.new.boop
       puttfs example.description
     end
   end
