@@ -27,10 +27,11 @@ Dir[ManageIQ::Gems::Pending.root.join("spec/support/custom_matchers/*.rb")].each
 RSpec.configure do |config|
   config.fail_fast = 1
   config.seed = 46777
-  config.before do |example|
+  config.around do |example|
     $boop ||= ManageIQ::Providers::Vmware::InfraManager::Vm.new.boop
+    example.run
     if $boop != ManageIQ::Providers::Vmware::InfraManager::Vm.new.boop
-      puttfs example.description
+      puttfs "Job changed!!! => #{example.description}"
       $boop = ManageIQ::Providers::Vmware::InfraManager::Vm.new.boop
     end
   end
