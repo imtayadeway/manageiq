@@ -25,7 +25,7 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 Dir[ManageIQ::Gems::Pending.root.join("spec/support/custom_matchers/*.rb")].each { |f| require f }
 
 RSpec.configure do |config|
-  config.fail_fast = 1
+  # config.fail_fast = 1
   config.seed = 46777
   config.around do |example|
     $boop ||= ManageIQ::Providers::Vmware::InfraManager::Vm.new.boop
