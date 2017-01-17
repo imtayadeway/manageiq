@@ -73,4 +73,8 @@ module VmOrTemplate::Scanning
     return false if host && host.platform == "windows"
     true
   end
+
+  def boop
+    Job.object_id
+  end
 end

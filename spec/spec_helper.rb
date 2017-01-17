@@ -28,10 +28,10 @@ RSpec.configure do |config|
   config.fail_fast = 1
   config.seed = 46777
   config.before do |example|
-    $boop ||= Job.object_id
-    if $boop != Job.object_id
+    $boop ||= ManageIQ::Providers::Vmware::InfraManager::Vm.new.boop
+    if $boop != ManageIQ::Providers::Vmware::InfraManager::Vm.new.boop
       puttfs example.description
-      $boop = Job.object_id
+      $boop = ManageIQ::Providers::Vmware::InfraManager::Vm.new.boop
     end
   end
 
