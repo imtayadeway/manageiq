@@ -31,8 +31,4 @@ class ManageIQ::Providers::Vmware::InfraManager::Vm < ManageIQ::Providers::Infra
   end
 
   supports :quick_stats
-
-  def boop
-    Job.object_id
-  end
 end
