@@ -41,6 +41,7 @@ module VmOrTemplate::Scanning
       self.last_scan_attempt_on = Time.now.utc
       save
       puttfs "Scanning's Job oid: #{Job.object_id}"
+      puts "Scanning's Job init location: #{Job.init_location}"
       job = Job.create_job("VmScan", options)
       return job
     rescue => err
