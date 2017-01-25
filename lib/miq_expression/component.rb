@@ -7,6 +7,10 @@ module MiqExpression::Component
     def accept(visitor)
       visitor.visit(self)
     end
+
+    def arel_attribute
+      target.arel_attribute
+    end
   end
 
   class MiqExpression::Component::Leaf < MiqExpression::Component::Base
