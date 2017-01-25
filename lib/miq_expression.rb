@@ -585,7 +585,10 @@ class MiqExpression
   def to_sql(tz = nil)
     tz ||= "UTC"
     @pexp, attrs = preprocess_for_sql(@exp.deep_clone)
-    sql = Component.build(@pexp, tz).to_sql(tz) if @pexp.present?
+    if @pexp.present?
+      components = Component.build(@pexp)
+      sql = components.accept(MiqExpression::Visitors::ArelVisitor.new(tz)).to_sql
+    end
     incl = includes_for_sql unless sql.blank?
     [sql, incl, attrs]
   end

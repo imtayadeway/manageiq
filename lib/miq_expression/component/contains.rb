@@ -7,8 +7,4 @@ class MiqExpression::Component::Contains < MiqExpression::Component::Leaf
              end
     new(target, options["value"])
   end
-
-  def to_arel(_timezone)
-    target.contains(value)
-  end
 end
