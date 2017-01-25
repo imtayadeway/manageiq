@@ -39,6 +39,18 @@ module MiqExpression::Component
     end
   end
 
+  class MiqExpression::Component::SingleComposite < MiqExpression::Component::Base
+    def self.build(sub_expression)
+      new(MiqExpression::Component.build(sub_expression))
+    end
+
+    attr_reader :sub_expression
+
+    def initialize(sub_expression)
+      @sub_expression = sub_expression
+    end
+  end
+
   MiqExpression::Component::After = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::And = Class.new(MiqExpression::Component::Composite)
   MiqExpression::Component::Before = Class.new(MiqExpression::Component::Leaf)
@@ -67,19 +79,7 @@ module MiqExpression::Component
   MiqExpression::Component::LessThan = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::LessThanOrEqual = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::Like = Class.new(MiqExpression::Component::Leaf)
-
-  class MiqExpression::Component::Not < MiqExpression::Component::Base
-    def self.build(sub_expression)
-      new(MiqExpression::Component.build(sub_expression))
-    end
-
-    attr_reader :sub_expression
-
-    def initialize(sub_expression)
-      @sub_expression = sub_expression
-    end
-  end
-
+  MiqExpression::Component::Not = Class.new(MiqExpression::Component::SingleComposite)
   MiqExpression::Component::NotEqual = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::NotLike = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::Or = Class.new(MiqExpression::Component::Composite)
