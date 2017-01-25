@@ -75,20 +75,15 @@ class MiqExpression::Visitors::ArelVisitor
   end
 
   def visit_is(subject)
-    start_val = MiqExpression::RelativeDatetime.normalize(subject.value, timezone, "beginning", subject.target.date?)
-    end_val = MiqExpression::RelativeDatetime.normalize(subject.value, timezone, "end", subject.target.date?)
-
     if !subject.target.date? || MiqExpressionRelativeDatetime.relative?(subject.value)
-      subject.target.between(start_val..end_val)
+      subject.target.between(subject.start_value(timezone)..subject.end_value(timezone))
     else
-      subject.target.eq(start_val)
+      subject.target.eq(subject.start_value(timezone))
     end
   end
 
   def visit_from(subject)
-    start_value = MiqExpression::RelativeDatetime.normalize(subject.value[0], timezone, "beginning", subject.target.date?)
-    end_value   = MiqExpression::RelativeDatetime.normalize(subject.value[1], timezone, "end", subject.target.date?)
-    subject.target.between(start_value..end_value)
+    subject.target.between(subject.start_value(timezone)..subject.end_value(timezone))
   end
 
   def visit_not(subject)

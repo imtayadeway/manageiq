@@ -68,10 +68,30 @@ module MiqExpression::Component
 
   MiqExpression::Component::EndsWith = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::Equal = Class.new(MiqExpression::Component::Leaf)
-  MiqExpression::Component::From = Class.new(MiqExpression::Component::Leaf)
+
+  class MiqExpression::Component::From < MiqExpression::Component::Leaf
+    def start_value(timezone)
+      MiqExpression::RelativeDatetime.normalize(value[0], timezone, "beginning", target.date?)
+    end
+
+    def end_value(timezone)
+      MiqExpression::RelativeDatetime.normalize(value[1], timezone, "end", target.date?)
+    end
+  end
+
   MiqExpression::Component::GreaterThan = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::GreaterThanOrEqual = Class.new(MiqExpression::Component::Leaf)
-  MiqExpression::Component::Is = Class.new(MiqExpression::Component::Leaf)
+
+  class MiqExpression::Component::Is < MiqExpression::Component::Leaf
+    def start_value(timezone)
+      MiqExpression::RelativeDatetime.normalize(value, timezone, "beginning", target.date?)
+    end
+
+    def end_value(timezone)
+      MiqExpression::RelativeDatetime.normalize(value, timezone, "end", target.date?)
+    end
+  end
+
   MiqExpression::Component::IsEmpty = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::IsNotEmpty = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::IsNotNull = Class.new(MiqExpression::Component::Leaf)
