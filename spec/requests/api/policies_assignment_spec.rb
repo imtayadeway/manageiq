@@ -141,9 +141,8 @@ describe "Policies Assignment API" do
   end
 
   context "Provider policies subcollection assignment" do
-    let(:provider_url)                  { providers_url(provider.id) }
-    let(:provider_policies_url)         { "#{provider_url}/policies" }
-    let(:provider_policy_profiles_url)  { "#{provider_url}/policy_profiles" }
+    let(:provider_policies_url)         { provider__policies_url(nil, provider.id) }
+    let(:provider_policy_profiles_url)  { provider__policy_profiles_url(nil, provider.id) }
 
     it "assign Provider policy without approriate role" do
       test_policy_assign_no_role(provider_policies_url)
@@ -154,11 +153,11 @@ describe "Policies Assignment API" do
     end
 
     it "assign Provider policy with invalid guid" do
-      test_policy_assign_invalid_policy_guid(provider_url, provider_policies_url, :providers, :policies)
+      test_policy_assign_invalid_policy_guid(provider_url(nil, provider.id), provider_policies_url, :providers, :policies)
     end
 
     it "assign Provider multiple policies" do
-      test_assign_multiple_policies(provider_url,
+      test_assign_multiple_policies(provider_url(nil, provider.id),
                                     provider_policies_url,
                                     :providers,
                                     :policies,
@@ -175,7 +174,7 @@ describe "Policies Assignment API" do
     end
 
     it "unassign Provider policy with invalid guid" do
-      test_policy_unassign_invalid_policy_guid(provider_url, provider_policies_url, :providers, :policies)
+      test_policy_unassign_invalid_policy_guid(provider_url(nil, provider.id), provider_policies_url, :providers, :policies)
     end
 
     it "unassign Provider multiple policies" do
@@ -184,9 +183,8 @@ describe "Policies Assignment API" do
   end
 
   context "Provider policy profiles subcollection assignment" do
-    let(:provider_url)                  { providers_url(provider.id) }
-    let(:provider_policies_url)         { "#{provider_url}/policies" }
-    let(:provider_policy_profiles_url)  { "#{provider_url}/policy_profiles" }
+    let(:provider_policies_url)         { provider__policies_url(nil, provider.id) }
+    let(:provider_policy_profiles_url)  { provider__policy_profiles_url(nil, provider.id) }
 
     it "assign Provider policy profile without approriate role" do
       test_policy_assign_no_role(provider_policy_profiles_url)
@@ -197,11 +195,11 @@ describe "Policies Assignment API" do
     end
 
     it "assign Provider policy profile with invalid guid" do
-      test_policy_assign_invalid_policy_guid(provider_url, provider_policy_profiles_url, :providers, :policy_profiles)
+      test_policy_assign_invalid_policy_guid(provider_url(nil, provider.id), provider_policy_profiles_url, :providers, :policy_profiles)
     end
 
     it "assign Provider multiple policy profiles" do
-      test_assign_multiple_policies(provider_url,
+      test_assign_multiple_policies(provider_url(nil, provider.id),
                                     provider_policy_profiles_url,
                                     :providers,
                                     :policy_profiles,
@@ -218,7 +216,7 @@ describe "Policies Assignment API" do
     end
 
     it "unassign Provider policy profile with invalid guid" do
-      test_policy_unassign_invalid_policy_guid(provider_url,
+      test_policy_unassign_invalid_policy_guid(provider_url(nil, provider.id),
                                                provider_policy_profiles_url,
                                                :providers,
                                                :policy_profiles)
@@ -233,9 +231,8 @@ describe "Policies Assignment API" do
   end
 
   context "Host policies subcollection assignments" do
-    let(:host_url)                  { hosts_url(host.id) }
-    let(:host_policies_url)         { "#{host_url}/policies" }
-    let(:host_policy_profiles_url)  { "#{host_url}/policy_profiles" }
+    let(:host_policies_url)         { host__policies_url(nil, host.id) }
+    let(:host_policy_profiles_url)  { host__policy_profiles_url(nil, host.id) }
 
     it "assign Host policy without approriate role" do
       test_policy_assign_no_role(host_policies_url)
@@ -246,11 +243,11 @@ describe "Policies Assignment API" do
     end
 
     it "assign Host policy with invalid guid" do
-      test_policy_assign_invalid_policy_guid(host_url, host_policies_url, :hosts, :policies)
+      test_policy_assign_invalid_policy_guid(host_url(nil, host.id), host_policies_url, :hosts, :policies)
     end
 
     it "assign Host multiple policies" do
-      test_assign_multiple_policies(host_url,
+      test_assign_multiple_policies(host_url(nil, host.id),
                                     host_policies_url,
                                     :hosts,
                                     :policies,
@@ -267,7 +264,7 @@ describe "Policies Assignment API" do
     end
 
     it "unassign Host policy with invalid guid" do
-      test_policy_unassign_invalid_policy_guid(host_url, host_policies_url, :hosts, :policies)
+      test_policy_unassign_invalid_policy_guid(host_url(nil, host.id), host_policies_url, :hosts, :policies)
     end
 
     it "unassign Host multiple policies" do
@@ -276,9 +273,8 @@ describe "Policies Assignment API" do
   end
 
   context "Host policy profiles subcollection assignments" do
-    let(:host_url)                  { hosts_url(host.id) }
-    let(:host_policies_url)         { "#{host_url}/policies" }
-    let(:host_policy_profiles_url)  { "#{host_url}/policy_profiles" }
+    let(:host_policies_url)         { host__policies_url(nil, host.id) }
+    let(:host_policy_profiles_url)  { host__policy_profiles_url(nil, host.id) }
 
     it "assign Host policy profile without approriate role" do
       test_policy_assign_no_role(host_policy_profiles_url)
@@ -289,11 +285,11 @@ describe "Policies Assignment API" do
     end
 
     it "assign Host policy profile with invalid guid" do
-      test_policy_assign_invalid_policy_guid(host_url, host_policy_profiles_url, :hosts, :policy_profiles)
+      test_policy_assign_invalid_policy_guid(host_url(nil, host.id), host_policy_profiles_url, :hosts, :policy_profiles)
     end
 
     it "assign Host multiple policy profiles" do
-      test_assign_multiple_policies(host_url,
+      test_assign_multiple_policies(host_url(nil, host.id),
                                     host_policy_profiles_url,
                                     :hosts,
                                     :policy_profiles,
@@ -310,7 +306,7 @@ describe "Policies Assignment API" do
     end
 
     it "unassign Host policy profile with invalid guid" do
-      test_policy_unassign_invalid_policy_guid(host_url,
+      test_policy_unassign_invalid_policy_guid(host_url(nil, host.id),
                                                host_policy_profiles_url,
                                                :hosts,
                                                :policy_profiles)
@@ -325,9 +321,8 @@ describe "Policies Assignment API" do
   end
 
   context "Resource Pool policies subcollection assignments" do
-    let(:rp_url)                  { resource_pools_url(rp.id) }
-    let(:rp_policies_url)         { "#{rp_url}/policies" }
-    let(:rp_policy_profiles_url)  { "#{rp_url}/policy_profiles" }
+    let(:rp_policies_url)         { resource_pool__policies_url(nil, rp.id) }
+    let(:rp_policy_profiles_url)  { resource_pool__policy_profiles_url(nil, rp.id) }
 
     it "assign Resource Pool policy without appropriate role" do
       test_policy_assign_no_role(rp_policies_url)
@@ -338,11 +333,11 @@ describe "Policies Assignment API" do
     end
 
     it "assign Resource Pool policy with invalid guid" do
-      test_policy_assign_invalid_policy_guid(rp_url, rp_policies_url, :resource_pools, :policies)
+      test_policy_assign_invalid_policy_guid(resource_pool_url(nil, rp.id), rp_policies_url, :resource_pools, :policies)
     end
 
     it "assign Resource Pool multiple policies" do
-      test_assign_multiple_policies(rp_url,
+      test_assign_multiple_policies(resource_pool_url(nil, rp.id),
                                     rp_policies_url,
                                     :resource_pools,
                                     :policies,
@@ -359,7 +354,7 @@ describe "Policies Assignment API" do
     end
 
     it "unassign Resource Pool policy with invalid guid" do
-      test_policy_unassign_invalid_policy_guid(rp_url, rp_policies_url, :resource_pools, :policies)
+      test_policy_unassign_invalid_policy_guid(resource_pool_url(nil, rp.id), rp_policies_url, :resource_pools, :policies)
     end
 
     it "unassign Resource Pool multiple policies" do
@@ -368,9 +363,8 @@ describe "Policies Assignment API" do
   end
 
   context "Resource Pool policy profiles subcollection assignments" do
-    let(:rp_url)                  { resource_pools_url(rp.id) }
-    let(:rp_policies_url)         { "#{rp_url}/policies" }
-    let(:rp_policy_profiles_url)  { "#{rp_url}/policy_profiles" }
+    let(:rp_policies_url)         { resource_pool__policies_url(nil, rp.id) }
+    let(:rp_policy_profiles_url)  { resource_pool__policy_profiles_url(nil, rp.id) }
 
     it "assign Resource Pool policy profile without approriate role" do
       test_policy_assign_no_role(rp_policy_profiles_url)
@@ -381,11 +375,11 @@ describe "Policies Assignment API" do
     end
 
     it "assign Resource Pool policy profile with invalid guid" do
-      test_policy_assign_invalid_policy_guid(rp_url, rp_policy_profiles_url, :resource_pools, :policy_profiles)
+      test_policy_assign_invalid_policy_guid(resource_pool_url(nil, rp.id), rp_policy_profiles_url, :resource_pools, :policy_profiles)
     end
 
     it "assign Resource Pool multiple policy profiles" do
-      test_assign_multiple_policies(rp_url,
+      test_assign_multiple_policies(resource_pool_url(nil, rp.id),
                                     rp_policy_profiles_url,
                                     :resource_pools,
                                     :policy_profiles,
@@ -402,7 +396,7 @@ describe "Policies Assignment API" do
     end
 
     it "unassign Resource Pool policy profile with invalid guid" do
-      test_policy_unassign_invalid_policy_guid(rp_url,
+      test_policy_unassign_invalid_policy_guid(resource_pool_url(nil, rp.id),
                                                rp_policy_profiles_url,
                                                :resource_pools,
                                                :policy_profiles)
@@ -417,9 +411,8 @@ describe "Policies Assignment API" do
   end
 
   context "Cluster policies subcollection assignments" do
-    let(:cluster_url)                 { clusters_url(cluster.id) }
-    let(:cluster_policies_url)        { "#{cluster_url}/policies" }
-    let(:cluster_policy_profiles_url) { "#{cluster_url}/policy_profiles" }
+    let(:cluster_policies_url)        { cluster__policies_url(nil, cluster.id) }
+    let(:cluster_policy_profiles_url) { cluster__policy_profiles_url(nil, cluster.id) }
 
     it "assign Cluster policy without approriate role" do
       test_policy_assign_no_role(cluster_policies_url)
@@ -430,11 +423,11 @@ describe "Policies Assignment API" do
     end
 
     it "assign Cluster policy with invalid guid" do
-      test_policy_assign_invalid_policy_guid(cluster_url, cluster_policies_url, :clusters, :policies)
+      test_policy_assign_invalid_policy_guid(cluster_url(nil, cluster.id), cluster_policies_url, :clusters, :policies)
     end
 
     it "assign Cluster multiple policies" do
-      test_assign_multiple_policies(cluster_url,
+      test_assign_multiple_policies(cluster_url(nil, cluster.id),
                                     cluster_policies_url,
                                     :clusters,
                                     :policies,
@@ -451,7 +444,7 @@ describe "Policies Assignment API" do
     end
 
     it "unassign Cluster policy with invalid guid" do
-      test_policy_unassign_invalid_policy_guid(cluster_url, cluster_policies_url, :clusters, :policies)
+      test_policy_unassign_invalid_policy_guid(cluster_url(nil, cluster.id), cluster_policies_url, :clusters, :policies)
     end
 
     it "unassign Cluster multiple policies" do
@@ -460,9 +453,8 @@ describe "Policies Assignment API" do
   end
 
   context "Cluster policy profiles subcollection assignments" do
-    let(:cluster_url)                 { clusters_url(cluster.id) }
-    let(:cluster_policies_url)        { "#{cluster_url}/policies" }
-    let(:cluster_policy_profiles_url) { "#{cluster_url}/policy_profiles" }
+    let(:cluster_policies_url)        { cluster__policies_url(nil, cluster.id) }
+    let(:cluster_policy_profiles_url) { cluster__policy_profiles_url(nil, cluster.id) }
 
     it "assign Cluster policy profile without approriate role" do
       test_policy_assign_no_role(cluster_policy_profiles_url)
@@ -473,11 +465,11 @@ describe "Policies Assignment API" do
     end
 
     it "assign Cluster policy profile with invalid guid" do
-      test_policy_assign_invalid_policy_guid(cluster_url, cluster_policy_profiles_url, :clusters, :policy_profiles)
+      test_policy_assign_invalid_policy_guid(cluster_url(nil, cluster.id), cluster_policy_profiles_url, :clusters, :policy_profiles)
     end
 
     it "assign Cluster multiple policy profiles" do
-      test_assign_multiple_policies(cluster_url,
+      test_assign_multiple_policies(cluster_url(nil, cluster.id),
                                     cluster_policy_profiles_url,
                                     :clusters,
                                     :policy_profiles,
@@ -494,7 +486,7 @@ describe "Policies Assignment API" do
     end
 
     it "unassign Cluster policy profile with invalid guid" do
-      test_policy_unassign_invalid_policy_guid(cluster_url,
+      test_policy_unassign_invalid_policy_guid(cluster_url(nil, cluster.id),
                                                cluster_policy_profiles_url,
                                                :clusters,
                                                :policy_profiles)
@@ -509,9 +501,8 @@ describe "Policies Assignment API" do
   end
 
   context "Vms policies subcollection assignments" do
-    let(:vm_url)                  { vms_url(vm.id) }
-    let(:vm_policies_url)         { "#{vm_url}/policies" }
-    let(:vm_policy_profiles_url)  { "#{vm_url}/policy_profiles" }
+    let(:vm_policies_url)         { vm__policies_url(nil, vm.id) }
+    let(:vm_policy_profiles_url)  { vm__policy_profiles_url(nil, vm.id) }
 
     it "assign Vm policy without approriate role" do
       test_policy_assign_no_role(vm_policies_url)
@@ -522,11 +513,11 @@ describe "Policies Assignment API" do
     end
 
     it "assign Vm policy with invalid guid" do
-      test_policy_assign_invalid_policy_guid(vm_url, vm_policies_url, :vms, :policies)
+      test_policy_assign_invalid_policy_guid(vm_url(nil, vm.id), vm_policies_url, :vms, :policies)
     end
 
     it "assign Vm multiple policies" do
-      test_assign_multiple_policies(vm_url,
+      test_assign_multiple_policies(vm_url(nil, vm.id),
                                     vm_policies_url,
                                     :vms,
                                     :policies,
@@ -543,7 +534,7 @@ describe "Policies Assignment API" do
     end
 
     it "unassign Vm policy with invalid guid" do
-      test_policy_unassign_invalid_policy_guid(vm_url, vm_policies_url, :vms, :policies)
+      test_policy_unassign_invalid_policy_guid(vm_url(nil, vm.id), vm_policies_url, :vms, :policies)
     end
 
     it "unassign Vm multiple policies" do
@@ -552,9 +543,8 @@ describe "Policies Assignment API" do
   end
 
   context "Vms policy profiles subcollection assignments" do
-    let(:vm_url)                  { vms_url(vm.id) }
-    let(:vm_policies_url)         { "#{vm_url}/policies" }
-    let(:vm_policy_profiles_url)  { "#{vm_url}/policy_profiles" }
+    let(:vm_policies_url)         { vm__policies_url(nil, vm.id) }
+    let(:vm_policy_profiles_url)  { vm__policy_profiles_url(nil, vm.id) }
 
     it "assign Vm policy profile without approriate role" do
       test_policy_assign_no_role(vm_policy_profiles_url)
@@ -565,11 +555,11 @@ describe "Policies Assignment API" do
     end
 
     it "assign Vm policy profile with invalid guid" do
-      test_policy_assign_invalid_policy_guid(vm_url, vm_policy_profiles_url, :vms, :policy_profiles)
+      test_policy_assign_invalid_policy_guid(vm_url(nil, vm.id), vm_policy_profiles_url, :vms, :policy_profiles)
     end
 
     it "assign Vm multiple policy profiles" do
-      test_assign_multiple_policies(vm_url,
+      test_assign_multiple_policies(vm_url(nil, vm.id),
                                     vm_policy_profiles_url,
                                     :vms,
                                     :policy_profiles,
@@ -586,7 +576,7 @@ describe "Policies Assignment API" do
     end
 
     it "unassign Vm policy profile with invalid guid" do
-      test_policy_unassign_invalid_policy_guid(vm_url,
+      test_policy_unassign_invalid_policy_guid(vm_url(nil, vm.id),
                                                vm_policy_profiles_url,
                                                :vms,
                                                :policy_profiles)
@@ -601,9 +591,8 @@ describe "Policies Assignment API" do
   end
 
   context "Template policies subcollection assignments" do
-    let(:template_url)                  { templates_url(template.id) }
-    let(:template_policies_url)         { "#{template_url}/policies" }
-    let(:template_policy_profiles_url)  { "#{template_url}/policy_profiles" }
+    let(:template_policies_url)         { template__policies_url(nil, template.id) }
+    let(:template_policy_profiles_url)  { template__policy_profiles_url(nil, template.id) }
 
     it "assign Template policy without approriate role" do
       test_policy_assign_no_role(template_policies_url)
@@ -614,11 +603,11 @@ describe "Policies Assignment API" do
     end
 
     it "assign Template policy with invalid guid" do
-      test_policy_assign_invalid_policy_guid(template_url, template_policies_url, :templates, :policies)
+      test_policy_assign_invalid_policy_guid(template_url(nil, template.id), template_policies_url, :templates, :policies)
     end
 
     it "assign Template multiple policies" do
-      test_assign_multiple_policies(template_url,
+      test_assign_multiple_policies(template_url(nil, template.id),
                                     template_policies_url,
                                     :templates,
                                     :policies,
@@ -635,7 +624,7 @@ describe "Policies Assignment API" do
     end
 
     it "unassign Template policy with invalid guid" do
-      test_policy_unassign_invalid_policy_guid(template_url, template_policies_url, :templates, :policies)
+      test_policy_unassign_invalid_policy_guid(template_url(nil, template.id), template_policies_url, :templates, :policies)
     end
 
     it "unassign Template multiple policies" do
@@ -644,9 +633,8 @@ describe "Policies Assignment API" do
   end
 
   context "Template policies subcollection assignments" do
-    let(:template_url)                  { templates_url(template.id) }
-    let(:template_policies_url)         { "#{template_url}/policies" }
-    let(:template_policy_profiles_url)  { "#{template_url}/policy_profiles" }
+    let(:template_policies_url)         { template__policies_url(nil, template.id) }
+    let(:template_policy_profiles_url)  { template__policy_profiles_url(nil, template.id) }
 
     it "assign Template policy profile without approriate role" do
       test_policy_assign_no_role(template_policy_profiles_url)
@@ -657,11 +645,11 @@ describe "Policies Assignment API" do
     end
 
     it "assign Template policy profile with invalid guid" do
-      test_policy_assign_invalid_policy_guid(template_url, template_policy_profiles_url, :templates, :policy_profiles)
+      test_policy_assign_invalid_policy_guid(template_url(nil, template.id), template_policy_profiles_url, :templates, :policy_profiles)
     end
 
     it "assign Template multiple policy profiles" do
-      test_assign_multiple_policies(template_url,
+      test_assign_multiple_policies(template_url(nil, template.id),
                                     template_policy_profiles_url,
                                     :templates,
                                     :policy_profiles,
@@ -678,7 +666,7 @@ describe "Policies Assignment API" do
     end
 
     it "unassign Template policy profile with invalid guid" do
-      test_policy_unassign_invalid_policy_guid(template_url,
+      test_policy_unassign_invalid_policy_guid(template_url(nil, template.id),
                                                template_policy_profiles_url,
                                                :templates,
                                                :policy_profiles)

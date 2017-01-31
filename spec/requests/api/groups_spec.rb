@@ -92,7 +92,7 @@ describe "Groups API" do
       run_post(groups_url, gen_request(:create,
                                        "description" => "sample_group3",
                                        "role"        => {"name" => role3.name},
-                                       "tenant"      => {"href" => tenants_url(tenant3.id)}))
+                                       "tenant"      => {"href" => tenant_url(nil, tenant3.id)}))
 
       expect(response).to have_http_status(:ok)
       expect_result_resources_to_include_keys("results", expected_attributes)
@@ -151,7 +151,7 @@ describe "Groups API" do
       api_basic_authorize
       run_post(groups_url, gen_request(:edit,
                                        "description" => "updated_group",
-                                       "href"        => groups_url(group1.id)))
+                                       "href"        => group_url(nil, group1.id)))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -159,7 +159,7 @@ describe "Groups API" do
     it "rejects group edits for invalid resources" do
       api_basic_authorize collection_action_identifier(:groups, :edit)
 
-      run_post(groups_url(999_999), gen_request(:edit, "description" => "updated_group"))
+      run_post(group_url(nil, 999_999), gen_request(:edit, "description" => "updated_group"))
 
       expect(response).to have_http_status(:not_found)
     end
@@ -167,7 +167,7 @@ describe "Groups API" do
     it "supports single group edit" do
       api_basic_authorize collection_action_identifier(:groups, :edit)
 
-      run_post(groups_url(group1.id), gen_request(:edit, "description" => "updated_group"))
+      run_post(group_url(nil, group1.id), gen_request(:edit, "description" => "updated_group"))
 
       expect_single_resource_query("id"          => group1.id,
                                    "description" => "updated_group")
@@ -178,8 +178,8 @@ describe "Groups API" do
       api_basic_authorize collection_action_identifier(:groups, :edit)
 
       run_post(groups_url, gen_request(:edit,
-                                       [{"href" => groups_url(group1.id), "description" => "updated_group1"},
-                                        {"href" => groups_url(group2.id), "description" => "updated_group2"}]))
+                                       [{"href" => group_url(nil, group1.id), "description" => "updated_group1"},
+                                        {"href" => group_url(nil, group2.id), "description" => "updated_group2"}]))
 
       expect_results_to_match_hash("results",
                                    [{"id" => group1.id, "description" => "updated_group1"},
@@ -194,7 +194,7 @@ describe "Groups API" do
     it "rejects group deletion, by post action, without appropriate role" do
       api_basic_authorize
 
-      run_post(groups_url, gen_request(:delete, "description" => "group_description", "href" => groups_url(100)))
+      run_post(groups_url, gen_request(:delete, "description" => "group_description", "href" => group_url(nil, 100)))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -202,7 +202,7 @@ describe "Groups API" do
     it "rejects group deletion without appropriate role" do
       api_basic_authorize
 
-      run_delete(groups_url(100))
+      run_delete(group_url(nil, 100))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -210,7 +210,7 @@ describe "Groups API" do
     it "rejects group deletes for invalid groups" do
       api_basic_authorize collection_action_identifier(:groups, :delete)
 
-      run_delete(groups_url(999_999))
+      run_delete(group_url(nil, 999_999))
 
       expect(response).to have_http_status(:not_found)
     end
@@ -218,7 +218,7 @@ describe "Groups API" do
     it 'rejects a request to remove a default tenant group' do
       api_basic_authorize collection_action_identifier(:groups, :delete)
 
-      run_delete(groups_url(tenant3.default_miq_group_id))
+      run_delete(group_url(nil, tenant3.default_miq_group_id))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -227,7 +227,7 @@ describe "Groups API" do
       api_basic_authorize collection_action_identifier(:groups, :delete)
 
       g1_id = group1.id
-      run_delete(groups_url(g1_id))
+      run_delete(group_url(nil, g1_id))
 
       expect(response).to have_http_status(:no_content)
       expect(MiqGroup.exists?(g1_id)).to be_falsey
@@ -237,7 +237,7 @@ describe "Groups API" do
       api_basic_authorize collection_action_identifier(:groups, :delete)
 
       g1_id = group1.id
-      g1_url = groups_url(g1_id)
+      g1_url = group_url(nil, g1_id)
 
       run_post(g1_url, gen_request(:delete))
 
@@ -249,7 +249,7 @@ describe "Groups API" do
       api_basic_authorize collection_action_identifier(:groups, :delete)
 
       g1_id, g2_id = group1.id, group2.id
-      g1_url, g2_url = groups_url(g1_id), groups_url(g2_id)
+      g1_url, g2_url = group_url(nil, g1_id), group_url(nil, g2_id)
 
       run_post(groups_url, gen_request(:delete, [{"href" => g1_url}, {"href" => g2_url}]))
 
@@ -267,7 +267,7 @@ describe "Groups API" do
       Classification.classify(group, "department", "finance")
       api_basic_authorize
 
-      run_get("#{groups_url(group.id)}/tags")
+      run_get("#{group_url(nil, group.id)}/tags")
 
       expect(response.parsed_body).to include("subcount" => 1)
       expect(response).to have_http_status(:ok)
@@ -278,7 +278,7 @@ describe "Groups API" do
       FactoryGirl.create(:classification_department_with_tags)
       api_basic_authorize(subcollection_action_identifier(:groups, :tags, :assign))
 
-      run_post("#{groups_url(group.id)}/tags", :action => "assign", :category => "department", :name => "finance")
+      run_post("#{group_url(nil, group.id)}/tags", :action => "assign", :category => "department", :name => "finance")
 
       expected = {
         "results" => [
@@ -300,7 +300,7 @@ describe "Groups API" do
       Classification.classify(group, "department", "finance")
       api_basic_authorize(subcollection_action_identifier(:groups, :tags, :unassign))
 
-      run_post("#{groups_url(group.id)}/tags", :action => "unassign", :category => "department", :name => "finance")
+      run_post("#{group_url(nil, group.id)}/tags", :action => "unassign", :category => "department", :name => "finance")
 
       expected = {
         "results" => [

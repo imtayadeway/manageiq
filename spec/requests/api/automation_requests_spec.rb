@@ -71,9 +71,9 @@ describe "Automation Requests API" do
     let(:template)      { FactoryGirl.create(:template_amazon) }
     let(:request_body)  { {:requester => @user, :source_type => 'VmOrTemplate', :source_id => template.id} }
     let(:request1)      { FactoryGirl.create(:automation_request, request_body) }
-    let(:request1_url)  { automation_requests_url(request1.id) }
+    let(:request1_url)  { automation_request_url(nil, request1.id) }
     let(:request2)      { FactoryGirl.create(:automation_request, request_body) }
-    let(:request2_url)  { automation_requests_url(request2.id) }
+    let(:request2_url)  { automation_request_url(nil, request2.id) }
 
     it "supports approving a request" do
       api_basic_authorize collection_action_identifier(:automation_requests, :approve)

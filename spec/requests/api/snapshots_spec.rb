@@ -7,14 +7,14 @@ RSpec.describe "Snapshots API" do
         snapshot = FactoryGirl.create(:snapshot, :vm_or_template => vm)
         _other_snapshot = FactoryGirl.create(:snapshot)
 
-        run_get("#{vms_url(vm.id)}/snapshots")
+        run_get(vm__snapshots_url(nil, vm.id))
 
         expected = {
           "count"     => 2,
           "name"      => "snapshots",
           "subcount"  => 1,
           "resources" => [
-            {"href" => a_string_matching("#{vms_url(vm.id)}/snapshots/#{snapshot.id}")}
+            {"href" => a_string_matching(vm__snapshot_url(nil, vm.id, snapshot.id))}
           ]
         }
         expect(response.parsed_body).to include(expected)
@@ -26,7 +26,7 @@ RSpec.describe "Snapshots API" do
         vm = FactoryGirl.create(:vm_vmware)
         FactoryGirl.create(:snapshot, :vm_or_template => vm)
 
-        run_get("#{vms_url(vm.id)}/snapshots")
+        run_get(vm__snapshots_url(nil, vm.id))
 
         expect(response).to have_http_status(:forbidden)
       end
@@ -40,11 +40,11 @@ RSpec.describe "Snapshots API" do
       create_time = Time.zone.parse("2017-01-11T00:00:00Z")
       snapshot = FactoryGirl.create(:snapshot, :vm_or_template => vm, :create_time => create_time)
 
-      run_get("#{vms_url(vm.id)}/snapshots/#{snapshot.id}")
+      run_get(vm__snapshot_url(nil, vm.id, snapshot.id))
 
       expected = {
         "create_time"       => create_time.iso8601,
-        "href"              => a_string_matching("#{vms_url(vm.id)}/snapshots/#{snapshot.id}"),
+        "href"              => a_string_matching(vm__snapshot_url(nil, vm.id, snapshot.id)),
         "id"                => snapshot.id,
         "vm_or_template_id" => vm.id
       }
@@ -57,7 +57,7 @@ RSpec.describe "Snapshots API" do
       vm = FactoryGirl.create(:vm_vmware)
       snapshot = FactoryGirl.create(:snapshot, :vm_or_template => vm)
 
-      run_get("#{vms_url(vm.id)}/snapshots/#{snapshot.id}")
+      run_get(vm__snapshot_url(nil, vm.id, snapshot.id))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -69,7 +69,7 @@ RSpec.describe "Snapshots API" do
         host = FactoryGirl.create(:host, :ext_management_system => ems)
         vm = FactoryGirl.create(:vm_vmware, :name => "Alice's VM", :host => host, :ext_management_system => ems)
 
-        run_post("#{vms_url(vm.id)}/snapshots", :name => "Alice's snapshot")
+        run_post(vm__snapshots_url(nil, vm.id), :name => "Alice's snapshot")
 
         expected = {
           "results" => [
@@ -89,7 +89,7 @@ RSpec.describe "Snapshots API" do
         api_basic_authorize(subcollection_action_identifier(:vms, :snapshots, :create))
         vm = FactoryGirl.create(:vm_vmware)
 
-        run_post("#{vms_url(vm.id)}/snapshots", :name => "Alice's snapsnot")
+        run_post(vm__snapshots_url(nil, vm.id), :name => "Alice's snapsnot")
 
         expected = {
           "results" => [
@@ -109,7 +109,7 @@ RSpec.describe "Snapshots API" do
         host = FactoryGirl.create(:host, :ext_management_system => ems)
         vm = FactoryGirl.create(:vm_vmware, :name => "Alice's VM", :host => host, :ext_management_system => ems)
 
-        run_post("#{vms_url(vm.id)}/snapshots", :description => "Alice's snapshot")
+        run_post(vm__snapshots_url(nil, vm.id), :description => "Alice's snapshot")
 
         expected = {
           "results" => [
@@ -127,7 +127,7 @@ RSpec.describe "Snapshots API" do
         api_basic_authorize
         vm = FactoryGirl.create(:vm_vmware)
 
-        run_post("#{vms_url(vm.id)}/snapshots", :description => "Alice's snapshot")
+        run_post(vm__snapshots_url(nil, vm.id), :description => "Alice's snapshot")
 
         expect(response).to have_http_status(:forbidden)
       end
@@ -141,7 +141,7 @@ RSpec.describe "Snapshots API" do
         vm = FactoryGirl.create(:vm_vmware, :name => "Alice's VM", :host => host, :ext_management_system => ems)
         snapshot = FactoryGirl.create(:snapshot, :name => "Alice's snapshot", :vm_or_template => vm)
 
-        run_post("#{vms_url(vm.id)}/snapshots/#{snapshot.id}", :action => "delete")
+        run_post(vm__snapshot_url(nil, vm.id, snapshot.id), :action => "delete")
 
         expected = {
           "message"   => "Deleting snapshot Alice's snapshot for Vm id:#{vm.id} name:'Alice's VM'",
@@ -158,7 +158,7 @@ RSpec.describe "Snapshots API" do
         vm = FactoryGirl.create(:vm_vmware)
         snapshot = FactoryGirl.create(:snapshot, :vm_or_template => vm)
 
-        run_post("#{vms_url(vm.id)}/snapshots/#{snapshot.id}", :action => "delete")
+        run_post(vm__snapshot_url(nil, vm.id, snapshot.id), :action => "delete")
 
         expected = {
           "success" => false,
@@ -173,7 +173,7 @@ RSpec.describe "Snapshots API" do
         vm = FactoryGirl.create(:vm_vmware)
         snapshot = FactoryGirl.create(:snapshot, :vm_or_template => vm)
 
-        run_post("#{vms_url(vm.id)}/snapshots/#{snapshot.id}", :action => "delete")
+        run_post(vm__snapshot_url(nil, vm.id, snapshot.id), :action => "delete")
 
         expect(response).to have_http_status(:forbidden)
       end
@@ -185,7 +185,7 @@ RSpec.describe "Snapshots API" do
         vm = FactoryGirl.create(:vm_vmware)
         snapshot = FactoryGirl.create(:snapshot, :vm_or_template => vm)
 
-        run_delete("#{vms_url(vm.id)}/snapshots/#{snapshot.id}")
+        run_delete(vm__snapshot_url(nil, vm.id, snapshot.id))
 
         expect(response).to have_http_status(:no_content)
       end
@@ -195,7 +195,7 @@ RSpec.describe "Snapshots API" do
         vm = FactoryGirl.create(:vm_vmware)
         snapshot = FactoryGirl.create(:snapshot, :vm_or_template => vm)
 
-        run_delete("#{vms_url(vm.id)}/snapshots/#{snapshot.id}")
+        run_delete(vm__snapshot_url(nil, vm.id, snapshot.id))
 
         expect(response).to have_http_status(:forbidden)
       end

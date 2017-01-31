@@ -72,7 +72,7 @@ describe "Custom Actions API" do
       api_basic_authorize(action_identifier(:services, :edit),
                           action_identifier(:services, :read, :resource_actions, :get))
 
-      run_get services_url(svc1.id)
+      run_get service_url(nil, svc1.id)
 
       expect_result_to_have_keys(%w(id href actions))
       expect(response.parsed_body["actions"].collect { |a| a["name"] }).to match_array(%w(edit))
@@ -88,7 +88,7 @@ describe "Custom Actions API" do
       api_basic_authorize(action_identifier(:services, :edit),
                           action_identifier(:services, :read, :resource_actions, :get))
 
-      run_get services_url(svc1.id)
+      run_get service_url(nil, svc1.id)
 
       expect_result_to_have_keys(%w(id href actions))
       expect(response.parsed_body["actions"].collect { |a| a["name"] }).to match_array(%w(edit button1 button2 button3))
@@ -98,7 +98,7 @@ describe "Custom Actions API" do
       api_basic_authorize(action_identifier(:services, :edit),
                           action_identifier(:services, :read, :resource_actions, :get))
 
-      run_get services_url(svc1.id), :attributes => "custom_actions"
+      run_get service_url(nil, svc1.id), :attributes => "custom_actions"
 
       expect_result_to_have_keys(%w(id href))
       expect_result_to_have_custom_actions_hash
@@ -108,7 +108,7 @@ describe "Custom Actions API" do
       api_basic_authorize(action_identifier(:services, :edit),
                           action_identifier(:services, :read, :resource_actions, :get))
 
-      run_get services_url(svc1.id), :attributes => "custom_action_buttons"
+      run_get service_url(nil, svc1.id), :attributes => "custom_action_buttons"
 
       expect_result_to_have_keys(%w(id href custom_action_buttons))
       expect(response.parsed_body["custom_action_buttons"].size).to eq(3)
@@ -124,7 +124,7 @@ describe "Custom Actions API" do
       api_basic_authorize(action_identifier(:service_templates, :edit),
                           action_identifier(:service_templates, :read, :resource_actions, :get))
 
-      run_get service_templates_url(template1.id)
+      run_get service_template_url(nil, template1.id)
 
       expect_result_to_have_keys(%w(id href actions))
       action_specs = response.parsed_body["actions"]
@@ -135,7 +135,7 @@ describe "Custom Actions API" do
     it "supports the custom_actions attribute" do
       api_basic_authorize action_identifier(:service_templates, :read, :resource_actions, :get)
 
-      run_get service_templates_url(template1.id), :attributes => "custom_actions"
+      run_get service_template_url(nil, template1.id), :attributes => "custom_actions"
 
       expect_result_to_have_keys(%w(id href))
       expect_result_to_have_custom_actions_hash
@@ -144,7 +144,7 @@ describe "Custom Actions API" do
     it "supports the custom_action_buttons attribute" do
       api_basic_authorize action_identifier(:service_templates, :read, :resource_actions, :get)
 
-      run_get service_templates_url(template1.id), :attributes => "custom_action_buttons"
+      run_get service_template_url(nil, template1.id), :attributes => "custom_action_buttons"
 
       expect_result_to_have_keys(%w(id href custom_action_buttons))
       expect(response.parsed_body["custom_action_buttons"].size).to eq(3)
@@ -160,17 +160,17 @@ describe "Custom Actions API" do
     it "accepts a custom action" do
       api_basic_authorize
 
-      run_post(services_url(svc1.id), gen_request(:button1, "button_key1" => "value", "button_key2" => "value"))
+      run_post(service_url(nil, svc1.id), gen_request(:button1, "button_key1" => "value", "button_key2" => "value"))
 
-      expect_single_action_result(:success => true, :message => /.*/, :href => services_url(svc1.id))
+      expect_single_action_result(:success => true, :message => /.*/, :href => service_url(nil, svc1.id))
     end
 
     it "accepts a custom action as case insensitive" do
       api_basic_authorize
 
-      run_post(services_url(svc1.id), gen_request(:BuTtOn1, "button_key1" => "value", "button_key2" => "value"))
+      run_post(service_url(nil, svc1.id), gen_request(:BuTtOn1, "button_key1" => "value", "button_key2" => "value"))
 
-      expect_single_action_result(:success => true, :message => /.*/, :href => services_url(svc1.id))
+      expect_single_action_result(:success => true, :message => /.*/, :href => service_url(nil, svc1.id))
     end
   end
 
@@ -185,7 +185,7 @@ describe "Custom Actions API" do
       svc2      = FactoryGirl.create(:service, :name => "svc2", :service_template_id => template2.id)
       button2.resource_action = ra2
 
-      run_get services_url(svc2.id), :attributes => "custom_actions"
+      run_get service_url(nil, svc2.id), :attributes => "custom_actions"
 
       expected = {
         "custom_actions" => {

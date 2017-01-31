@@ -42,7 +42,7 @@ RSpec.describe 'Virtual Template API' do
 
       vt = FactoryGirl.create(:virtual_template, :ems_id => ems.id)
 
-      run_get(virtual_templates_url(vt.id))
+      run_get(virtual_template_url(nil, vt.id))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -52,7 +52,7 @@ RSpec.describe 'Virtual Template API' do
 
       vt = FactoryGirl.create(:virtual_template, :ems_id => ems.id)
 
-      run_get(virtual_templates_url(vt.id))
+      run_get(virtual_template_url(nil, vt.id))
 
       expect(response).to have_http_status(:ok)
       expect_result_to_have_keys(%w(id href))

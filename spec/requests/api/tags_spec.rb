@@ -9,7 +9,7 @@ describe "Tags API" do
 
   let(:tag1)         { {:category => "department", :name => "finance", :path => "/managed/department/finance"} }
   let(:tag2)         { {:category => "cc",         :name => "001",     :path => "/managed/cc/001"} }
-  let(:invalid_tag_url) { tags_url(999_999) }
+  let(:invalid_tag_url) { tag_url(nil, 999_999) }
 
   before(:each) do
     FactoryGirl.create(:classification_department_with_tags)
@@ -29,7 +29,7 @@ describe "Tags API" do
       it "can create a tag with category by href" do
         api_basic_authorize collection_action_identifier(:tags, :create)
         category = FactoryGirl.create(:category)
-        options = {:name => "test_tag", :description => "Test Tag", :category => {:href => categories_url(category.id)}}
+        options = {:name => "test_tag", :description => "Test Tag", :category => {:href => category_url(nil, category.id)}}
 
         expect { run_post tags_url, options }.to change(Tag, :count).by(1)
 
@@ -75,7 +75,7 @@ describe "Tags API" do
         category = FactoryGirl.create(:category)
 
         expect do
-          run_post "#{categories_url(category.id)}/tags", :name => "test_tag", :description => "Test Tag"
+          run_post "#{category_url(nil, category.id)}/tags", :name => "test_tag", :description => "Test Tag"
         end.to change(Tag, :count).by(1)
         tag = Tag.find(response.parsed_body["results"].first["id"])
         tag_category = Category.find(tag.category.id)
@@ -99,7 +99,7 @@ describe "Tags API" do
         tag = classification.tag
 
         expect do
-          run_post tags_url(tag.id), gen_request(:edit, :name => "new_name")
+          run_post tag_url(nil, tag.id), gen_request(:edit, :name => "new_name")
         end.to change { classification.reload.tag.name }.to("#{category.tag.name}/new_name")
         expect(response.parsed_body["name"]).to eq("#{category.tag.name}/new_name")
         expect(response).to have_http_status(:ok)
@@ -112,7 +112,7 @@ describe "Tags API" do
         tag = classification.tag
 
         expect do
-          run_post tags_url(tag.id), gen_request(:edit, :description => "New Description")
+          run_post tag_url(nil, tag.id), gen_request(:edit, :description => "New Description")
         end.to change { tag.reload.classification.description }.to("New Description")
 
         expect(response).to have_http_status(:ok)
@@ -123,7 +123,7 @@ describe "Tags API" do
         classification = FactoryGirl.create(:classification_tag)
         tag = classification.tag
 
-        expect { run_post tags_url(tag.id), :action => :delete }.to change(Tag, :count).by(-1)
+        expect { run_post tag_url(nil, tag.id), :action => :delete }.to change(Tag, :count).by(-1)
         expect { classification.reload }.to raise_error(ActiveRecord::RecordNotFound)
         expect(response).to have_http_status(:ok)
       end
@@ -133,7 +133,7 @@ describe "Tags API" do
         classification = FactoryGirl.create(:classification_tag)
         tag = classification.tag
 
-        expect { run_delete tags_url(tag.id) }.to change(Tag, :count).by(-1)
+        expect { run_delete tag_url(nil, tag.id) }.to change(Tag, :count).by(-1)
         expect { classification.reload }.to raise_error(ActiveRecord::RecordNotFound)
         expect(response).to have_http_status(:no_content)
       end
@@ -144,7 +144,7 @@ describe "Tags API" do
         tag_id = classification.tag.id
         classification.destroy!
 
-        run_delete tags_url(tag_id)
+        run_delete tag_url(nil, tag_id)
 
         expect(response).to have_http_status(:not_found)
       end
@@ -155,7 +155,7 @@ describe "Tags API" do
         tag_id = classification.tag.id
         classification.destroy!
 
-        run_post tags_url(tag_id), :action => :delete
+        run_post tag_url(nil, tag_id), :action => :delete
 
         expect(response).to have_http_status(:not_found)
       end
@@ -169,7 +169,7 @@ describe "Tags API" do
         tag2 = classification2.tag
 
         expect do
-          run_post "#{categories_url(category.id)}/tags", gen_request(:delete, [{:id => tag1.id}, {:id => tag2.id}])
+          run_post "#{category_url(nil, category.id)}/tags", gen_request(:delete, [{:id => tag1.id}, {:id => tag2.id}])
         end.to change(Tag, :count).by(-2)
         expect { classification1.reload }.to raise_error(ActiveRecord::RecordNotFound)
         expect { classification2.reload }.to raise_error(ActiveRecord::RecordNotFound)
@@ -193,7 +193,7 @@ describe "Tags API" do
         body = gen_request(:delete, [{:name => tag1.name}, {:name => tag2.name}])
 
         expect do
-          run_post "#{categories_url(category.id)}/tags", body
+          run_post "#{category_url(nil, category.id)}/tags", body
         end.to change(Tag, :count).by(-2)
         expect { classification1.reload }.to raise_error(ActiveRecord::RecordNotFound)
         expect { classification2.reload }.to raise_error(ActiveRecord::RecordNotFound)
@@ -224,7 +224,7 @@ describe "Tags API" do
         tag = Tag.create(:name => "Old name")
 
         expect do
-          run_post tags_url(tag.id), gen_request(:edit, :name => "New name")
+          run_post tag_url(nil, tag.id), gen_request(:edit, :name => "New name")
         end.not_to change { tag.reload.name }
 
         expect(response).to have_http_status(:forbidden)
@@ -234,7 +234,7 @@ describe "Tags API" do
         api_basic_authorize
         tag = Tag.create(:name => "Test tag")
 
-        expect { run_post tags_url(tag.id), :action => :delete }.not_to change(Tag, :count)
+        expect { run_post tag_url(nil, tag.id), :action => :delete }.not_to change(Tag, :count)
 
         expect(response).to have_http_status(:forbidden)
       end
@@ -243,7 +243,7 @@ describe "Tags API" do
         api_basic_authorize
         tag = Tag.create(:name => "Test tag")
 
-        expect { run_delete tags_url(tag.id) }.not_to change(Tag, :count)
+        expect { run_delete tag_url(nil, tag.id) }.not_to change(Tag, :count)
 
         expect(response).to have_http_status(:forbidden)
       end
@@ -271,10 +271,10 @@ describe "Tags API" do
 
       tag = Tag.last
       attr_list = "category.name,category.description,classification.name,classification.description"
-      run_get tags_url(tag.id), :attributes => attr_list
+      run_get tag_url(nil, tag.id), :attributes => attr_list
 
       expect_single_resource_query(
-        "href"           => tags_url(tag.id),
+        "href"           => tag_url(nil, tag.id),
         "id"             => tag.id,
         "name"           => tag.name,
         "category"       => {"name" => tag.category.name,       "description" => tag.category.description},
@@ -286,10 +286,10 @@ describe "Tags API" do
       api_basic_authorize action_identifier(:tags, :read, :resource_actions, :get)
 
       tag = Tag.last
-      run_get tags_url(tag.id), :attributes => "categorization"
+      run_get tag_url(nil, tag.id), :attributes => "categorization"
 
       expect_single_resource_query(
-        "href"           => tags_url(tag.id),
+        "href"           => tag_url(nil, tag.id),
         "id"             => tag.id,
         "name"           => tag.name,
         "categorization" => {

@@ -18,10 +18,10 @@ describe "Alerts API" do
       "subcount"  => 2,
       "resources" => [
         {
-          "href" => a_string_matching(alerts_url(alert_statuses[0].id))
+          "href" => a_string_matching(alert_url(nil, alert_statuses[0].id))
         },
         {
-          "href" => a_string_matching(alerts_url(alert_statuses[1].id))
+          "href" => a_string_matching(alert_url(nil, alert_statuses[1].id))
         }
       ]
     )
@@ -30,24 +30,24 @@ describe "Alerts API" do
   it "forbids access to an alert resource without an appropriate role" do
     api_basic_authorize
     alert_status = FactoryGirl.create(:miq_alert_status)
-    run_get(alerts_url(alert_status.id))
+    run_get(alert_url(nil, alert_status.id))
     expect(response).to have_http_status(:forbidden)
   end
 
   it "reads an alert as a resource" do
     api_basic_authorize action_identifier(:alerts, :read, :resource_actions, :get)
     alert_status = FactoryGirl.create(:miq_alert_status)
-    run_get(alerts_url(alert_status.id))
+    run_get(alert_url(nil, alert_status.id))
     expect(response).to have_http_status(:ok)
     expect(response.parsed_body).to include(
-      "href" => a_string_matching(alerts_url(alert_status.id)),
+      "href" => a_string_matching(alert_url(nil, alert_status.id)),
       "id"   => alert_status.id
     )
   end
 
   context "alert_actions subcollection" do
     let(:alert) { FactoryGirl.create(:miq_alert_status) }
-    let(:actions_subcollection_url) { "#{alerts_url(alert.id)}/alert_actions" }
+    let(:actions_subcollection_url) { "#{alert_url(nil, alert.id)}/alert_actions" }
     let(:assignee) { FactoryGirl.create(:user) }
     let(:expected_assignee) do
       {
@@ -83,7 +83,7 @@ describe "Alerts API" do
         "subcount"  => 1,
         "resources" => [
           {
-            "href" => a_string_matching("#{alerts_url(alert.id)}/alert_actions/#{alert_action.id}")
+            "href" => a_string_matching("#{alert_url(nil, alert.id)}/alert_actions/#{alert_action.id}")
           }
         ]
       )
@@ -148,7 +148,7 @@ describe "Alerts API" do
     it "create an assignment alert action reference by href" do
       attributes = {
         "action_type" => "assign",
-        "assignee"    => { "href" => users_url(assignee.id) }
+        "assignee"    => { "href" => user_url(nil, assignee.id) }
       }
       api_basic_authorize subcollection_action_identifier(:alerts, :alert_actions, :create, :post)
       run_post(actions_subcollection_url, attributes)
@@ -179,7 +179,7 @@ describe "Alerts API" do
       run_get("#{actions_subcollection_url}/#{alert_action.id}")
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body).to include(
-        "href"        => a_string_matching("#{alerts_url(alert.id)}/alert_actions/#{alert_action.id}"),
+        "href"        => a_string_matching("#{alert_url(nil, alert.id)}/alert_actions/#{alert_action.id}"),
         "id"          => alert_action.id,
         "action_type" => alert_action.action_type,
         "user_id"     => user.id,

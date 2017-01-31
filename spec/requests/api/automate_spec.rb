@@ -31,7 +31,7 @@ describe "Automate API" do
     it "default to depth 0 for non-root queries" do
       api_basic_authorize action_identifier(:automate, :read, :collection_actions, :get)
 
-      run_get automate_url("custom")
+      run_get "#{automate_url}/custom"
 
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body["resources"]).to match(
@@ -42,7 +42,7 @@ describe "Automate API" do
     it "supports depth 1" do
       api_basic_authorize action_identifier(:automate, :read, :collection_actions, :get)
 
-      run_get(automate_url("custom"), :depth => 1)
+      run_get("#{automate_url}/custom", :depth => 1)
 
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body["resources"]).to match_array(
@@ -79,7 +79,7 @@ describe "Automate API" do
     it "always return the fqname" do
       api_basic_authorize action_identifier(:automate, :read, :collection_actions, :get)
 
-      run_get(automate_url("custom/system"), :attributes => "name")
+      run_get("#{automate_url}/custom/system", :attributes => "name")
 
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body["resources"]).to match_array([{"name" => "System", "fqname" => "/Custom/System"}])

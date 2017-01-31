@@ -9,8 +9,8 @@ RSpec.describe "reports API" do
     expect_result_resources_to_include_hrefs(
       "resources",
       [
-        reports_url(report_1.id),
-        reports_url(report_2.id)
+        report_url(nil, report_1.id),
+        report_url(nil, report_2.id)
       ]
     )
     expect_result_to_match_hash(response.parsed_body, "count" => 2, "name" => "reports")
@@ -21,11 +21,11 @@ RSpec.describe "reports API" do
     report = FactoryGirl.create(:miq_report_with_results)
 
     api_basic_authorize action_identifier(:reports, :read, :resource_actions, :get)
-    run_get reports_url(report.id)
+    run_get report_url(nil, report.id)
 
     expect_result_to_match_hash(
       response.parsed_body,
-      "href"  => reports_url(report.id),
+      "href"  => report_url(nil, report.id),
       "id"    => report.id,
       "name"  => report.name,
       "title" => report.title
@@ -38,12 +38,12 @@ RSpec.describe "reports API" do
     report_result = report.miq_report_results.first
 
     api_basic_authorize
-    run_get "#{reports_url(report.id)}/results"
+    run_get "#{report_url(nil, report.id)}/results"
 
     expect_result_resources_to_include_hrefs(
       "resources",
       [
-        "#{reports_url(report.id)}/results/#{report_result.to_param}"
+        "#{report_url(nil, report.id)}/results/#{report_result.to_param}"
       ]
     )
     expect(response.parsed_body["resources"]).not_to be_any { |resource| resource.key?("result_set") }
@@ -61,7 +61,7 @@ RSpec.describe "reports API" do
     allow_any_instance_of(MiqReportResult).to receive(:report_results).and_return(report)
 
     api_basic_authorize
-    run_get "#{reports_url(report.id)}/results/#{report_result.to_param}"
+    run_get "#{report_url(nil, report.id)}/results/#{report_result.to_param}"
 
     expect_result_to_match_hash(response.parsed_body, "result_set" => [{"foo" => "bar"}, {"foo" => "baz"}])
     expect(response).to have_http_status(:ok)
@@ -77,7 +77,7 @@ RSpec.describe "reports API" do
     expect_result_resources_to_include_hrefs(
       "resources",
       [
-        results_url(result.id).to_s
+        result_url(nil, result.id).to_s
       ]
     )
     expect(response).to have_http_status(:ok)
@@ -94,7 +94,7 @@ RSpec.describe "reports API" do
     allow_any_instance_of(MiqReportResult).to receive(:report_results).and_return(report)
 
     api_basic_authorize action_identifier(:results, :read, :resource_actions, :get)
-    run_get results_url(report_result.id)
+    run_get result_url(nil, report_result.id)
 
     expect_result_to_match_hash(response.parsed_body, "result_set" => [{"foo" => "bar"}, {"foo" => "baz"}])
     expect(response).to have_http_status(:ok)
@@ -149,7 +149,7 @@ RSpec.describe "reports API" do
     report_result = report.miq_report_results.first
 
     api_basic_authorize
-    run_get "#{reports_url(report.id)}/results/#{report_result.id}"
+    run_get "#{report_url(nil, report.id)}/results/#{report_result.id}"
 
     expect_result_to_match_hash(response.parsed_body, "result_set" => [])
     expect(response).to have_http_status(:ok)
@@ -161,10 +161,10 @@ RSpec.describe "reports API" do
 
       expect do
         api_basic_authorize action_identifier(:reports, :run)
-        run_post reports_url(report.id).to_s, :action => "run"
+        run_post report_url(nil, report.id).to_s, :action => "run"
       end.to change(MiqReportResult, :count).by(1)
       expect_single_action_result(
-        :href    => reports_url(report.id),
+        :href    => report_url(nil, report.id),
         :success => true,
         :message => "running report #{report.id}"
       )
@@ -175,7 +175,7 @@ RSpec.describe "reports API" do
 
       expect do
         api_basic_authorize action_identifier(:reports, :schedule)
-        run_post reports_url(report.id),
+        run_post report_url(nil, report.id),
                  :action      => 'schedule',
                  :name        => 'schedule_name',
                  :enabled     => true,
@@ -185,7 +185,7 @@ RSpec.describe "reports API" do
                  :time_zone   => 'UTC'
       end.to change(MiqSchedule, :count).by(1)
       expect_single_action_result(
-        :href    => reports_url(report.id),
+        :href    => report_url(nil, report.id),
         :success => true,
         :message => "scheduling of report #{report.id}"
       )
@@ -268,7 +268,7 @@ RSpec.describe "reports API" do
 
       expect do
         api_basic_authorize
-        run_post reports_url(report.id).to_s, :action => "run"
+        run_post report_url(nil, report.id).to_s, :action => "run"
       end.not_to change(MiqReportResult, :count)
       expect(response).to have_http_status(:forbidden)
     end

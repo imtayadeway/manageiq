@@ -17,7 +17,7 @@ describe "Settings API" do
       api_basic_authorize action_identifier(:settings, :read, :resource_actions, :get)
 
       category = api_settings.first
-      run_get settings_url(category)
+      run_get setting_url(category)
 
       expect_result_to_have_only_keys(category)
     end
@@ -26,7 +26,7 @@ describe "Settings API" do
       api_basic_authorize action_identifier(:settings, :read, :resource_actions, :get)
 
       category = api_settings.first
-      run_get settings_url(category)
+      run_get setting_url(category)
 
       expect(response.parsed_body[category]).to eq(Settings[category].to_hash.stringify_keys)
     end
@@ -34,9 +34,13 @@ describe "Settings API" do
     it "rejects query for an invalid setting category " do
       api_basic_authorize action_identifier(:settings, :read, :resource_actions, :get)
 
-      run_get settings_url("invalid_setting")
+      run_get setting_url("invalid_setting")
 
       expect(response).to have_http_status(:not_found)
+    end
+
+    def setting_url(suffix)
+      "#{settings_url}/#{suffix}"
     end
   end
 end

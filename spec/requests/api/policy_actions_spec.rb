@@ -20,7 +20,7 @@ describe "Policy Actions API" do
     it "query invalid action" do
       api_basic_authorize action_identifier(:policy_actions, :read, :resource_actions, :get)
 
-      run_get policy_actions_url(999_999)
+      run_get policy_action_url(nil, 999_999)
 
       expect(response).to have_http_status(:not_found)
     end
@@ -41,7 +41,7 @@ describe "Policy Actions API" do
 
       expect_query_result(:policy_actions, 4, 4)
       expect_result_resources_to_include_hrefs("resources",
-                                               MiqAction.pluck(:id).collect { |id| /^.*#{policy_actions_url(id)}$/ })
+                                               MiqAction.pluck(:id).collect { |id| /^.*#{policy_action_url(nil, id)}$/ })
     end
 
     it "query policy actions in expanded form" do
@@ -57,8 +57,7 @@ describe "Policy Actions API" do
 
   context "Policy Action subcollection" do
     let(:policy)             { FactoryGirl.create(:miq_policy, :name => "Policy 1") }
-    let(:policy_url)         { policies_url(policy.id) }
-    let(:policy_actions_url) { "#{policy_url}/policy_actions" }
+    let(:policy_actions_url) { policy__policy_actions_url(nil, policy.id) }
 
     def relate_actions_to(policy)
       MiqAction.all.collect(&:id).each do |action_id|
@@ -90,7 +89,7 @@ describe "Policy Actions API" do
       create_actions(4)
       relate_actions_to(policy)
 
-      run_get policy_url, :expand => "policy_actions"
+      run_get policy_url(nil, policy.id), :expand => "policy_actions"
 
       expect_single_resource_query("name" => policy.name, "description" => policy.description, "guid" => policy.guid)
       expect_result_resources_to_include_data("policy_actions", "guid" => miq_action_guid_list)

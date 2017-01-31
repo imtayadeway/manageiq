@@ -10,7 +10,6 @@ describe "Actions API" do
         :options     => {:ae_message => "message", :ae_request => "request", :ae_hash => {"key"=>"value"}}
       }
     end
-    let(:action_url) { actions_url(action.id) }
 
     it "forbids access to actions without an appropriate role" do
       action
@@ -54,7 +53,7 @@ describe "Actions API" do
 
     it "deletes action" do
       api_basic_authorize collection_action_identifier(:actions, :delete)
-      run_post(actions_url, gen_request(:delete, "name" => action.name, "href" => action_url))
+      run_post(actions_url, gen_request(:delete, "name" => action.name, "href" => action_url(nil, action.id)))
 
       expect(response).to have_http_status(:ok)
 
@@ -64,9 +63,9 @@ describe "Actions API" do
     it "deletes actions" do
       api_basic_authorize collection_action_identifier(:actions, :delete)
       run_post(actions_url, gen_request(:delete, [{"name" => actions.first.name,
-                                                   "href" => actions_url(actions.first.id)},
+                                                   "href" => action_url(nil, actions.first.id)},
                                                   {"name" => actions.second.name,
-                                                   "href" => actions_url(actions.second.id)}]))
+                                                   "href" => action_url(nil, actions.second.id)}]))
 
       expect(response).to have_http_status(:ok)
 
@@ -76,7 +75,7 @@ describe "Actions API" do
     it "deletes action via DELETE" do
       api_basic_authorize collection_action_identifier(:actions, :delete)
 
-      run_delete(actions_url(action.id))
+      run_delete(action_url(nil, action.id))
 
       expect(response).to have_http_status(:no_content)
       expect(MiqAction.exists?(action.id)).to be_falsey
@@ -84,7 +83,7 @@ describe "Actions API" do
 
     it "edits new action" do
       api_basic_authorize collection_action_identifier(:actions, :edit)
-      run_post(action_url, gen_request(:edit, "description" => "change"))
+      run_post(action_url(nil, action.id), gen_request(:edit, "description" => "change"))
 
       expect(response).to have_http_status(:ok)
 

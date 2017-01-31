@@ -11,9 +11,9 @@ RSpec.describe "tenants API" do
     expect_result_resources_to_include_hrefs(
       "resources",
       [
-        tenants_url(root_tenant.id),
-        tenants_url(tenant_1.id),
-        tenants_url(tenant_2.id)
+        tenant_url(nil, root_tenant.id),
+        tenant_url(nil, tenant_1.id),
+        tenant_url(nil, tenant_2.id)
       ]
     )
 
@@ -29,11 +29,11 @@ RSpec.describe "tenants API" do
       :description => "Tenant for this test"
     )
 
-    run_get tenants_url(tenant.id)
+    run_get tenant_url(nil, tenant.id)
 
     expect_result_to_match_hash(
       response.parsed_body,
-      "href"        => tenants_url(tenant.id),
+      "href"        => tenant_url(nil, tenant.id),
       "id"          => tenant.id,
       "name"        => "Test Tenant",
       "description" => "Tenant for this test"
@@ -73,7 +73,7 @@ RSpec.describe "tenants API" do
       )
       options = {:name => "New Tenant name", :description => "New Tenant description"}
 
-      run_post tenants_url(tenant.id), gen_request(:edit, options)
+      run_post tenant_url(nil, tenant.id), gen_request(:edit, options)
 
       expect(response).to have_http_status(:ok)
       tenant.reload
@@ -91,7 +91,7 @@ RSpec.describe "tenants API" do
       )
       options = {:name => "New Tenant name", :description => "New Tenant description"}
 
-      run_put tenants_url(tenant.id), options
+      run_put tenant_url(nil, tenant.id), options
 
       expect(response).to have_http_status(:ok)
       tenant.reload
@@ -108,10 +108,10 @@ RSpec.describe "tenants API" do
 
       it "shows properties from configuration settings" do
         api_basic_authorize action_identifier(:tenants, :read, :resource_actions, :get)
-        run_get tenants_url(root_tenant.id)
+        run_get tenant_url(nil, root_tenant.id)
 
         expect_result_to_match_hash(response.parsed_body,
-                                    "href" => tenants_url(root_tenant.id),
+                                    "href" => tenant_url(nil, root_tenant.id),
                                     "id"   => root_tenant.id,
                                     "name" => ::Settings.server.company,
                                    )
@@ -132,8 +132,8 @@ RSpec.describe "tenants API" do
         :name   => "Test Tenant 2"
       )
       options = [
-        {"href" => tenants_url(tenant_1.id), "name" => "Updated Test Tenant 1"},
-        {"href" => tenants_url(tenant_2.id), "name" => "Updated Test Tenant 2"}
+        {"href" => tenant_url(nil, tenant_1.id), "name" => "Updated Test Tenant 1"},
+        {"href" => tenant_url(nil, tenant_2.id), "name" => "Updated Test Tenant 2"}
       ]
 
       run_post tenants_url, gen_request(:edit, options)
@@ -152,7 +152,7 @@ RSpec.describe "tenants API" do
       api_basic_authorize action_identifier(:tenants, :delete)
       tenant = FactoryGirl.create(:tenant, :parent => root_tenant)
 
-      expect { run_post tenants_url(tenant.id), gen_request(:delete) }.to change(Tenant, :count).by(-1)
+      expect { run_post tenant_url(nil, tenant.id), gen_request(:delete) }.to change(Tenant, :count).by(-1)
       expect(response).to have_http_status(:ok)
     end
 
@@ -160,7 +160,7 @@ RSpec.describe "tenants API" do
       api_basic_authorize action_identifier(:tenants, :delete)
       tenant = FactoryGirl.create(:tenant, :parent => root_tenant)
 
-      expect { run_delete tenants_url(tenant.id) }.to change(Tenant, :count).by(-1)
+      expect { run_delete tenant_url(nil, tenant.id) }.to change(Tenant, :count).by(-1)
       expect(response).to have_http_status(:no_content)
     end
 
@@ -169,8 +169,8 @@ RSpec.describe "tenants API" do
       tenant_1 = FactoryGirl.create(:tenant, :parent => root_tenant)
       tenant_2 = FactoryGirl.create(:tenant, :parent => root_tenant)
       options = [
-        {"href" => tenants_url(tenant_1.id)},
-        {"href" => tenants_url(tenant_2.id)}
+        {"href" => tenant_url(nil, tenant_1.id)},
+        {"href" => tenant_url(nil, tenant_2.id)}
       ]
 
       expect do
@@ -201,7 +201,7 @@ RSpec.describe "tenants API" do
       )
       options = {:name => "New Tenant name", :description => "New Tenant description"}
 
-      run_post tenants_url(tenant.id), gen_request(:edit, options)
+      run_post tenant_url(nil, tenant.id), gen_request(:edit, options)
 
       expect(response).to have_http_status(:forbidden)
       tenant.reload
@@ -219,7 +219,7 @@ RSpec.describe "tenants API" do
       )
       options = {:name => "New Tenant name", :description => "New Tenant description"}
 
-      run_put tenants_url(tenant.id), options
+      run_put tenant_url(nil, tenant.id), options
 
       expect(response).to have_http_status(:forbidden)
       tenant.reload
@@ -240,8 +240,8 @@ RSpec.describe "tenants API" do
         :name   => "Test Tenant 2"
       )
       options = [
-        {"href" => tenants_url(tenant_1.id), "name" => "Updated Test Tenant 1"},
-        {"href" => tenants_url(tenant_2.id), "name" => "Updated Test Tenant 2"}
+        {"href" => tenant_url(nil, tenant_1.id), "name" => "Updated Test Tenant 1"},
+        {"href" => tenant_url(nil, tenant_2.id), "name" => "Updated Test Tenant 2"}
       ]
 
       run_post tenants_url, gen_request(:edit, options)
@@ -255,7 +255,7 @@ RSpec.describe "tenants API" do
       api_basic_authorize
       tenant = FactoryGirl.create(:tenant, :parent => root_tenant)
 
-      expect { run_post tenants_url(tenant.id), gen_request(:delete) }.not_to change(Tenant, :count)
+      expect { run_post tenant_url(nil, tenant.id), gen_request(:delete) }.not_to change(Tenant, :count)
       expect(response).to have_http_status(:forbidden)
     end
 
@@ -263,7 +263,7 @@ RSpec.describe "tenants API" do
       api_basic_authorize
       tenant = FactoryGirl.create(:tenant, :parent => root_tenant)
 
-      expect { run_delete tenants_url(tenant.id) }.not_to change(Tenant, :count)
+      expect { run_delete tenant_url(nil, tenant.id) }.not_to change(Tenant, :count)
       expect(response).to have_http_status(:forbidden)
     end
 
@@ -272,8 +272,8 @@ RSpec.describe "tenants API" do
       tenant_1 = FactoryGirl.create(:tenant, :parent => root_tenant)
       tenant_2 = FactoryGirl.create(:tenant, :parent => root_tenant)
       options = [
-        {"href" => tenants_url(tenant_1.id)},
-        {"href" => tenants_url(tenant_2.id)}
+        {"href" => tenant_url(nil, tenant_1.id)},
+        {"href" => tenant_url(nil, tenant_2.id)}
       ]
 
       expect do

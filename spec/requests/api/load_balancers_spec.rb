@@ -9,7 +9,7 @@ RSpec.describe 'LoadBalancers API' do
         'subcount'  => 1,
         'name'      => 'load_balancers',
         'resources' => [
-          hash_including('href' => a_string_matching(load_balancers_url(load_balancer.id)))
+          hash_including('href' => a_string_matching(load_balancer_url(nil, load_balancer.id)))
         ]
       }
       run_get(load_balancers_url)
@@ -32,9 +32,9 @@ RSpec.describe 'LoadBalancers API' do
       load_balancer = FactoryGirl.create(:load_balancer)
       api_basic_authorize action_identifier(:load_balancers, :read, :resource_actions, :get)
 
-      run_get(load_balancers_url(load_balancer.id))
+      run_get(load_balancer_url(nil, load_balancer.id))
 
-      expect(response.parsed_body).to include('href' => a_string_matching(load_balancers_url(load_balancer.id)))
+      expect(response.parsed_body).to include('href' => a_string_matching(load_balancer_url(nil, load_balancer.id)))
       expect(response).to have_http_status(:ok)
     end
 
@@ -42,7 +42,7 @@ RSpec.describe 'LoadBalancers API' do
       load_balancer = FactoryGirl.create(:load_balancer)
       api_basic_authorize
 
-      run_get(load_balancers_url(load_balancer.id))
+      run_get(load_balancer_url(nil, load_balancer.id))
 
       expect(response).to have_http_status(:forbidden)
     end

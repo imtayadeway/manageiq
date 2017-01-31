@@ -9,8 +9,8 @@ Vmdb::Application.routes.draw do
   # Semantic Versioning Regex for API, i.e. vMajor.minor.patch[-pre]
   API_VERSION_REGEX = /v[\d]+(\.[\da-zA-Z]+)*(\-[\da-zA-Z]+)?/ unless defined?(API_VERSION_REGEX)
 
-  namespace :api, :path => "api(/:version)", :version => API_VERSION_REGEX, :defaults => {:format => "json"} do
-    root :to => "api#index"
+  scope :module => :api, :path => "api(/:version)", :version => API_VERSION_REGEX, :defaults => {:format => "json"} do
+    root :to => "api#index", :as => :entrypoint
     match "/", :to => "api#options", :via => :options
 
     unless defined?(API_ACTIONS)
@@ -40,7 +40,7 @@ Vmdb::Application.routes.draw do
             case verb
             when :get
               root :action => :index
-              get "/:c_id", :action => :show
+              get "/:c_id", :action => :show, :as => collection_name.to_s.singularize
             else
               match "(/:c_id)", :action => API_ACTIONS[verb], :via => verb
             end
@@ -51,8 +51,8 @@ Vmdb::Application.routes.draw do
           Api::ApiConfig.collections[subcollection_name].verbs.each do |verb|
             case verb
             when :get
-              get "/:c_id/#{subcollection_name}", :action => :index
-              get "/:c_id/#{subcollection_name}/:s_id", :action => :show
+              get "/:c_id/#{subcollection_name}", :action => :index, :as => "#{collection_name.to_s.singularize}__#{subcollection_name.to_s.pluralize}"
+              get "/:c_id/#{subcollection_name}/:s_id", :action => :show, :as => "#{collection_name.to_s.singularize}__#{subcollection_name.to_s.singularize}"
             else
               match("/:c_id/#{subcollection_name}(/:s_id)", :action => API_ACTIONS[verb], :via => verb)
             end

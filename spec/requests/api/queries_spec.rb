@@ -8,7 +8,7 @@ describe "Queries API" do
   let(:host)       { FactoryGirl.create(:host) }
 
   let(:vm1)        { FactoryGirl.create(:vm_vmware, :host => host, :ems_id => ems.id, :raw_power_state => "poweredOn") }
-  let(:vm1_url)    { vms_url(vm1.id) }
+  let(:vm1_url)    { vm_url(nil, vm1.id) }
 
   let(:vm_href_pattern) { %r{^http://.*/api/vms/[0-9]+$} }
 
@@ -66,7 +66,7 @@ describe "Queries API" do
     it 'supports compressed ids' do
       api_basic_authorize action_identifier(:vms, :read, :resource_actions, :get)
 
-      run_get vms_url(ApplicationRecord.compress_id(vm1.id))
+      run_get vm_url(nil, ApplicationRecord.compress_id(vm1.id))
 
       expect_single_resource_query("id" => vm1.id, "href" => vm1_url, "guid" => vm1.guid)
     end
@@ -126,7 +126,7 @@ describe "Queries API" do
     it 'supports compressed ids' do
       api_basic_authorize
 
-      run_get vms_url(ApplicationRecord.compress_id(vm1.id)) + "/accounts/#{acct1.id}"
+      run_get vm_url(nil, ApplicationRecord.compress_id(vm1.id)) + "/accounts/#{acct1.id}"
 
       expect_single_resource_query("id" => acct1.id, "href" => acct1_url, "name" => acct1.name)
     end
@@ -148,7 +148,7 @@ describe "Queries API" do
       provider = FactoryGirl.create(:ext_management_system, :name => "sample", :hostname => "sample.com")
       provider.update_authentication(:default => credentials)
 
-      run_get(providers_url(provider.id), :attributes => "authentications")
+      run_get(provider_url(nil, provider.id), :attributes => "authentications")
 
       expect(response).to have_http_status(:ok)
       expect_result_to_match_hash(response.parsed_body, "name" => "sample")
@@ -171,7 +171,7 @@ describe "Queries API" do
                                     :src_vm_id   => template.id,
                                     :options     => options)
 
-      run_get provision_requests_url(request.id)
+      run_get provision_request_url(nil, request.id)
 
       expect(response).to have_http_status(:ok)
       expect_result_to_match_hash(response.parsed_body, "description" => "sample provision")

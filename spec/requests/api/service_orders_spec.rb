@@ -6,7 +6,7 @@ RSpec.describe "service orders API" do
     run_get service_orders_url
 
     expect(response).to have_http_status(:ok)
-    expect_result_resources_to_include_hrefs("resources", [service_orders_url(service_order.id)])
+    expect_result_resources_to_include_hrefs("resources", [service_order_url(nil, service_order.id)])
   end
 
   it "won't show another user's service orders" do
@@ -19,7 +19,7 @@ RSpec.describe "service orders API" do
     expected = {
       "count"     => 2,
       "subcount"  => 1,
-      "resources" => [{"href" => a_string_matching(service_orders_url(shopping_cart_for_user.id))}]
+      "resources" => [{"href" => a_string_matching(service_order_url(nil, shopping_cart_for_user.id))}]
     }
     expect(response).to have_http_status(:ok)
     expect(response.parsed_body).to include(expected)
@@ -70,7 +70,7 @@ RSpec.describe "service orders API" do
     service_order = FactoryGirl.create(:service_order, :user => @user)
     api_basic_authorize action_identifier(:service_orders, :read, :resource_actions, :get)
 
-    run_get service_orders_url(service_order.id)
+    run_get service_order_url(nil, service_order.id)
 
     expect_result_to_match_hash(response.parsed_body, "name" => service_order.name, "state" => service_order.state)
     expect(response).to have_http_status(:ok)
@@ -80,17 +80,17 @@ RSpec.describe "service orders API" do
     shopping_cart = FactoryGirl.create(:shopping_cart, :user => @user)
     api_basic_authorize action_identifier(:service_orders, :read, :resource_actions, :get)
 
-    run_get service_orders_url("cart")
+    run_get service_order_url(nil, "cart")
 
     expect(response).to have_http_status(:ok)
     expect(response.parsed_body).to include("id"   => shopping_cart.id,
-                                     "href" => a_string_matching(service_orders_url(shopping_cart.id)))
+                                     "href" => a_string_matching(service_order_url(nil, shopping_cart.id)))
   end
 
   it "returns an empty response when there is no shopping cart" do
     api_basic_authorize action_identifier(:service_orders, :read, :resource_actions, :get)
 
-    run_get service_orders_url("cart")
+    run_get service_order_url(nil, "cart")
 
     expect(response).to have_http_status(:not_found)
     expect(response.parsed_body).to include("error" => a_hash_including("kind"    => "not_found",
@@ -101,7 +101,7 @@ RSpec.describe "service orders API" do
     service_order = FactoryGirl.create(:service_order, :name => "old name", :user => @user)
     api_basic_authorize action_identifier(:service_orders, :edit)
 
-    run_post service_orders_url(service_order.id), :action => "edit", :resource => {:name => "new name"}
+    run_post service_order_url(nil, service_order.id), :action => "edit", :resource => {:name => "new name"}
 
     expect_result_to_match_hash(response.parsed_body, "name" => "new name")
     expect(response).to have_http_status(:ok)
@@ -125,7 +125,7 @@ RSpec.describe "service orders API" do
     api_basic_authorize action_identifier(:service_orders, :delete, :resource_actions, :delete)
 
     expect do
-      run_delete service_orders_url(service_order.id)
+      run_delete service_order_url(nil, service_order.id)
     end.to change(ServiceOrder, :count).by(-1)
     expect(response).to have_http_status(:no_content)
   end
@@ -135,7 +135,7 @@ RSpec.describe "service orders API" do
     api_basic_authorize action_identifier(:service_orders, :delete)
 
     expect do
-      run_post service_orders_url(service_order.id), :action => "delete"
+      run_post service_order_url(nil, service_order.id), :action => "delete"
     end.to change(ServiceOrder, :count).by(-1)
     expect(response).to have_http_status(:ok)
   end
@@ -160,7 +160,7 @@ RSpec.describe "service orders API" do
         _shopping_cart = FactoryGirl.create(:shopping_cart, :user => @user, :miq_requests => [service_request])
         api_basic_authorize action_identifier(:service_requests, :read, :subcollection_actions, :get)
 
-        url = "#{service_orders_url("cart")}/service_requests"
+        url = "#{service_order_url(nil, "cart")}/service_requests"
         run_get url
 
         expected_href = a_string_matching("#{url}/#{service_request.id}")
@@ -176,7 +176,7 @@ RSpec.describe "service orders API" do
         _shopping_cart = FactoryGirl.create(:shopping_cart, :user => @user, :miq_requests => [service_request])
         api_basic_authorize action_identifier(:service_requests, :read, :subresource_actions, :get)
 
-        url = "#{service_orders_url("cart")}/service_requests/#{service_request.id}"
+        url = "#{service_order_url(nil, "cart")}/service_requests/#{service_request.id}"
         run_get url
 
         expect(response).to have_http_status(:ok)
@@ -193,9 +193,9 @@ RSpec.describe "service orders API" do
         api_basic_authorize action_identifier(:service_requests, :add, :subcollection_actions)
 
         expect do
-          run_post("#{service_orders_url("cart")}/service_requests",
+          run_post("#{service_order_url(nil, "cart")}/service_requests",
                    :action    => :add,
-                   :resources => [{:service_template_href => service_templates_url(service_template.id)}])
+                   :resources => [{:service_template_href => service_template_url(nil, service_template.id)}])
         end.to change { shopping_cart.reload.miq_requests.count }.by(1)
 
         actual_requests = shopping_cart.reload.miq_requests
@@ -205,7 +205,7 @@ RSpec.describe "service orders API" do
               "success"              => true,
               "message"              => /Adding service_request/,
               "service_request_id"   => actual_requests.first.id,
-              "service_request_href" => a_string_matching(service_requests_url(actual_requests.first.id))
+              "service_request_href" => a_string_matching(service_request_url(nil, actual_requests.first.id))
             )
           ]
         }
@@ -229,11 +229,11 @@ RSpec.describe "service orders API" do
 
         expect do
           run_post(
-            "#{service_orders_url("cart")}/service_requests",
+            "#{service_order_url(nil, "cart")}/service_requests",
             :action    => :add,
             :resources => [
-              {:service_template_href => service_templates_url(service_template_1.id)},
-              {:service_template_href => service_templates_url(service_template_2.id)}
+              {:service_template_href => service_template_url(nil, service_template_1.id)},
+              {:service_template_href => service_template_url(nil, service_template_2.id)}
             ]
           )
         end.to change { shopping_cart.reload.miq_requests.count }.by(2)
@@ -245,13 +245,13 @@ RSpec.describe "service orders API" do
               "success"              => true,
               "message"              => /Adding service_request/,
               "service_request_id"   => actual_requests.first.id,
-              "service_request_href" => a_string_matching(service_requests_url(actual_requests.first.id))
+              "service_request_href" => a_string_matching(service_request_url(nil, actual_requests.first.id))
             ),
             a_hash_including(
               "success"              => true,
               "message"              => /Adding service_request/,
               "service_request_id"   => actual_requests.second.id,
-              "service_request_href" => a_string_matching(service_requests_url(actual_requests.second.id))
+              "service_request_href" => a_string_matching(service_request_url(nil, actual_requests.second.id))
             )
           )
         }
@@ -264,12 +264,12 @@ RSpec.describe "service orders API" do
         shopping_cart = FactoryGirl.create(:shopping_cart, :user => @user, :miq_requests => [service_request])
         api_basic_authorize action_identifier(:service_requests, :remove, :subresource_actions)
 
-        run_post "#{service_orders_url("cart")}/service_requests/#{service_request.id}", :action => :remove
+        run_post "#{service_order_url(nil, "cart")}/service_requests/#{service_request.id}", :action => :remove
 
         expected = {
           "success"              => true,
           "message"              => a_string_starting_with("Removing Service Request id:#{service_request.id}"),
-          "service_request_href" => a_string_matching(service_requests_url(service_request.id)),
+          "service_request_href" => a_string_matching(service_request_url(nil, service_request.id)),
           "service_request_id"   => service_request.id
         }
         expect(response).to have_http_status(:ok)
@@ -287,11 +287,11 @@ RSpec.describe "service orders API" do
         api_basic_authorize action_identifier(:service_requests, :remove, :subcollection_actions)
 
         run_post(
-          "#{service_orders_url("cart")}/service_requests",
+          "#{service_order_url(nil, "cart")}/service_requests",
           :action    => :remove,
           :resources => [
-            {:href => service_requests_url(service_request_1.id)},
-            {:href => service_requests_url(service_request_2.id)}
+            {:href => service_request_url(nil, service_request_1.id)},
+            {:href => service_request_url(nil, service_request_2.id)}
           ]
         )
 
@@ -300,13 +300,13 @@ RSpec.describe "service orders API" do
             a_hash_including(
               "success"              => true,
               "message"              => a_string_starting_with("Removing Service Request id:#{service_request_1.id}"),
-              "service_request_href" => a_string_matching(service_requests_url(service_request_1.id)),
+              "service_request_href" => a_string_matching(service_request_url(nil, service_request_1.id)),
               "service_request_id"   => service_request_1.id
             ),
             a_hash_including(
               "success"              => true,
               "message"              => a_string_starting_with("Removing Service Request id:#{service_request_2.id}"),
-              "service_request_href" => a_string_matching(service_requests_url(service_request_2.id)),
+              "service_request_href" => a_string_matching(service_request_url(nil, service_request_2.id)),
               "service_request_id"   => service_request_2.id
             )
           )
@@ -326,7 +326,7 @@ RSpec.describe "service orders API" do
         api_basic_authorize action_identifier(:service_requests, :remove, :subcollection_actions)
 
         run_post(
-          "#{service_orders_url("cart")}/service_requests",
+          "#{service_order_url(nil, "cart")}/service_requests",
           :action    => :remove,
           :resources => [
             {:id => service_request_1.id},
@@ -339,13 +339,13 @@ RSpec.describe "service orders API" do
             a_hash_including(
               "success"              => true,
               "message"              => a_string_starting_with("Removing Service Request id:#{service_request_1.id}"),
-              "service_request_href" => a_string_matching(service_requests_url(service_request_1.id)),
+              "service_request_href" => a_string_matching(service_request_url(nil, service_request_1.id)),
               "service_request_id"   => service_request_1.id
             ),
             a_hash_including(
               "success"              => true,
               "message"              => a_string_starting_with("Removing Service Request id:#{service_request_2.id}"),
-              "service_request_href" => a_string_matching(service_requests_url(service_request_2.id)),
+              "service_request_href" => a_string_matching(service_request_url(nil, service_request_2.id)),
               "service_request_id"   => service_request_2.id
             )
           )
@@ -364,10 +364,10 @@ RSpec.describe "service orders API" do
                                            :miq_requests => [service_request_1, service_request_2])
         api_basic_authorize action_identifier(:service_orders, :clear)
 
-        run_post service_orders_url("cart"), :action => :clear
+        run_post service_order_url(nil, "cart"), :action => :clear
 
         expected = {
-          "href" => a_string_matching(service_orders_url(shopping_cart.id)),
+          "href" => a_string_matching(service_order_url(nil, shopping_cart.id)),
           "id"   => shopping_cart.id
         }
         expect(response).to have_http_status(:ok)
@@ -381,7 +381,7 @@ RSpec.describe "service orders API" do
         api_basic_authorize action_identifier(:service_orders, :clear)
 
         shopping_cart.checkout
-        run_post service_orders_url(shopping_cart.id), :action => :clear
+        run_post service_order_url(nil, shopping_cart.id), :action => :clear
 
         expected = {
           "error" => a_hash_including(
@@ -402,7 +402,7 @@ RSpec.describe "service orders API" do
                                            :miq_requests => [service_request_1, service_request_2])
         api_basic_authorize action_identifier(:service_orders, :order)
 
-        run_post service_orders_url("cart"), :action => :order
+        run_post service_order_url(nil, "cart"), :action => :order
 
         expected = {
           "state" => ServiceOrder::STATE_ORDERED
@@ -419,7 +419,7 @@ RSpec.describe "service orders API" do
         _shopping_cart = FactoryGirl.create(:shopping_cart, :user => @user, :miq_requests => [service_request])
         api_basic_authorize
 
-        run_get "#{service_orders_url("cart")}/service_requests"
+        run_get "#{service_order_url(nil, "cart")}/service_requests"
 
         expect(response).to have_http_status(:forbidden)
       end
@@ -429,7 +429,7 @@ RSpec.describe "service orders API" do
         _shopping_cart = FactoryGirl.create(:shopping_cart, :user => @user, :miq_requests => [service_request])
         api_basic_authorize
 
-        run_get "#{service_orders_url("cart")}/service_requests/#{service_request.id}"
+        run_get "#{service_order_url(nil, "cart")}/service_requests/#{service_request.id}"
 
         expect(response).to have_http_status(:forbidden)
       end
@@ -443,9 +443,9 @@ RSpec.describe "service orders API" do
         shopping_cart = FactoryGirl.create(:shopping_cart, :user => @user)
         api_basic_authorize
 
-        run_post "#{service_orders_url("cart")}/service_requests",
+        run_post "#{service_order_url(nil, "cart")}/service_requests",
                  :action    => :add,
-                 :resources => [{:service_template_href => service_templates_url(service_template.id)}]
+                 :resources => [{:service_template_href => service_template_url(nil, service_template.id)}]
 
         expect(response).to have_http_status(:forbidden)
         expect(shopping_cart.reload.miq_requests).to be_empty
@@ -465,11 +465,11 @@ RSpec.describe "service orders API" do
 
         expect do
           run_post(
-            "#{service_orders_url("cart")}/service_requests",
+            "#{service_order_url(nil, "cart")}/service_requests",
             :action    => :add,
             :resources => [
-              {:service_template_href => service_templates_url(service_template_1.id)},
-              {:service_template_href => service_templates_url(service_template_2.id)}
+              {:service_template_href => service_template_url(nil, service_template_1.id)},
+              {:service_template_href => service_template_url(nil, service_template_2.id)}
             ]
           )
         end.not_to change { shopping_cart.reload.miq_requests.count }
@@ -482,7 +482,7 @@ RSpec.describe "service orders API" do
         shopping_cart = FactoryGirl.create(:shopping_cart, :user => @user, :miq_requests => [service_request])
         api_basic_authorize
 
-        run_post "#{service_orders_url("cart")}/service_requests/#{service_request.id}", :action => :remove
+        run_post "#{service_order_url(nil, "cart")}/service_requests/#{service_request.id}", :action => :remove
 
         expect(response).to have_http_status(:forbidden)
         expect(shopping_cart.reload.miq_requests).to include(service_request)
@@ -498,11 +498,11 @@ RSpec.describe "service orders API" do
         api_basic_authorize
 
         run_post(
-          "#{service_orders_url("cart")}/service_requests",
+          "#{service_order_url(nil, "cart")}/service_requests",
           :action    => :remove,
           :resources => [
-            {:href => service_requests_url(service_request_1.id)},
-            {:href => service_requests_url(service_request_2.id)}
+            {:href => service_request_url(nil, service_request_1.id)},
+            {:href => service_request_url(nil, service_request_2.id)}
           ]
         )
 
@@ -519,7 +519,7 @@ RSpec.describe "service orders API" do
                                            :miq_requests => [service_request_1, service_request_2])
         api_basic_authorize
 
-        run_post service_orders_url("cart"), :action => :clear
+        run_post service_order_url(nil, "cart"), :action => :clear
 
         expect(response).to have_http_status(:forbidden)
         expect(shopping_cart.reload.miq_requests).to include(service_request_1, service_request_2)
@@ -534,7 +534,7 @@ RSpec.describe "service orders API" do
                                            :miq_requests => [service_request_1, service_request_2])
         api_basic_authorize
 
-        run_post service_orders_url("cart"), :action => :order
+        run_post service_order_url(nil, "cart"), :action => :order
 
         expect(response).to have_http_status(:forbidden)
         expect(shopping_cart.reload.state).to eq(ServiceOrder::STATE_CART)
@@ -551,7 +551,7 @@ RSpec.describe "service orders API" do
     it 'forbids service order copy without an appropriate role' do
       api_basic_authorize
 
-      run_post(service_orders_url(@service_order.id), :action => 'copy')
+      run_post(service_order_url(nil, @service_order.id), :action => 'copy')
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -560,7 +560,7 @@ RSpec.describe "service orders API" do
       api_basic_authorize action_identifier(:service_orders, :copy)
 
       expect do
-        run_post(service_orders_url(@service_order.id), :action => 'copy', :name => 'foo')
+        run_post(service_order_url(nil, @service_order.id), :action => 'copy', :name => 'foo')
       end.to change(ServiceOrder, :count).by(1)
       expect(response.parsed_body).to include('name' => 'foo')
       expect(response).to have_http_status(:ok)

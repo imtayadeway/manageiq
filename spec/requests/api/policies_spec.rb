@@ -103,7 +103,7 @@ describe "Policies API" do
     it "query invalid policy" do
       api_basic_authorize action_identifier(:policies, :read, :resource_actions, :get)
 
-      run_get policies_url(999_999)
+      run_get policy_url(nil, 999_999)
 
       expect(response).to have_http_status(:not_found)
     end
@@ -115,7 +115,7 @@ describe "Policies API" do
 
       expect_query_result(:policies, 3, 3)
       expect_result_resources_to_include_hrefs("resources",
-                                               [policies_url(p1.id), policies_url(p2.id), policies_url(p3.id)])
+                                               [policy_url(nil, p1.id), policy_url(nil, p2.id), policy_url(nil, p3.id)])
     end
 
     it "query policies in expanded form" do
@@ -130,12 +130,11 @@ describe "Policies API" do
 
   context "Policy Profile collection" do
     let(:policy_profile)     { ps1 }
-    let(:policy_profile_url) { policy_profiles_url(policy_profile.id) }
 
     it "query invalid policy profile" do
       api_basic_authorize action_identifier(:policy_profiles, :read, :resource_actions, :get)
 
-      run_get policy_profiles_url(999_999)
+      run_get policy_profile_url(nil, 999_999)
 
       expect(response).to have_http_status(:not_found)
     end
@@ -147,13 +146,13 @@ describe "Policies API" do
 
       expect_query_result(:policy_profiles, 2, 2)
       expect_result_resources_to_include_hrefs("resources",
-                                               [policy_profiles_url(ps1.id), policy_profiles_url(ps2.id)])
+                                               [policy_profile_url(nil, ps1.id), policy_profile_url(nil, ps2.id)])
     end
 
     it "query individual Policy Profile" do
       api_basic_authorize action_identifier(:policy_profiles, :read, :resource_actions, :get)
 
-      run_get policy_profile_url
+      run_get policy_profile_url(nil, policy_profile.id)
 
       expect_single_resource_query(
         "name" => policy_profile.name, "description" => policy_profile.description, "guid" => policy_profile.guid
@@ -163,7 +162,7 @@ describe "Policies API" do
     it "query Policy Profile policies subcollection" do
       api_basic_authorize
 
-      run_get "#{policy_profile_url}/policies", :expand => "resources"
+      run_get policy_profile__policies_url(nil, policy_profile.id), :expand => "resources"
 
       expect_query_result(:policies, p_guids.count)
       expect_result_resources_to_include_data("resources", "guid" => p_guids)
@@ -172,7 +171,7 @@ describe "Policies API" do
     it "query Policy Profile with expanded policies subcollection" do
       api_basic_authorize action_identifier(:policy_profiles, :read, :resource_actions, :get)
 
-      run_get policy_profile_url, :expand => "policies"
+      run_get policy_profile_url(nil, policy_profile.id), :expand => "policies"
 
       expect_single_resource_query(
         "name" => policy_profile.name, "description" => policy_profile.description, "guid" => policy_profile.guid
@@ -183,10 +182,8 @@ describe "Policies API" do
 
   context "Provider policies subcollection" do
     let(:provider) { ems }
-
-    let(:provider_url)                 { providers_url(provider.id) }
-    let(:provider_policies_url)        { "#{provider_url}/policies" }
-    let(:provider_policy_profiles_url) { "#{provider_url}/policy_profiles" }
+    let(:provider_policies_url)        { provider__policies_url(nil, provider.id) }
+    let(:provider_policy_profiles_url) { provider__policy_profiles_url(nil, provider.id) }
 
     it "query Provider policies with no policies defined" do
       test_no_policy_query(provider_policies_url)
@@ -210,9 +207,8 @@ describe "Policies API" do
   end
 
   context "Host policies subcollection" do
-    let(:host_url)                  { hosts_url(host.id) }
-    let(:host_policies_url)         { "#{host_url}/policies" }
-    let(:host_policy_profiles_url)  { "#{host_url}/policy_profiles" }
+    let(:host_policies_url)         { host__policies_url(nil, host.id) }
+    let(:host_policy_profiles_url)  { host__policy_profiles_url(nil, host.id) }
 
     it "query Host policies with no policies defined" do
       test_no_policy_query(host_policies_url)
@@ -238,7 +234,7 @@ describe "Policies API" do
   context "Resource Pool policies subcollection" do
     let(:rp) { FactoryGirl.create(:resource_pool, :name => "Resource Pool 1") }
 
-    let(:rp_url)                  { resource_pools_url(rp.id) }
+    let(:rp_url)                  { resource_pool_url(nil, rp.id) }
     let(:rp_policies_url)         { "#{rp_url}/policies" }
     let(:rp_policy_profiles_url)  { "#{rp_url}/policy_profiles" }
 
@@ -269,9 +265,8 @@ describe "Policies API" do
                          :name => "Cluster 1", :ext_management_system => ems, :hosts => [host], :vms => [])
     end
 
-    let(:cluster_url)                 { clusters_url(cluster.id) }
-    let(:cluster_policies_url)        { "#{cluster_url}/policies" }
-    let(:cluster_policy_profiles_url) { "#{cluster_url}/policy_profiles" }
+    let(:cluster_policies_url)        { cluster__policies_url(nil, cluster.id) }
+    let(:cluster_policy_profiles_url) { cluster__policy_profiles_url(nil, cluster.id) }
 
     it "query Cluster policies with no policies defined" do
       test_no_policy_query(cluster_policies_url)
@@ -297,9 +292,8 @@ describe "Policies API" do
   context "Vms policies subcollection" do
     let(:vm)  { FactoryGirl.create(:vm) }
 
-    let(:vm_url)                  { vms_url(vm.id) }
-    let(:vm_policies_url)         { "#{vm_url}/policies" }
-    let(:vm_policy_profiles_url)  { "#{vm_url}/policy_profiles" }
+    let(:vm_policies_url)         { vm__policies_url(nil, vm.id) }
+    let(:vm_policy_profiles_url)  { vm__policy_profiles_url(nil, vm.id) }
 
     it "query Vm policies with no policies defined" do
       test_no_policy_query(vm_policies_url)
@@ -328,9 +322,8 @@ describe "Policies API" do
                          :name => "Template 1", :vendor => "vmware", :location => "template_1.vmtx")
     end
 
-    let(:template_url)                  { templates_url(template.id) }
-    let(:template_policies_url)         { "#{template_url}/policies" }
-    let(:template_policy_profiles_url)  { "#{template_url}/policy_profiles" }
+    let(:template_policies_url)         { template__policies_url(nil, template.id) }
+    let(:template_policy_profiles_url)  { template__policy_profiles_url(nil, template.id) }
 
     it "query Template policies with no policies defined" do
       test_no_policy_query(template_policies_url)
@@ -394,7 +387,7 @@ describe "Policies API" do
 
     it "deletes policy" do
       api_basic_authorize collection_action_identifier(:policies, :delete)
-      run_post(policies_url, gen_request(:delete, "href" => policies_url(miq_policy.id)))
+      run_post(policies_url, gen_request(:delete, "href" => policy_url(nil, miq_policy.id)))
       policy_id = response.parsed_body["results"].first["id"]
       expect(MiqPolicy.exists?(policy_id)).to be_falsey
       expect(response).to have_http_status(:ok)
@@ -406,7 +399,7 @@ describe "Policies API" do
       expect(miq_policy.conditions.count).to eq(2)
       expect(miq_policy.actions.count).to eq(0)
       expect(miq_policy.events.count).to eq(0)
-      run_post(policies_url(miq_policy.id), gen_request(:edit, miq_policy_contents.merge('conditions_ids' => [])))
+      run_post(policy_url(nil, miq_policy.id), gen_request(:edit, miq_policy_contents.merge('conditions_ids' => [])))
       policy = MiqPolicy.find(response.parsed_body["id"])
       expect(response).to have_http_status(:ok)
       expect(policy.actions.count).to eq(1)

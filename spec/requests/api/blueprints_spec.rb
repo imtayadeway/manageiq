@@ -11,7 +11,7 @@ RSpec.describe "Blueprints API" do
         "subcount"  => 1,
         "name"      => "blueprints",
         "resources" => [
-          hash_including("href" => a_string_matching(blueprints_url(blueprint.id)))
+          hash_including("href" => a_string_matching(blueprint_url(nil, blueprint.id)))
         ]
       }
       expect(response.parsed_body).to include(expected)
@@ -33,9 +33,9 @@ RSpec.describe "Blueprints API" do
       blueprint = FactoryGirl.create(:blueprint)
       api_basic_authorize action_identifier(:blueprints, :read, :resource_actions, :get)
 
-      run_get(blueprints_url(blueprint.id))
+      run_get(blueprint_url(nil, blueprint.id))
 
-      expect(response.parsed_body).to include("href" => a_string_matching(blueprints_url(blueprint.id)))
+      expect(response.parsed_body).to include("href" => a_string_matching(blueprint_url(nil, blueprint.id)))
       expect(response).to have_http_status(:ok)
     end
 
@@ -43,7 +43,7 @@ RSpec.describe "Blueprints API" do
       blueprint = FactoryGirl.create(:blueprint)
       api_basic_authorize
 
-      run_get(blueprints_url(blueprint.id))
+      run_get(blueprint_url(nil, blueprint.id))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -97,7 +97,7 @@ RSpec.describe "Blueprints API" do
     it "rejects blueprint creation with an href specified" do
       api_basic_authorize collection_action_identifier(:blueprints, :create)
 
-      run_post(blueprints_url, :name => "foo", :description => "bar", :href => blueprints_url(123))
+      run_post(blueprints_url, :name => "foo", :description => "bar", :href => blueprint_url(nil, 123))
 
       expected = {
         "error" => a_hash_including(
@@ -237,7 +237,7 @@ RSpec.describe "Blueprints API" do
       blueprint = FactoryGirl.create(:blueprint, :name => "foo", :description => "bar")
       api_basic_authorize
 
-      run_post(blueprints_url(blueprint.id), :action => "edit", :resource => {:name => "baz", :description => "qux"})
+      run_post(blueprint_url(nil, blueprint.id), :action => "edit", :resource => {:name => "baz", :description => "qux"})
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -246,7 +246,7 @@ RSpec.describe "Blueprints API" do
       blueprint = FactoryGirl.create(:blueprint)
       api_basic_authorize action_identifier(:blueprints, :delete)
 
-      run_post(blueprints_url(blueprint.id), :action => "delete")
+      run_post(blueprint_url(nil, blueprint.id), :action => "delete")
 
       expect(response).to have_http_status(:ok)
     end
@@ -255,7 +255,7 @@ RSpec.describe "Blueprints API" do
       blueprint = FactoryGirl.create(:blueprint)
       api_basic_authorize
 
-      run_post(blueprints_url(blueprint.id), :action => "delete")
+      run_post(blueprint_url(nil, blueprint.id), :action => "delete")
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -278,7 +278,7 @@ RSpec.describe "Blueprints API" do
       blueprint = FactoryGirl.create(:blueprint, :ui_properties => ui_properties)
       api_basic_authorize action_identifier(:blueprints, :publish)
 
-      run_post(blueprints_url(blueprint.id), :action => "publish")
+      run_post(blueprint_url(nil, blueprint.id), :action => "publish")
 
       expected = {
         "id"     => blueprint.id,
@@ -292,7 +292,7 @@ RSpec.describe "Blueprints API" do
       blueprint = FactoryGirl.create(:blueprint)
       api_basic_authorize action_identifier(:blueprints, :publish)
 
-      run_post(blueprints_url(blueprint.id), :action => "publish")
+      run_post(blueprint_url(nil, blueprint.id), :action => "publish")
 
       expected = {
         "error" => a_hash_including(
@@ -311,7 +311,7 @@ RSpec.describe "Blueprints API" do
       blueprint = FactoryGirl.create(:blueprint)
       api_basic_authorize action_identifier(:blueprints, :delete, :resource_actions, :delete)
 
-      run_delete(blueprints_url(blueprint.id))
+      run_delete(blueprint_url(nil, blueprint.id))
 
       expect(response).to have_http_status(:no_content)
     end
@@ -320,7 +320,7 @@ RSpec.describe "Blueprints API" do
       blueprint = FactoryGirl.create(:blueprint)
       api_basic_authorize
 
-      run_delete(blueprints_url(blueprint.id))
+      run_delete(blueprint_url(nil, blueprint.id))
 
       expect(response).to have_http_status(:forbidden)
     end

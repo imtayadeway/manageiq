@@ -78,7 +78,7 @@ describe "Roles API" do
       role = FactoryGirl.create(:miq_user_role,
                                 :name                 => "Test Role",
                                 :miq_product_features => @product_features)
-      test_features_query(role, roles_url(role.id), MiqProductFeature, :identifier)
+      test_features_query(role, role_url(nil, role.id), MiqProductFeature, :identifier)
     end
   end
 
@@ -165,7 +165,7 @@ describe "Roles API" do
     it "rejects role edits without appropriate role" do
       role = FactoryGirl.create(:miq_user_role)
       api_basic_authorize
-      run_post(roles_url, gen_request(:edit, "name" => "role name", "href" => roles_url(role.id)))
+      run_post(roles_url, gen_request(:edit, "name" => "role name", "href" => role_url(nil, role.id)))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -173,7 +173,7 @@ describe "Roles API" do
     it "rejects role edits for invalid resources" do
       api_basic_authorize collection_action_identifier(:roles, :edit)
 
-      run_post(roles_url(999_999), gen_request(:edit, "name" => "updated role name"))
+      run_post(role_url(nil, 999_999), gen_request(:edit, "name" => "updated role name"))
 
       expect(response).to have_http_status(:not_found)
     end
@@ -183,7 +183,7 @@ describe "Roles API" do
 
       role = FactoryGirl.create(:miq_user_role)
 
-      run_post(roles_url(role.id), gen_request(:edit, "name"     => "updated role",
+      run_post(role_url(nil, role.id), gen_request(:edit, "name"     => "updated role",
                                                       "settings" => {"restrictions"  => {"vms" => "user_or_group"}}))
 
       expect_single_resource_query("id"       => role.id,
@@ -200,8 +200,8 @@ describe "Roles API" do
       r2 = FactoryGirl.create(:miq_user_role, :name => "role2")
 
       run_post(roles_url, gen_request(:edit,
-                                      [{"href" => roles_url(r1.id), "name" => "updated role1"},
-                                       {"href" => roles_url(r2.id), "name" => "updated role2"}]))
+                                      [{"href" => role_url(nil, r1.id), "name" => "updated role1"},
+                                       {"href" => role_url(nil, r2.id), "name" => "updated role2"}]))
 
       expect_results_to_match_hash("results",
                                    [{"id" => r1.id, "name" => "updated role1"},
@@ -313,7 +313,7 @@ describe "Roles API" do
     it "rejects role deletion, by post action, without appropriate role" do
       api_basic_authorize
 
-      run_post(roles_url, gen_request(:delete, "name" => "role name", "href" => roles_url(100)))
+      run_post(roles_url, gen_request(:delete, "name" => "role name", "href" => role_url(nil, 100)))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -321,7 +321,7 @@ describe "Roles API" do
     it "rejects role deletion without appropriate role" do
       api_basic_authorize
 
-      run_delete(roles_url(100))
+      run_delete(role_url(nil, 100))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -329,7 +329,7 @@ describe "Roles API" do
     it "rejects role deletes for invalid roles" do
       api_basic_authorize collection_action_identifier(:roles, :delete)
 
-      run_delete(roles_url(999_999))
+      run_delete(role_url(nil, 999_999))
 
       expect(response).to have_http_status(:not_found)
     end
@@ -339,7 +339,7 @@ describe "Roles API" do
 
       role = FactoryGirl.create(:miq_user_role, :name => "role1")
 
-      run_delete(roles_url(role.id))
+      run_delete(role_url(nil, role.id))
 
       expect(response).to have_http_status(:no_content)
       expect(MiqUserRole.exists?(role.id)).to be_falsey
@@ -350,7 +350,7 @@ describe "Roles API" do
 
       role = FactoryGirl.create(:miq_user_role, :name => "role1")
 
-      run_post(roles_url(role.id), gen_request(:delete))
+      run_post(role_url(nil, role.id), gen_request(:delete))
 
       expect(response).to have_http_status(:ok)
       expect(MiqUserRole.exists?(role.id)).to be_falsey
@@ -363,8 +363,8 @@ describe "Roles API" do
       r2 = FactoryGirl.create(:miq_user_role, :name => "role name 2")
 
       run_post(roles_url, gen_request(:delete,
-                                      [{"href" => roles_url(r1.id)},
-                                       {"href" => roles_url(r2.id)}]))
+                                      [{"href" => role_url(nil, r1.id)},
+                                       {"href" => role_url(nil, r2.id)}]))
 
       expect(response).to have_http_status(:ok)
       expect(MiqUserRole.exists?(r1.id)).to be_falsey

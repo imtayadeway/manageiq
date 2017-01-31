@@ -6,7 +6,7 @@ RSpec.describe "chargebacks API" do
     run_get chargebacks_url
 
     expect_result_resources_to_include_hrefs(
-      "resources", [chargebacks_url(chargeback_rate.id)]
+      "resources", [chargeback_url(nil, chargeback_rate.id)]
     )
     expect_result_to_match_hash(response.parsed_body, "count" => 1)
     expect(response).to have_http_status(:ok)
@@ -16,14 +16,14 @@ RSpec.describe "chargebacks API" do
     chargeback_rate = FactoryGirl.create(:chargeback_rate)
 
     api_basic_authorize action_identifier(:chargebacks, :read, :resource_actions, :get)
-    run_get chargebacks_url(chargeback_rate.id)
+    run_get chargeback_url(nil, chargeback_rate.id)
 
     expect_result_to_match_hash(
       response.parsed_body,
       "description" => chargeback_rate.description,
       "guid"        => chargeback_rate.guid,
       "id"          => chargeback_rate.id,
-      "href"        => chargebacks_url(chargeback_rate.id)
+      "href"        => chargeback_url(nil, chargeback_rate.id)
     )
     expect(response).to have_http_status(:ok)
   end
@@ -38,12 +38,12 @@ RSpec.describe "chargebacks API" do
                                          :chargeback_rate_details => [chargeback_rate_detail])
 
     api_basic_authorize
-    run_get "#{chargebacks_url(chargeback_rate.id)}/rates"
+    run_get "#{chargeback_url(nil, chargeback_rate.id)}/rates"
 
     expect_query_result(:rates, 1, 1)
     expect_result_resources_to_include_hrefs(
       "resources",
-      ["#{chargebacks_url(chargeback_rate.id)}/rates/#{chargeback_rate_detail.to_param}"]
+      ["#{chargeback_url(nil, chargeback_rate.id)}/rates/#{chargeback_rate_detail.to_param}"]
     )
   end
 
@@ -57,12 +57,12 @@ RSpec.describe "chargebacks API" do
                                          :chargeback_rate_details => [chargeback_rate_detail])
 
     api_basic_authorize
-    run_get "#{chargebacks_url(chargeback_rate.id)}/rates/#{chargeback_rate_detail.to_param}"
+    run_get "#{chargeback_url(nil, chargeback_rate.id)}/rates/#{chargeback_rate_detail.to_param}"
 
     expect_result_to_match_hash(
       response.parsed_body,
       "chargeback_rate_id" => chargeback_rate.id,
-      "href"               => "#{chargebacks_url(chargeback_rate.id)}/rates/#{chargeback_rate_detail.to_param}",
+      "href"               => "#{chargeback_url(nil, chargeback_rate.id)}/rates/#{chargeback_rate_detail.to_param}",
       "id"                 => chargeback_rate_detail.id,
       "description"        => "rate_1"
     )
@@ -154,7 +154,7 @@ RSpec.describe "chargebacks API" do
       chargeback_rate = FactoryGirl.create(:chargeback_rate, :description => "chargeback_0")
 
       api_basic_authorize action_identifier(:chargebacks, :edit)
-      run_post chargebacks_url(chargeback_rate.id), gen_request(:edit, :description => "chargeback_1")
+      run_post chargeback_url(nil, chargeback_rate.id), gen_request(:edit, :description => "chargeback_1")
 
       expect(response.parsed_body["description"]).to eq("chargeback_1")
       expect(response).to have_http_status(:ok)
@@ -165,7 +165,7 @@ RSpec.describe "chargebacks API" do
       chargeback_rate = FactoryGirl.create(:chargeback_rate, :description => "chargeback_0")
 
       api_basic_authorize action_identifier(:chargebacks, :edit)
-      run_patch chargebacks_url(chargeback_rate.id), [{:action => "edit",
+      run_patch chargeback_url(nil, chargeback_rate.id), [{:action => "edit",
                                                        :path   => "description",
                                                        :value  => "chargeback_1"}]
 
@@ -180,7 +180,7 @@ RSpec.describe "chargebacks API" do
       api_basic_authorize action_identifier(:chargebacks, :delete)
 
       expect do
-        run_delete chargebacks_url(chargeback_rate.id)
+        run_delete chargeback_url(nil, chargeback_rate.id)
       end.to change(ChargebackRate, :count).by(-1)
       expect(response).to have_http_status(:no_content)
     end
@@ -191,7 +191,7 @@ RSpec.describe "chargebacks API" do
       api_basic_authorize action_identifier(:chargebacks, :delete)
 
       expect do
-        run_post chargebacks_url(chargeback_rate.id), :action => "delete"
+        run_post chargeback_url(nil, chargeback_rate.id), :action => "delete"
       end.to change(ChargebackRate, :count).by(-1)
       expect(response).to have_http_status(:ok)
     end
@@ -233,7 +233,7 @@ RSpec.describe "chargebacks API" do
       chargeback_rate_detail.save
 
       api_basic_authorize action_identifier(:rates, :edit)
-      run_post rates_url(chargeback_rate_detail.id), gen_request(:edit, :description => "rate_1")
+      run_post rate_url(nil, chargeback_rate_detail.id), gen_request(:edit, :description => "rate_1")
 
       expect(response.parsed_body["description"]).to eq("rate_1")
       expect(response).to have_http_status(:ok)
@@ -249,7 +249,7 @@ RSpec.describe "chargebacks API" do
       chargeback_rate_detail.save
 
       api_basic_authorize action_identifier(:rates, :edit)
-      run_patch rates_url(chargeback_rate_detail.id), [{:action => "edit", :path => "description", :value => "rate_1"}]
+      run_patch rate_url(nil, chargeback_rate_detail.id), [{:action => "edit", :path => "description", :value => "rate_1"}]
 
       expect(response.parsed_body["description"]).to eq("rate_1")
       expect(response).to have_http_status(:ok)
@@ -267,7 +267,7 @@ RSpec.describe "chargebacks API" do
       api_basic_authorize action_identifier(:rates, :delete)
 
       expect do
-        run_delete rates_url(chargeback_rate_detail.id)
+        run_delete rate_url(nil, chargeback_rate_detail.id)
       end.to change(ChargebackRateDetail, :count).by(-1)
       expect(response).to have_http_status(:no_content)
     end
@@ -283,7 +283,7 @@ RSpec.describe "chargebacks API" do
       api_basic_authorize action_identifier(:rates, :delete)
 
       expect do
-        run_post rates_url(chargeback_rate_detail.id), :action => "delete"
+        run_post rate_url(nil, chargeback_rate_detail.id), :action => "delete"
       end.to change(ChargebackRateDetail, :count).by(-1)
       expect(response).to have_http_status(:ok)
     end
@@ -304,7 +304,7 @@ RSpec.describe "chargebacks API" do
       api_basic_authorize
 
       expect do
-        run_post chargebacks_url(chargeback_rate.id), gen_request(:edit, :description => "chargeback_1")
+        run_post chargeback_url(nil, chargeback_rate.id), gen_request(:edit, :description => "chargeback_1")
       end.not_to change { chargeback_rate.reload.description }
       expect(response).to have_http_status(:forbidden)
     end
@@ -315,7 +315,7 @@ RSpec.describe "chargebacks API" do
       api_basic_authorize
 
       expect do
-        run_delete chargebacks_url(chargeback_rate.id)
+        run_delete chargeback_url(nil, chargeback_rate.id)
       end.not_to change(ChargebackRate, :count)
       expect(response).to have_http_status(:forbidden)
     end
@@ -339,7 +339,7 @@ RSpec.describe "chargebacks API" do
       api_basic_authorize
 
       expect do
-        run_post rates_url(chargeback_rate_detail.id), gen_request(:edit, :description => "rate_2")
+        run_post rate_url(nil, chargeback_rate_detail.id), gen_request(:edit, :description => "rate_2")
       end.not_to change { chargeback_rate_detail.reload.description }
       expect(response).to have_http_status(:forbidden)
     end
@@ -355,7 +355,7 @@ RSpec.describe "chargebacks API" do
       api_basic_authorize
 
       expect do
-        run_delete rates_url(chargeback_rate_detail.id)
+        run_delete rate_url(nil, chargeback_rate_detail.id)
       end.not_to change(ChargebackRateDetail, :count)
       expect(response).to have_http_status(:forbidden)
     end

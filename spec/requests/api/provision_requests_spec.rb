@@ -101,8 +101,8 @@ describe "Provision Requests API" do
     let(:provreqbody)   { {:requester => user, :source_type => 'VmOrTemplate', :source_id => template.id} }
     let(:provreq1)      { FactoryGirl.create(:miq_provision_request, provreqbody) }
     let(:provreq2)      { FactoryGirl.create(:miq_provision_request, provreqbody) }
-    let(:provreq1_url)  { provision_requests_url(provreq1.id) }
-    let(:provreq2_url)  { provision_requests_url(provreq2.id) }
+    let(:provreq1_url)  { provision_request_url(nil, provreq1.id) }
+    let(:provreq2_url)  { provision_request_url(nil, provreq2.id) }
     let(:provreqs_list) { [provreq1_url, provreq2_url] }
 
     it "supports approving a request" do

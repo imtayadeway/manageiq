@@ -16,7 +16,7 @@ RSpec.describe 'Arbitration Rule API' do
 
       expect_result_resources_to_include_hrefs(
         'resources',
-        rules.map { |rule| arbitration_rules_url(rule.id) }
+        rules.map { |rule| arbitration_rule_url(nil, rule.id) }
       )
       expect(response).to have_http_status(:ok)
     end
@@ -27,9 +27,9 @@ RSpec.describe 'Arbitration Rule API' do
       rule = FactoryGirl.create(:arbitration_rule)
       api_basic_authorize collection_action_identifier(:arbitration_rules, :read, :get)
 
-      run_get arbitration_rules_url(rule.id)
+      run_get arbitration_rule_url(nil, rule.id)
 
-      expect(response.parsed_body).to include('href' => a_string_including(arbitration_rules_url(rule.id)))
+      expect(response.parsed_body).to include('href' => a_string_including(arbitration_rule_url(nil, rule.id)))
       expect(response).to have_http_status(:ok)
     end
   end
@@ -108,7 +108,7 @@ RSpec.describe 'Arbitration Rule API' do
 
       request = request_body.dup
       arbitration_profile_id = request.delete('arbitration_profile_id')
-      request['arbitration_profile'] = { 'href' => arbitration_profiles_url(arbitration_profile_id) }
+      request['arbitration_profile'] = { 'href' => arbitration_profile_url(nil, arbitration_profile_id) }
 
       expect do
         run_post(arbitration_rules_url, gen_request(:create, request))
@@ -120,7 +120,7 @@ RSpec.describe 'Arbitration Rule API' do
     it 'rejects a request with an id' do
       api_basic_authorize collection_action_identifier(:arbitration_rules, :create)
 
-      run_post(arbitration_rules_url(999_999), request_body.merge(:id => 999_999))
+      run_post(arbitration_rule_url(nil, 999_999), request_body.merge(:id => 999_999))
 
       expect_bad_request(/Unsupported Action create for the arbitration_rules resource/)
       expect(response).to have_http_status(:bad_request)
@@ -133,7 +133,7 @@ RSpec.describe 'Arbitration Rule API' do
     it 'rejects edit without an appropriate role' do
       api_basic_authorize
 
-      run_post(arbitration_rules_url(rule.id), gen_request(:edit, :description => 'edited description'))
+      run_post(arbitration_rule_url(nil, rule.id), gen_request(:edit, :description => 'edited description'))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -142,14 +142,14 @@ RSpec.describe 'Arbitration Rule API' do
       api_basic_authorize collection_action_identifier(:arbitration_rules, :edit)
 
       expected = {
-        'href'        => a_string_including(arbitration_rules_url(rule.id)),
+        'href'        => a_string_including(arbitration_rule_url(nil, rule.id)),
         'id'          => rule.id,
         'description' => 'edited description',
         'operation'   => 'inject'
       }
 
       expect do
-        run_post(arbitration_rules_url(rule.id), gen_request(:edit, :description => 'edited description'))
+        run_post(arbitration_rule_url(nil, rule.id), gen_request(:edit, :description => 'edited description'))
       end.to change { rule.reload.description }.to('edited description')
       expect(response.parsed_body).to include(expected)
       expect(response).to have_http_status(:ok)
@@ -162,14 +162,14 @@ RSpec.describe 'Arbitration Rule API' do
       api_basic_authorize collection_action_identifier(:arbitration_rules, :delete)
 
       expect do
-        run_delete(arbitration_rules_url(rule.id))
+        run_delete(arbitration_rule_url(nil, rule.id))
       end.to change(ArbitrationRule, :count).by(-1)
       expect(response).to have_http_status(:no_content)
     end
 
     it 'supports multiple arbitration rule delete' do
       rules = FactoryGirl.create_list(:arbitration_rule, 2)
-      hrefs = rules.map { |rule| { 'href' => arbitration_rules_url(rule.id) } }
+      hrefs = rules.map { |rule| { 'href' => arbitration_rule_url(nil, rule.id) } }
       api_basic_authorize collection_action_identifier(:arbitration_rules, :delete)
 
       expect do

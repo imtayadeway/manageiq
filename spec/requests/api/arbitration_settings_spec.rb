@@ -16,7 +16,7 @@ RSpec.describe 'Arbitration Profile API' do
 
       expect_result_resources_to_include_hrefs(
         'resources',
-        settings.map { |setting| arbitration_settings_url(setting.id) }
+        settings.map { |setting| arbitration_setting_url(nil, setting.id) }
       )
       expect(response).to have_http_status(:ok)
     end
@@ -59,7 +59,7 @@ RSpec.describe 'Arbitration Profile API' do
     it 'rejects a request with an href' do
       api_basic_authorize collection_action_identifier(:arbitration_settings, :create)
 
-      run_post(arbitration_settings_url, request_body.merge(:href => arbitration_settings_url(999_999)))
+      run_post(arbitration_settings_url, request_body.merge(:href => arbitration_setting_url(nil, 999_999)))
 
       expect_bad_request(/Resource id or href should not be specified/)
     end
@@ -79,7 +79,7 @@ RSpec.describe 'Arbitration Profile API' do
     it 'rejects edit without an appropriate role' do
       api_basic_authorize
 
-      run_post(arbitration_settings_url(setting.id), gen_request(:edit, :name => 'new name'))
+      run_post(arbitration_setting_url(nil, setting.id), gen_request(:edit, :name => 'new name'))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -88,7 +88,7 @@ RSpec.describe 'Arbitration Profile API' do
       api_basic_authorize collection_action_identifier(:arbitration_settings, :edit)
 
       expect do
-        run_post(arbitration_settings_url(setting.id), gen_request(:edit, :value => 'new value'))
+        run_post(arbitration_setting_url(nil, setting.id), gen_request(:edit, :value => 'new value'))
       end.to change { setting.reload.value }.to('new value')
 
       expect(response).to have_http_status(:ok)
@@ -99,7 +99,7 @@ RSpec.describe 'Arbitration Profile API' do
     it 'rejects arbitration_setting deletion, by post action, without appropriate role' do
       api_basic_authorize
 
-      run_post(arbitration_settings_url, gen_request(:delete, :href => arbitration_settings_url(999_999)))
+      run_post(arbitration_settings_url, gen_request(:delete, :href => arbitration_setting_url(nil, 999_999)))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -107,7 +107,7 @@ RSpec.describe 'Arbitration Profile API' do
     it 'rejects arbitration_setting deletion without appropriate role' do
       api_basic_authorize
 
-      run_delete(arbitration_settings_url(999_999))
+      run_delete(arbitration_setting_url(nil, 999_999))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -117,7 +117,7 @@ RSpec.describe 'Arbitration Profile API' do
       setting = FactoryGirl.create(:arbitration_setting)
 
       expect do
-        run_delete(arbitration_settings_url(setting.id))
+        run_delete(arbitration_setting_url(nil, setting.id))
       end.to change(ArbitrationSetting, :count).by(-1)
 
       expect(response).to have_http_status(:no_content)
@@ -127,7 +127,7 @@ RSpec.describe 'Arbitration Profile API' do
     it 'supports multiple arbitration_setting delete' do
       api_basic_authorize collection_action_identifier(:arbitration_settings, :delete)
       settings = FactoryGirl.create_list(:arbitration_setting, 2)
-      setting_urls = settings.map { |setting| { 'href' => arbitration_settings_url(setting.id) } }
+      setting_urls = settings.map { |setting| { 'href' => arbitration_setting_url(nil, setting.id) } }
 
       expect do
         run_post(arbitration_settings_url, gen_request(:delete, setting_urls))

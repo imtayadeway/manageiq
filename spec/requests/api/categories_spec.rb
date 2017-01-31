@@ -7,7 +7,7 @@ RSpec.describe "categories API" do
 
     expect_result_resources_to_include_hrefs(
       "resources",
-      categories.map { |category| categories_url(category.id) }
+      categories.map { |category| category_url(nil, category.id) }
     )
     expect(response).to have_http_status(:ok)
   end
@@ -20,7 +20,7 @@ RSpec.describe "categories API" do
     run_get categories_url, :filter => ["name=foo"]
 
     expect_query_result(:categories, 1, 2)
-    expect_result_resources_to_include_hrefs("resources", [categories_url(category_1.id)])
+    expect_result_resources_to_include_hrefs("resources", [category_url(nil, category_1.id)])
   end
 
   it "will return a bad request error if the filter name is invalid" do
@@ -36,11 +36,11 @@ RSpec.describe "categories API" do
     category = FactoryGirl.create(:category)
     api_basic_authorize action_identifier(:categories, :read, :resource_actions, :get)
 
-    run_get categories_url(category.id)
+    run_get category_url(nil, category.id)
     expect_result_to_match_hash(
       response.parsed_body,
       "description" => category.description,
-      "href"        => categories_url(category.id),
+      "href"        => category_url(nil, category.id),
       "id"          => category.id
     )
     expect(response).to have_http_status(:ok)
@@ -53,11 +53,11 @@ RSpec.describe "categories API" do
     Tag.create(:name => "some_other_tag")
     api_basic_authorize
 
-    run_get "#{categories_url(category.id)}/tags"
+    run_get "#{category_url(nil, category.id)}/tags"
 
     expect_result_resources_to_include_hrefs(
       "resources",
-      ["#{categories_url(category.id)}/tags/#{tag.id}"]
+      ["#{category_url(nil, category.id)}/tags/#{tag.id}"]
     )
     expect(response).to have_http_status(:ok)
   end
@@ -107,7 +107,7 @@ RSpec.describe "categories API" do
       api_basic_authorize action_identifier(:categories, :edit)
 
       expect do
-        run_post categories_url(category.id), gen_request(:edit, :description => "New description")
+        run_post category_url(nil, category.id), gen_request(:edit, :description => "New description")
       end.to change { category.reload.description }.to("New description")
 
       expect(response).to have_http_status(:ok)
@@ -119,7 +119,7 @@ RSpec.describe "categories API" do
       api_basic_authorize action_identifier(:categories, :delete)
 
       expect do
-        run_post categories_url(category.id), gen_request(:delete)
+        run_post category_url(nil, category.id), gen_request(:delete)
       end.to change(Category, :count).by(-1)
 
       expect(response).to have_http_status(:ok)
@@ -130,7 +130,7 @@ RSpec.describe "categories API" do
       api_basic_authorize action_identifier(:categories, :delete)
 
       expect do
-        run_delete categories_url(category.id)
+        run_delete category_url(nil, category.id)
       end.to change(Category, :count).by(-1)
 
       expect(response).to have_http_status(:no_content)
@@ -142,7 +142,7 @@ RSpec.describe "categories API" do
         api_basic_authorize action_identifier(:categories, :delete)
 
         expect do
-          run_post categories_url(category.id), gen_request(:delete)
+          run_post category_url(nil, category.id), gen_request(:delete)
         end.not_to change(Category, :count)
 
         expect(response).to have_http_status(:forbidden)
@@ -153,7 +153,7 @@ RSpec.describe "categories API" do
         api_basic_authorize action_identifier(:categories, :edit)
 
         expect do
-          run_post categories_url(category.id), gen_request(:edit, :description => "new description")
+          run_post category_url(nil, category.id), gen_request(:edit, :description => "new description")
         end.not_to change { category.reload.description }
 
         expect(response).to have_http_status(:forbidden)
@@ -176,7 +176,7 @@ RSpec.describe "categories API" do
         api_basic_authorize
 
         expect do
-          run_post categories_url(category.id), gen_request(:edit, :description => "New description")
+          run_post category_url(nil, category.id), gen_request(:edit, :description => "New description")
         end.not_to change { category.reload.description }
 
         expect(response).to have_http_status(:forbidden)
@@ -187,7 +187,7 @@ RSpec.describe "categories API" do
         api_basic_authorize
 
         expect do
-          run_post categories_url(category.id), gen_request(:delete)
+          run_post category_url(nil, category.id), gen_request(:delete)
         end.not_to change(Category, :count)
 
         expect(response).to have_http_status(:forbidden)
@@ -198,7 +198,7 @@ RSpec.describe "categories API" do
         api_basic_authorize
 
         expect do
-          run_delete categories_url(category.id)
+          run_delete category_url(nil, category.id)
         end.not_to change(Category, :count)
 
         expect(response).to have_http_status(:forbidden)

@@ -5,7 +5,7 @@ RSpec.describe "Custom Attributes API" do
     api_basic_authorize
 
     expect do
-      run_delete("#{vms_url(vm.id)}/custom_attributes/#{custom_attribute.id}")
+      run_delete("#{vm_url(nil, vm.id)}/custom_attributes/#{custom_attribute.id}")
     end.to change(CustomAttribute, :count).by(-1)
 
     expect(response).to have_http_status(:no_content)

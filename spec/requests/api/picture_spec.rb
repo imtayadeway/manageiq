@@ -36,7 +36,7 @@ describe "Pictures" do
     it "allows queries of the related picture and image_href" do
       api_basic_authorize action_identifier(:service_templates, :read, :resource_actions, :get)
 
-      run_get service_templates_url(template.id), :attributes => "picture,picture.image_href"
+      run_get service_template_url(nil, template.id), :attributes => "picture,picture.image_href"
 
       expect_result_to_include_picture_href(template.id)
     end
@@ -46,7 +46,7 @@ describe "Pictures" do
     it "allows queries of the related picture and image_href" do
       api_basic_authorize action_identifier(:services, :read, :resource_actions, :get)
 
-      run_get services_url(service.id), :attributes => "picture,picture.image_href"
+      run_get service_url(nil, service.id), :attributes => "picture,picture.image_href"
 
       expect_result_to_include_picture_href(service.id)
     end
@@ -56,7 +56,7 @@ describe "Pictures" do
     it "allows queries of the related picture and image_href" do
       api_basic_authorize action_identifier(:service_requests, :read, :resource_actions, :get)
 
-      run_get service_requests_url(service_request.id), :attributes => "picture,picture.image_href"
+      run_get service_request_url(nil, service_request.id), :attributes => "picture,picture.image_href"
 
       expect_result_to_include_picture_href(service_request.id)
     end

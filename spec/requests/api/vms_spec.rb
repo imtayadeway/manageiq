@@ -11,19 +11,17 @@ describe "Vms API" do
   let(:vm_openstack)       { FactoryGirl.create(:vm_openstack, :host => host, :ems_id => ems.id, :raw_power_state => "ACTIVE") }
   let(:vm_openstack1)      { FactoryGirl.create(:vm_openstack, :host => host, :ems_id => ems.id, :raw_power_state => "ACTIVE") }
   let(:vm_openstack2)      { FactoryGirl.create(:vm_openstack, :host => host, :ems_id => ems.id, :raw_power_state => "ACTIVE") }
-  let(:vm_openstack_url)   { vms_url(vm_openstack.id) }
-  let(:vm_openstack1_url)  { vms_url(vm_openstack1.id) }
-  let(:vm_openstack2_url)  { vms_url(vm_openstack2.id) }
+  let(:vm_openstack_url)   { vm_url(nil, vm_openstack.id) }
+  let(:vm_openstack1_url)  { vm_url(nil, vm_openstack1.id) }
+  let(:vm_openstack2_url)  { vm_url(nil, vm_openstack2.id) }
   let(:vms_openstack_list) { [vm_openstack1_url, vm_openstack2_url] }
   let(:vm1)                { FactoryGirl.create(:vm_vmware,    :host => host, :ems_id => ems.id, :raw_power_state => "poweredOn") }
   let(:vm2)                { FactoryGirl.create(:vm_vmware,    :host => host, :ems_id => ems.id, :raw_power_state => "poweredOn") }
-  let(:vm1_url)            { vms_url(vm1.id) }
-  let(:vm2_url)            { vms_url(vm2.id) }
+  let(:vm1_url)            { vm_url(nil, vm1.id) }
+  let(:vm2_url)            { vm_url(nil, vm2.id) }
   let(:vms_list)           { [vm1_url, vm2_url] }
   let(:vm_guid)            { vm.guid }
-  let(:vm_url)             { vms_url(vm.id) }
-
-  let(:invalid_vm_url) { vms_url(999_999) }
+  let(:invalid_vm_url) { vm_url(nil, 999_999) }
 
   def update_raw_power_state(state, *vms)
     vms.each { |vm| vm.update_attributes!(:raw_power_state => state) }
@@ -32,7 +30,7 @@ describe "Vms API" do
   context "Vm accounts subcollection" do
     let(:acct1) { FactoryGirl.create(:account, :vm_or_template_id => vm.id, :name => "John") }
     let(:acct2) { FactoryGirl.create(:account, :vm_or_template_id => vm.id, :name => "Jane") }
-    let(:vm_accounts_url)      { "#{vms_url(vm.id)}/accounts" }
+    let(:vm_accounts_url)      { "#{vm_url(nil, vm.id)}/accounts" }
     let(:acct1_url)            { "#{vm_accounts_url}/#{acct1.id}" }
     let(:acct2_url)            { "#{vm_accounts_url}/#{acct2.id}" }
     let(:vm_accounts_url_list) { [acct1_url, acct2_url] }
@@ -79,7 +77,7 @@ describe "Vms API" do
       acct1
       acct2
 
-      run_get vm_url, :expand => "accounts"
+      run_get vm_url(nil, vm.id), :expand => "accounts"
 
       expect_single_resource_query("guid" => vm_guid)
       expect_result_resources_to_include_hrefs("accounts", vm_accounts_url_list)
@@ -89,7 +87,7 @@ describe "Vms API" do
   context "Vm software subcollection" do
     let(:sw1) { FactoryGirl.create(:guest_application, :vm_or_template_id => vm.id, :name => "Word")  }
     let(:sw2) { FactoryGirl.create(:guest_application, :vm_or_template_id => vm.id, :name => "Excel") }
-    let(:vm_software_url)      { "#{vms_url(vm.id)}/software"    }
+    let(:vm_software_url)      { "#{vm_url(nil, vm.id)}/software"    }
     let(:sw1_url)              { "#{vm_software_url}/#{sw1.id}" }
     let(:sw2_url)              { "#{vm_software_url}/#{sw2.id}" }
     let(:vm_software_url_list) { [sw1_url, sw2_url] }
@@ -136,7 +134,7 @@ describe "Vms API" do
       sw1
       sw2
 
-      run_get vms_url(vm.id), :expand => "software"
+      run_get vm_url(nil, vm.id), :expand => "software"
 
       expect_single_resource_query("guid" => vm_guid)
       expect_result_resources_to_include_hrefs("software", vm_software_url_list)
@@ -163,7 +161,7 @@ describe "Vms API" do
     it "starts a powered on vm" do
       api_basic_authorize action_identifier(:vms, :start)
 
-      run_post(vm_url, gen_request(:start))
+      run_post(vm_url(nil, vm.id), gen_request(:start))
 
       expect_single_action_result(:success => false, :message => "is powered on", :href => vm_url)
     end
@@ -172,18 +170,18 @@ describe "Vms API" do
       api_basic_authorize action_identifier(:vms, :start)
       update_raw_power_state("poweredOff", vm)
 
-      run_post(vm_url, gen_request(:start))
+      run_post(vm_url(nil, vm.id), gen_request(:start))
 
-      expect_single_action_result(:success => true, :message => "starting", :href => vm_url, :task => true)
+      expect_single_action_result(:success => true, :message => "starting", :href => vm_url(nil, vm.id), :task => true)
     end
 
     it "starting a vm queues it properly" do
       api_basic_authorize action_identifier(:vms, :start)
       update_raw_power_state("poweredOff", vm)
 
-      run_post(vm_url, gen_request(:start))
+      run_post(vm_url(nil, vm.id), gen_request(:start))
 
-      expect_single_action_result(:success => true, :message => "starting", :href => vm_url, :task => true)
+      expect_single_action_result(:success => true, :message => "starting", :href => vm_url(nil, vm.id), :task => true)
       expect(MiqQueue.where(:class_name  => vm.class.name,
                             :instance_id => vm.id,
                             :method_name => "start",
@@ -222,7 +220,7 @@ describe "Vms API" do
       api_basic_authorize action_identifier(:vms, :stop)
       update_raw_power_state("poweredOff", vm)
 
-      run_post(vm_url, gen_request(:stop))
+      run_post(vm_url(nil, vm.id), gen_request(:stop))
 
       expect_single_action_result(:success => false, :message => "is not powered on", :href => vm_url)
     end
@@ -230,9 +228,9 @@ describe "Vms API" do
     it "stops a vm" do
       api_basic_authorize action_identifier(:vms, :stop)
 
-      run_post(vm_url, gen_request(:stop))
+      run_post(vm_url(nil, vm.id), gen_request(:stop))
 
-      expect_single_action_result(:success => true, :message => "stopping", :href => vm_url, :task => true)
+      expect_single_action_result(:success => true, :message => "stopping", :href => vm_url(nil, vm.id), :task => true)
     end
 
     it "stops multiple vms" do
@@ -266,7 +264,7 @@ describe "Vms API" do
       api_basic_authorize action_identifier(:vms, :suspend)
       update_raw_power_state("poweredOff", vm)
 
-      run_post(vm_url, gen_request(:suspend))
+      run_post(vm_url(nil, vm.id), gen_request(:suspend))
 
       expect_single_action_result(:success => false, :message => "is not powered on", :href => vm_url)
     end
@@ -275,7 +273,7 @@ describe "Vms API" do
       api_basic_authorize action_identifier(:vms, :suspend)
       update_raw_power_state("suspended", vm)
 
-      run_post(vm_url, gen_request(:suspend))
+      run_post(vm_url(nil, vm.id), gen_request(:suspend))
 
       expect_single_action_result(:success => false, :message => "is not powered on", :href => vm_url)
     end
@@ -283,9 +281,9 @@ describe "Vms API" do
     it "suspends a vm" do
       api_basic_authorize action_identifier(:vms, :suspend)
 
-      run_post(vm_url, gen_request(:suspend))
+      run_post(vm_url(nil, vm.id), gen_request(:suspend))
 
-      expect_single_action_result(:success => true, :message => "suspending", :href => vm_url, :task => true)
+      expect_single_action_result(:success => true, :message => "suspending", :href => vm_url(nil, vm.id), :task => true)
     end
 
     it "suspends multiple vms" do
@@ -319,7 +317,7 @@ describe "Vms API" do
       api_basic_authorize action_identifier(:vms, :pause)
       update_raw_power_state("off", vm)
 
-      run_post(vm_url, gen_request(:pause))
+      run_post(vm_url(nil, vm.id), gen_request(:pause))
 
       expect_single_action_result(:success => false, :message => "is not powered on", :href => vm_url)
     end
@@ -328,7 +326,7 @@ describe "Vms API" do
       api_basic_authorize action_identifier(:vms, :pause)
       update_raw_power_state("paused", vm)
 
-      run_post(vm_url, gen_request(:pause))
+      run_post(vm_url(nil, vm.id), gen_request(:pause))
 
       expect_single_action_result(:success => false, :message => "is not powered on", :href => vm_url)
     end
@@ -336,9 +334,9 @@ describe "Vms API" do
     it "pauses a vm" do
       api_basic_authorize action_identifier(:vms, :pause)
 
-      run_post(vm_url, gen_request(:pause))
+      run_post(vm_url(nil, vm.id), gen_request(:pause))
 
-      expect_single_action_result(:success => true, :message => "pausing", :href => vm_url, :task => true)
+      expect_single_action_result(:success => true, :message => "pausing", :href => vm_url(nil, vm.id), :task => true)
     end
 
     it "pauses multiple vms" do
@@ -417,11 +415,11 @@ describe "Vms API" do
     it "shelve for a VMWare vm is not supported" do
       api_basic_authorize action_identifier(:vms, :shelve)
 
-      run_post(vm_url, gen_request(:shelve))
+      run_post(vm_url(nil, vm.id), gen_request(:shelve))
 
       expect_single_action_result(:success => false,
                                   :message => "Shelve Operation is not available for Vmware VM.",
-                                  :href    => vm_url,
+                                  :href    => vm_url(nil, vm.id),
                                   :task    => false)
     end
 
@@ -520,11 +518,11 @@ describe "Vms API" do
     it "shelve_offload for a VMWare vm is not supported" do
       api_basic_authorize action_identifier(:vms, :shelve_offload)
 
-      run_post(vm_url, gen_request(:shelve_offload))
+      run_post(vm_url(nil, vm.id), gen_request(:shelve_offload))
 
       expect_single_action_result(:success => false,
                                   :message => "Shelve Offload Operation is not available for Vmware VM.",
-                                  :href    => vm_url,
+                                  :href    => vm_url(nil, vm.id),
                                   :task    => false)
     end
 
@@ -569,15 +567,15 @@ describe "Vms API" do
     it "deletes a vm via a resource POST" do
       api_basic_authorize action_identifier(:vms, :delete)
 
-      run_post(vm_url, gen_request(:delete))
+      run_post(vm_url(nil, vm.id), gen_request(:delete))
 
-      expect_single_action_result(:success => true, :message => "deleting", :href => vm_url, :task => true)
+      expect_single_action_result(:success => true, :message => "deleting", :href => vm_url(nil, vm.id), :task => true)
     end
 
     it "deletes a vm via a resource DELETE" do
       api_basic_authorize action_identifier(:vms, :delete)
 
-      run_delete(vm_url)
+      run_delete(vm_url(nil, vm.id))
 
       expect(response).to have_http_status(:no_content)
     end
@@ -603,7 +601,7 @@ describe "Vms API" do
     it "set_owner without appropriate action role" do
       api_basic_authorize
 
-      run_post(vm_url, gen_request(:set_owner, "owner" => "admin"))
+      run_post(vm_url(nil, vm.id), gen_request(:set_owner, "owner" => "admin"))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -611,7 +609,7 @@ describe "Vms API" do
     it "set_owner with missing owner" do
       api_basic_authorize action_identifier(:vms, :set_owner)
 
-      run_post(vm_url, gen_request(:set_owner))
+      run_post(vm_url(nil, vm.id), gen_request(:set_owner))
 
       expect_bad_request("Must specify an owner")
     end
@@ -619,17 +617,17 @@ describe "Vms API" do
     it "set_owner with invalid owner" do
       api_basic_authorize action_identifier(:vms, :set_owner)
 
-      run_post(vm_url, gen_request(:set_owner, "owner" => "bad_user"))
+      run_post(vm_url(nil, vm.id), gen_request(:set_owner, "owner" => "bad_user"))
 
-      expect_single_action_result(:success => false, :message => /.*/, :href => vm_url)
+      expect_single_action_result(:success => false, :message => /.*/, :href => vm_url(nil, vm.id))
     end
 
     it "set_owner to a vm" do
       api_basic_authorize action_identifier(:vms, :set_owner)
 
-      run_post(vm_url, gen_request(:set_owner, "owner" => api_config(:user)))
+      run_post(vm_url(nil, vm.id), gen_request(:set_owner, "owner" => api_config(:user)))
 
-      expect_single_action_result(:success => true, :message => "setting owner", :href => vm_url)
+      expect_single_action_result(:success => true, :message => "setting owner", :href => vm_url(nil, vm.id))
       expect(vm.reload.evm_owner).to eq(@user)
     end
 
@@ -648,7 +646,7 @@ describe "Vms API" do
   context "Vm custom_attributes" do
     let(:ca1) { FactoryGirl.create(:custom_attribute, :name => "name1", :value => "value1") }
     let(:ca2) { FactoryGirl.create(:custom_attribute, :name => "name2", :value => "value2") }
-    let(:vm_ca_url)      { "#{vm_url}/custom_attributes" }
+    let(:vm_ca_url)      { "#{vm_url(nil, vm.id)}/custom_attributes" }
     let(:ca1_url)        { "#{vm_ca_url}/#{ca1.id}" }
     let(:ca2_url)        { "#{vm_ca_url}/#{ca2.id}" }
     let(:vm_ca_url_list) { [ca1_url, ca2_url] }
@@ -685,7 +683,7 @@ describe "Vms API" do
       api_basic_authorize action_identifier(:vms, :read, :resource_actions, :get)
       vm.custom_attributes = [ca1, ca2]
 
-      run_get vm_url, :expand => "custom_attributes"
+      run_get vm_url(nil, vm.id), :expand => "custom_attributes"
 
       expect_single_resource_query("guid" => vm_guid)
       expect_result_resources_to_include_data("custom_attributes", "name" => %w(name1 name2))
@@ -695,7 +693,7 @@ describe "Vms API" do
       api_basic_authorize
       vm.custom_attributes = [ca1]
 
-      run_post(vm_ca_url, gen_request(:delete, nil, vm_url))
+      run_post(vm_ca_url, gen_request(:delete, nil, vm_url(nil, vm.id)))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -783,7 +781,7 @@ describe "Vms API" do
     it "add_lifecycle_event without appropriate action role" do
       api_basic_authorize
 
-      run_post(vm_url, gen_request(:add_lifecycle_event, :event => "event 1"))
+      run_post(vm_url(nil, vm.id), gen_request(:add_lifecycle_event, :event => "event 1"))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -791,9 +789,9 @@ describe "Vms API" do
     it "add_lifecycle_event to a vm" do
       api_basic_authorize action_identifier(:vms, :add_lifecycle_event)
 
-      run_post(vm_url, gen_request(:add_lifecycle_event, events[0]))
+      run_post(vm_url(nil, vm.id), gen_request(:add_lifecycle_event, events[0]))
 
-      expect_single_action_result(:success => true, :message => /adding lifecycle event/i, :href => vm_url)
+      expect_single_action_result(:success => true, :message => /adding lifecycle event/i, :href => vm_url(nil, vm.id))
       expect(vm.lifecycle_events.size).to eq(1)
       expect(vm.lifecycle_events.first.event).to eq(events[0][:event])
     end
@@ -802,7 +800,7 @@ describe "Vms API" do
       api_basic_authorize action_identifier(:vms, :add_lifecycle_event)
 
       run_post(vms_url, gen_request(:add_lifecycle_event,
-                                    events.collect { |e| {:href => vm_url}.merge(e) }))
+                                    events.collect { |e| {:href => vm_url(nil, vm.id)}.merge(e) }))
 
       expect_multiple_action_result(3)
       expect(vm.lifecycle_events.size).to eq(events.size)
@@ -830,9 +828,9 @@ describe "Vms API" do
     it "scan a Vm" do
       api_basic_authorize action_identifier(:vms, :scan)
 
-      run_post(vm_url, gen_request(:scan))
+      run_post(vm_url(nil, vm.id), gen_request(:scan))
 
-      expect_single_action_result(:success => true, :message => "scanning", :href => vm_url, :task => true)
+      expect_single_action_result(:success => true, :message => "scanning", :href => vm_url(nil, vm.id), :task => true)
     end
 
     it "scan multiple Vms" do
@@ -865,9 +863,9 @@ describe "Vms API" do
     it "to a single Vm" do
       api_basic_authorize collection_action_identifier(:vms, :add_event)
 
-      run_post(vm_url, gen_request(:add_event, :event_type => "special", :event_message => "message"))
+      run_post(vm_url(nil, vm.id), gen_request(:add_event, :event_type => "special", :event_message => "message"))
 
-      expect_single_action_result(:success => true, :message => /adding event/i, :href => vm_url)
+      expect_single_action_result(:success => true, :message => /adding event/i, :href => vm_url(nil, vm.id))
     end
 
     it "to multiple Vms" do
@@ -917,9 +915,9 @@ describe "Vms API" do
     it "to a single Vm" do
       api_basic_authorize action_identifier(:vms, :retire)
 
-      run_post(vm_url, gen_request(:retire))
+      run_post(vm_url(nil, vm.id), gen_request(:retire))
 
-      expect_single_action_result(:success => true, :message => /#{vm.id}.* retiring/i, :href => vm_url)
+      expect_single_action_result(:success => true, :message => /#{vm.id}.* retiring/i, :href => vm_url(nil, vm.id))
     end
 
     it "to multiple Vms" do
@@ -948,9 +946,9 @@ describe "Vms API" do
     it "in the future" do
       api_basic_authorize action_identifier(:vms, :retire)
       date = 2.weeks.from_now
-      run_post(vm_url, gen_request(:retire, :date => date.iso8601))
+      run_post(vm_url(nil, vm.id), gen_request(:retire, :date => date.iso8601))
 
-      expect_single_action_result(:success => true, :message => /#{vm.id}.* retiring/i, :href => vm_url)
+      expect_single_action_result(:success => true, :message => /#{vm.id}.* retiring/i, :href => vm_url(nil, vm.id))
     end
   end
 
@@ -974,9 +972,9 @@ describe "Vms API" do
     it "to a single Vm" do
       api_basic_authorize action_identifier(:vms, :reset)
 
-      run_post(vm_url, gen_request(:reset))
+      run_post(vm_url(nil, vm.id), gen_request(:reset))
 
-      expect_single_action_result(:success => true, :message => /#{vm.id}.* resetting/i, :href => vm_url)
+      expect_single_action_result(:success => true, :message => /#{vm.id}.* resetting/i, :href => vm_url(nil, vm.id))
     end
 
     it "to multiple Vms" do
@@ -1023,9 +1021,9 @@ describe "Vms API" do
     it "to a single Vm" do
       api_basic_authorize action_identifier(:vms, :shutdown_guest)
 
-      run_post(vm_url, gen_request(:shutdown_guest))
+      run_post(vm_url(nil, vm.id), gen_request(:shutdown_guest))
 
-      expect_single_action_result(:success => true, :message => /#{vm.id}.* shutting down/i, :href => vm_url)
+      expect_single_action_result(:success => true, :message => /#{vm.id}.* shutting down/i, :href => vm_url(nil, vm.id))
     end
 
     it "to multiple Vms" do
@@ -1072,9 +1070,9 @@ describe "Vms API" do
     it "to a single Vm" do
       api_basic_authorize action_identifier(:vms, :refresh)
 
-      run_post(vm_url, gen_request(:refresh))
+      run_post(vm_url(nil, vm.id), gen_request(:refresh))
 
-      expect_single_action_result(:success => true, :message => /#{vm.id}.* refreshing/i, :href => vm_url)
+      expect_single_action_result(:success => true, :message => /#{vm.id}.* refreshing/i, :href => vm_url(nil, vm.id))
     end
 
     it "to multiple Vms" do
@@ -1121,9 +1119,9 @@ describe "Vms API" do
     it "to a single Vm" do
       api_basic_authorize action_identifier(:vms, :reboot_guest)
 
-      run_post(vm_url, gen_request(:reboot_guest))
+      run_post(vm_url(nil, vm.id), gen_request(:reboot_guest))
 
-      expect_single_action_result(:success => true, :message => /#{vm.id}.* rebooting/i, :href => vm_url)
+      expect_single_action_result(:success => true, :message => /#{vm.id}.* rebooting/i, :href => vm_url(nil, vm.id))
     end
 
     it "to multiple Vms" do
@@ -1170,9 +1168,9 @@ describe "Vms API" do
     it "to a single Vm" do
       api_basic_authorize action_identifier(:vms, :request_console)
 
-      run_post(vm_url, gen_request(:request_console))
+      run_post(vm_url(nil, vm.id), gen_request(:request_console))
 
-      expect_single_action_result(:success => true, :message => /#{vm.id}.* requesting console/i, :href => vm_url)
+      expect_single_action_result(:success => true, :message => /#{vm.id}.* requesting console/i, :href => vm_url(nil, vm.id))
     end
   end
 
@@ -1181,14 +1179,14 @@ describe "Vms API" do
     let(:tag2)         { {:category => "cc",         :name => "001",     :path => "/managed/cc/001"} }
 
     let(:vm1) { FactoryGirl.create(:vm_vmware, :host => host, :ems_id => ems.id, :raw_power_state => "poweredOn") }
-    let(:vm1_url)      { vms_url(vm1.id) }
+    let(:vm1_url)      { vm_url(nil, vm1.id) }
     let(:vm1_tags_url) { "#{vm1_url}/tags" }
 
     let(:vm2) { FactoryGirl.create(:vm_vmware, :host => host, :ems_id => ems.id, :raw_power_state => "poweredOn") }
-    let(:vm2_url)      { vms_url(vm2.id) }
+    let(:vm2_url)      { vm_url(nil, vm2.id) }
     let(:vm2_tags_url) { "#{vm2_url}/tags" }
 
-    let(:invalid_tag_url) { tags_url(999_999) }
+    let(:invalid_tag_url) { tag_url(nil, 999_999) }
 
     before do
       FactoryGirl.create(:classification_department_with_tags)
@@ -1253,7 +1251,7 @@ describe "Vms API" do
     it "assigns a tag to a Vm by href" do
       api_basic_authorize subcollection_action_identifier(:vms, :tags, :assign)
 
-      run_post(vm1_tags_url, gen_request(:assign, :href => tags_url(Tag.find_by(:name => tag1[:path]).id)))
+      run_post(vm1_tags_url, gen_request(:assign, :href => tag_url(nil, Tag.find_by(:name => tag1[:path]).id)))
 
       expect_tagging_result(
         [{:success => true, :href => vm1_url, :tag_category => tag1[:category], :tag_name => tag1[:name]}]
@@ -1293,7 +1291,7 @@ describe "Vms API" do
       api_basic_authorize subcollection_action_identifier(:vms, :tags, :assign)
 
       tag = Tag.find_by(:name => tag2[:path])
-      run_post(vm1_tags_url, gen_request(:assign, [{:name => tag1[:path]}, {:href => tags_url(tag.id)}]))
+      run_post(vm1_tags_url, gen_request(:assign, [{:name => tag1[:path]}, {:href => tag_url(nil, tag.id)}]))
 
       expect_tagging_result(
         [{:success => true, :href => vm1_url, :tag_category => tag1[:category], :tag_name => tag1[:name]},
@@ -1325,7 +1323,7 @@ describe "Vms API" do
       api_basic_authorize subcollection_action_identifier(:vms, :tags, :unassign)
 
       tag = Tag.find_by(:name => tag2[:path])
-      run_post(vm2_tags_url, gen_request(:unassign, [{:name => tag1[:path]}, {:href => tags_url(tag.id)}]))
+      run_post(vm2_tags_url, gen_request(:unassign, [{:name => tag1[:path]}, {:href => tag_url(nil, tag.id)}]))
 
       expect_tagging_result(
         [{:success => true, :href => vm2_url, :tag_category => tag1[:category], :tag_name => tag1[:name]},

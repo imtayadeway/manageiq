@@ -6,7 +6,7 @@ RSpec.describe "Templates API" do
       Classification.classify(template, "department", "finance")
       api_basic_authorize
 
-      run_get("#{templates_url(template.id)}/tags")
+      run_get("#{template_url(nil, template.id)}/tags")
 
       expect(response.parsed_body).to include("subcount" => 1)
       expect(response).to have_http_status(:ok)
@@ -17,7 +17,7 @@ RSpec.describe "Templates API" do
       FactoryGirl.create(:classification_department_with_tags)
       api_basic_authorize(subcollection_action_identifier(:templates, :tags, :assign))
 
-      run_post("#{templates_url(template.id)}/tags", :action => "assign", :category => "department", :name => "finance")
+      run_post("#{template_url(nil, template.id)}/tags", :action => "assign", :category => "department", :name => "finance")
 
       expected = {
         "results" => [
@@ -39,7 +39,7 @@ RSpec.describe "Templates API" do
       Classification.classify(template, "department", "finance")
       api_basic_authorize(subcollection_action_identifier(:templates, :tags, :unassign))
 
-      run_post("#{templates_url(template.id)}/tags",
+      run_post("#{template_url(nil, template.id)}/tags",
                :action   => "unassign",
                :category => "department",
                :name     => "finance")

@@ -92,7 +92,7 @@ RSpec.describe 'Orchestration Template API' do
       api_basic_authorize collection_action_identifier(:orchestration_templates, :edit)
 
       edited_name = "Edited Hot Template"
-      run_post(orchestration_templates_url(hot.id), gen_request(:edit, :name => edited_name))
+      run_post(orchestration_template_url(nil, hot.id), gen_request(:edit, :name => edited_name))
 
       expect(hot.reload.name).to eq(edited_name)
     end
@@ -106,7 +106,7 @@ RSpec.describe 'Orchestration Template API' do
 
       api_basic_authorize collection_action_identifier(:orchestration_templates, :delete)
 
-      run_delete(orchestration_templates_url(cfn.id))
+      run_delete(orchestration_template_url(nil, cfn.id))
 
       expect(response).to have_http_status(:no_content)
       expect(OrchestrationTemplate.exists?(cfn.id)).to be_falsey
@@ -134,7 +134,7 @@ RSpec.describe 'Orchestration Template API' do
       new_content            = "{ 'Description': 'Test content 1' }\n"
 
       run_post(
-        orchestration_templates_url(orchestration_template.id),
+        orchestration_template_url(nil, orchestration_template.id),
         gen_request(:copy, :content => new_content)
       )
 
@@ -146,7 +146,7 @@ RSpec.describe 'Orchestration Template API' do
 
       orchestration_template = FactoryGirl.create(:orchestration_template_cfn)
 
-      run_post(orchestration_templates_url(orchestration_template.id), gen_request(:copy))
+      run_post(orchestration_template_url(nil, orchestration_template.id), gen_request(:copy))
 
       expect(response).to have_http_status(:bad_request)
     end
@@ -167,7 +167,7 @@ RSpec.describe 'Orchestration Template API' do
 
       expect do
         run_post(
-          orchestration_templates_url(orchestration_template.id),
+          orchestration_template_url(nil, orchestration_template.id),
           gen_request(:copy, :content => new_content)
         )
       end.to change(OrchestrationTemplateCfn, :count).by(1)

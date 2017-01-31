@@ -18,7 +18,7 @@ describe "Events API" do
     it "query invalid event" do
       api_basic_authorize action_identifier(:events, :read, :resource_actions, :get)
 
-      run_get events_url(999_999)
+      run_get event_url(nil, 999_999)
 
       expect(response).to have_http_status(:not_found)
     end
@@ -39,7 +39,7 @@ describe "Events API" do
 
       expect_query_result(:events, 3, 3)
       expect_result_resources_to_include_hrefs("resources",
-                                               MiqEventDefinition.pluck(:id).collect { |id| /^.*#{events_url(id)}$/ })
+                                               MiqEventDefinition.pluck(:id).collect { |id| /^.*#{event_url(nil, id)}$/ })
     end
 
     it "query events in expanded form" do
@@ -55,8 +55,7 @@ describe "Events API" do
 
   context "Event subcollection" do
     let(:policy)             { FactoryGirl.create(:miq_policy, :name => "Policy 1") }
-    let(:policy_url)         { policies_url(policy.id) }
-    let(:policy_events_url)  { "#{policy_url}/events" }
+    let(:policy_events_url)  { policy__events_url(nil, policy.id) }
 
     def relate_events_to(policy)
       MiqEventDefinition.all.collect(&:id).each do |event_id|
@@ -88,7 +87,7 @@ describe "Events API" do
       create_events(3)
       relate_events_to(policy)
 
-      run_get policy_url, :expand => "events"
+      run_get policy_url(nil, policy.id), :expand => "events"
 
       expect_single_resource_query("name" => policy.name, "description" => policy.description, "guid" => policy.guid)
       expect_result_resources_to_include_data("events", "guid" => miq_event_guid_list)

@@ -32,7 +32,7 @@ RSpec.describe "Requests API" do
                                            :source_type => template.class.name)
       api_basic_authorize action_identifier(:requests, :read, :resource_actions, :get)
 
-      run_get requests_url(service_request.id)
+      run_get request_url(nil, service_request.id)
 
       expected = {
         "error" => a_hash_including(
@@ -63,11 +63,11 @@ RSpec.describe "Requests API" do
                                            :source_type => template.class.name)
       api_basic_authorize action_identifier(:requests, :read, :resource_actions, :get)
 
-      run_get requests_url(service_request.id)
+      run_get request_url(nil, service_request.id)
 
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body).to include("id"   => service_request.id,
-                                              "href" => a_string_matching(service_requests_url(service_request.id)))
+                                              "href" => a_string_matching(service_request_url(nil, service_request.id)))
     end
 
     it "lists all the service requests if you are admin" do
@@ -89,8 +89,8 @@ RSpec.describe "Requests API" do
         "count"     => 2,
         "subcount"  => 2,
         "resources" => a_collection_containing_exactly(
-          {"href" => a_string_matching(requests_url(service_request_1.id))},
-          {"href" => a_string_matching(requests_url(service_request_2.id))},
+          {"href" => a_string_matching(request_url(nil, service_request_1.id))},
+          {"href" => a_string_matching(request_url(nil, service_request_2.id))},
         )
       }
       expect(response).to have_http_status(:ok)
@@ -106,11 +106,11 @@ RSpec.describe "Requests API" do
                                            :source_type => template.class.name)
       api_basic_authorize action_identifier(:requests, :read, :resource_actions, :get)
 
-      run_get requests_url(service_request.id)
+      run_get request_url(nil, service_request.id)
 
       expected = {
         "id"   => service_request.id,
-        "href" => a_string_matching(service_requests_url(service_request.id))
+        "href" => a_string_matching(service_request_url(nil, service_request.id))
       }
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body).to include(expected)
@@ -246,7 +246,7 @@ RSpec.describe "Requests API" do
       request.add_tag(t.name, t.children.first.name)
 
       api_basic_authorize action_identifier(:requests, :read, :resource_actions, :get)
-      run_get requests_url(request.id), :attributes => "workflow,v_allowed_tags,v_workflow_class"
+      run_get request_url(nil, request.id), :attributes => "workflow,v_allowed_tags,v_workflow_class"
 
       expected_response = a_hash_including(
         "id"               => request.id,
@@ -269,7 +269,7 @@ RSpec.describe "Requests API" do
                                    :source_type => vm_template.class.name)
 
       api_basic_authorize action_identifier(:requests, :read, :resource_actions, :get)
-      run_get requests_url(request.id), :attributes => "workflow,v_allowed_tags,v_workflow_class"
+      run_get request_url(nil, request.id), :attributes => "workflow,v_allowed_tags,v_workflow_class"
 
       expected_response = a_hash_including(
         "id"               => request.id,
@@ -295,7 +295,7 @@ RSpec.describe "Requests API" do
     it "fails with an invalid request id" do
       api_basic_authorize collection_action_identifier(:requests, :edit)
 
-      run_post(requests_url(999_999), gen_request(:edit, :options => { :some_option => "some_value" }))
+      run_post(request_url(nil, 999_999), gen_request(:edit, :options => { :some_option => "some_value" }))
 
       expected = {
         "error" => a_hash_including(
@@ -312,7 +312,7 @@ RSpec.describe "Requests API" do
       service = FactoryGirl.create(:service, :name => "service1")
       request = ServiceReconfigureRequest.create_request({ :src_id => service.id }, @user, false)
 
-      run_post(requests_url(request.id), gen_request(:edit, :options => { :some_option => "some_value" }))
+      run_post(request_url(nil, request.id), gen_request(:edit, :options => { :some_option => "some_value" }))
 
       expected = {
         "id"      => request.id,
@@ -327,11 +327,11 @@ RSpec.describe "Requests API" do
   context "Requests approval" do
     let(:service1)      { FactoryGirl.create(:service, :name => "service1") }
     let(:request1)      { ServiceReconfigureRequest.create_request({ :src_id => service1.id }, @user, false) }
-    let(:request1_url)  { requests_url(request1.id) }
+    let(:request1_url)  { request_url(nil, request1.id) }
 
     let(:service2)      { FactoryGirl.create(:service, :name => "service2") }
     let(:request2)      { ServiceReconfigureRequest.create_request({ :src_id => service2.id }, @user, false) }
-    let(:request2_url)  { requests_url(request2.id) }
+    let(:request2_url)  { request_url(nil, request2.id) }
 
     it "supports approving a request" do
       api_basic_authorize collection_action_identifier(:requests, :approve)

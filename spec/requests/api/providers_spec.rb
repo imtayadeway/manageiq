@@ -140,12 +140,11 @@ describe "Providers API" do
 
   context "Provider custom_attributes" do
     let(:provider) { FactoryGirl.create(:ext_management_system, sample_rhevm) }
-    let(:provider_url) { providers_url(provider.id) }
     let(:ca1) { FactoryGirl.create(:custom_attribute, :name => "name1", :value => "value1") }
     let(:ca2) { FactoryGirl.create(:custom_attribute, :name => "name2", :value => "value2") }
-    let(:provider_ca_url) { "#{provider_url}/custom_attributes" }
-    let(:ca1_url) { "#{provider_ca_url}/#{ca1.id}" }
-    let(:ca2_url) { "#{provider_ca_url}/#{ca2.id}" }
+    let(:provider_ca_url) { provider__custom_attributes_url(nil, provider.id) }
+    let(:ca1_url) { provider__custom_attribute_url(nil, provider.id, ca1.id) }
+    let(:ca2_url) { provider__custom_attribute_url(nil, provider.id, ca2.id) }
     let(:provider_ca_url_list) { [ca1_url, ca2_url] }
 
     it "getting custom_attributes from a provider with no custom_attributes" do
@@ -182,7 +181,7 @@ describe "Providers API" do
       api_basic_authorize action_identifier(:providers, :read, :resource_actions, :get)
       provider.custom_attributes = [ca1, ca2]
 
-      run_get provider_url, :expand => "custom_attributes"
+      run_get provider_url(nil, provider.id), :expand => "custom_attributes"
 
       expect_single_resource_query("guid" => provider.guid)
 
@@ -193,7 +192,7 @@ describe "Providers API" do
       api_basic_authorize
       provider.custom_attributes = [ca1]
 
-      run_post(provider_ca_url, gen_request(:delete, nil, provider_url))
+      run_post(provider_ca_url, gen_request(:delete, nil, provider_url(nil, provider.id)))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -511,7 +510,7 @@ describe "Providers API" do
     it "rejects resource edits without appropriate role" do
       api_basic_authorize
 
-      run_post(providers_url, gen_request(:edit, "name" => "provider name", "href" => providers_url(999_999)))
+      run_post(providers_url, gen_request(:edit, "name" => "provider name", "href" => provider_url(nil, 999_999)))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -519,7 +518,7 @@ describe "Providers API" do
     it "rejects edits for invalid resources" do
       api_basic_authorize collection_action_identifier(:providers, :edit)
 
-      run_post(providers_url(999_999), gen_request(:edit, "name" => "updated provider name"))
+      run_post(provider_url(nil, 999_999), gen_request(:edit, "name" => "updated provider name"))
 
       expect(response).to have_http_status(:not_found)
     end
@@ -529,7 +528,7 @@ describe "Providers API" do
 
       provider = FactoryGirl.create(:ext_management_system, sample_rhevm)
 
-      run_post(providers_url(provider.id), gen_request(:edit, "name" => "updated provider", "port" => "8080"))
+      run_post(provider_url(nil, provider.id), gen_request(:edit, "name" => "updated provider", "port" => "8080"))
 
       expect_single_resource_query("id" => provider.id, "name" => "updated provider")
       expect(provider.reload.name).to eq("updated provider")
@@ -541,7 +540,7 @@ describe "Providers API" do
 
       provider = FactoryGirl.create(:ext_management_system, sample_rhevm)
 
-      run_post(providers_url(provider.id), gen_request(:edit, "name" => "updated provider", "port" => "8080"))
+      run_post(provider_url(nil, provider.id), gen_request(:edit, "name" => "updated provider", "port" => "8080"))
 
       response_keys = response.parsed_body.keys
       expect(response_keys).to include("tenant_id")
@@ -554,7 +553,7 @@ describe "Providers API" do
       provider = FactoryGirl.create(:ext_management_system, sample_vmware)
       provider.update_authentication(:default => default_credentials.symbolize_keys)
 
-      run_post(providers_url(provider.id), gen_request(:edit,
+      run_post(provider_url(nil, provider.id), gen_request(:edit,
                                                        "name"        => "updated vmware",
                                                        "credentials" => {"userid" => "superadmin"}))
 
@@ -575,7 +574,7 @@ describe "Providers API" do
                          :class_name  => "ExtManagementSystem",
                          :instance_id => provider.id).delete_all
 
-          run_post(providers_url(provider.id), gen_request(:edit,
+          run_post(provider_url(nil, provider.id), gen_request(:edit,
                                                            "connection_configurations" => [default_connection,
                                                                                            hawkular_connection]))
 
@@ -594,7 +593,7 @@ describe "Providers API" do
                          :class_name  => "ExtManagementSystem",
                          :instance_id => provider.id).delete_all
 
-          run_post(providers_url(provider.id), gen_request(:edit,
+          run_post(provider_url(nil, provider.id), gen_request(:edit,
                                                            "connection_configurations" => [updated_connection,
                                                                                            hawkular_connection]))
 
@@ -617,7 +616,7 @@ describe "Providers API" do
       provider = FactoryGirl.create(:ext_management_system, sample_rhevm)
       provider.update_authentication(:default => default_credentials.symbolize_keys)
 
-      run_post(providers_url(provider.id), gen_request(:edit,
+      run_post(provider_url(nil, provider.id), gen_request(:edit,
                                                        "name"        => "updated rhevm",
                                                        "credentials" => [metrics_credentials]))
 
@@ -634,8 +633,8 @@ describe "Providers API" do
       p2 = FactoryGirl.create(:ems_redhat, :name => "name2")
 
       run_post(providers_url, gen_request(:edit,
-                                          [{"href" => providers_url(p1.id), "name" => "updated name1"},
-                                           {"href" => providers_url(p2.id), "name" => "updated name2"}]))
+                                          [{"href" => provider_url(nil, p1.id), "name" => "updated name1"},
+                                           {"href" => provider_url(nil, p2.id), "name" => "updated name2"}]))
 
       expect_results_to_match_hash("results",
                                    [{"id" => p1.id, "name" => "updated name1"},
@@ -650,7 +649,7 @@ describe "Providers API" do
     it "rejects deletion without appropriate role" do
       api_basic_authorize
 
-      run_post(providers_url, gen_request(:delete, "name" => "provider name", "href" => providers_url(100)))
+      run_post(providers_url, gen_request(:delete, "name" => "provider name", "href" => provider_url(nil, 100)))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -658,7 +657,7 @@ describe "Providers API" do
     it "rejects deletion without appropriate role" do
       api_basic_authorize
 
-      run_delete(providers_url(100))
+      run_delete(provider_url(nil, 100))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -666,7 +665,7 @@ describe "Providers API" do
     it "rejects deletes for invalid providers" do
       api_basic_authorize collection_action_identifier(:providers, :delete)
 
-      run_delete(providers_url(999_999))
+      run_delete(provider_url(nil, 999_999))
 
       expect(response).to have_http_status(:not_found)
     end
@@ -676,7 +675,7 @@ describe "Providers API" do
 
       provider = FactoryGirl.create(:ext_management_system, :name => "provider", :hostname => "provider.com")
 
-      run_delete(providers_url(provider.id))
+      run_delete(provider_url(nil, provider.id))
 
       expect(response).to have_http_status(:no_content)
     end
@@ -686,11 +685,11 @@ describe "Providers API" do
 
       provider = FactoryGirl.create(:ext_management_system, :name => "provider", :hostname => "provider.com")
 
-      run_post(providers_url(provider.id), gen_request(:delete))
+      run_post(provider_url(nil, provider.id), gen_request(:delete))
 
       expect_single_action_result(:success => true,
                                   :message => "deleting",
-                                  :href    => providers_url(provider.id),
+                                  :href    => provider_url(nil, provider.id),
                                   :task    => true)
     end
 
@@ -701,23 +700,23 @@ describe "Providers API" do
       p2 = FactoryGirl.create(:ext_management_system, :name => "provider name 2")
 
       run_post(providers_url, gen_request(:delete,
-                                          [{"href" => providers_url(p1.id)},
-                                           {"href" => providers_url(p2.id)}]))
+                                          [{"href" => provider_url(nil, p1.id)},
+                                           {"href" => provider_url(nil, p2.id)}]))
 
       expect_multiple_action_result(2, :task => true)
-      expect_result_resources_to_include_hrefs("results", [providers_url(p1.id), providers_url(p2.id)])
+      expect_result_resources_to_include_hrefs("results", [provider_url(nil, p1.id), provider_url(nil, p2.id)])
     end
   end
 
   describe "Providers refresh" do
     def failed_auth_action(id)
-      {"success" => false, "message" => /failed last authentication check/i, "href" => providers_url(id)}
+      {"success" => false, "message" => /failed last authentication check/i, "href" => provider_url(nil, id)}
     end
 
     it "rejects refresh requests without appropriate role" do
       api_basic_authorize
 
-      run_post(providers_url(100), gen_request(:refresh))
+      run_post(provider_url(nil, 100), gen_request(:refresh))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -728,7 +727,7 @@ describe "Providers API" do
       provider = FactoryGirl.create(:ext_management_system, sample_vmware.symbolize_keys.except(:type))
       provider.update_authentication(:default => default_credentials.symbolize_keys)
 
-      run_post(providers_url(provider.id), gen_request(:refresh))
+      run_post(provider_url(nil, provider.id), gen_request(:refresh))
 
       expect_single_action_result(failed_auth_action(provider.id).symbolize_keys)
     end
@@ -742,8 +741,8 @@ describe "Providers API" do
       p2 = FactoryGirl.create(:ext_management_system, sample_rhevm.symbolize_keys.except(:type))
       p2.update_authentication(:default => default_credentials.symbolize_keys)
 
-      run_post(providers_url, gen_request(:refresh, [{"href" => providers_url(p1.id)},
-                                                     {"href" => providers_url(p2.id)}]))
+      run_post(providers_url, gen_request(:refresh, [{"href" => provider_url(nil, p1.id)},
+                                                     {"href" => provider_url(nil, p2.id)}]))
       expect(response).to have_http_status(:ok)
       expect_results_to_match_hash("results", [failed_auth_action(p1.id), failed_auth_action(p2.id)])
     end
@@ -751,27 +750,20 @@ describe "Providers API" do
 
   describe 'Providers import VM' do
     let(:provider)      { FactoryGirl.create(:ems_redhat, sample_rhevm) }
-    let(:provider_url)  { providers_url(provider.id) }
-
     let(:vm)            { FactoryGirl.create(:vm_vmware) }
-    let(:vm_url)        { vms_url(vm.id) }
-
     let(:cluster)       { FactoryGirl.create(:ems_cluster) }
-    let(:cluster_url)   { clusters_url(cluster.id) }
-
     let(:storage)       { FactoryGirl.create(:storage) }
-    let(:storage_url)   { data_stores_url(storage.id) }
 
     NAME = 'new_vm_name'.freeze
 
     def gen_import_request
       gen_request(
         :import_vm,
-        :source => { :href => vm_url },
+        :source => { :href => vm_url(nil, vm.id) },
         :target => {
           :name       => NAME,
-          :cluster    => { :href => cluster_url },
-          :data_store => { :href => storage_url },
+          :cluster    => { :href => cluster_url(nil, cluster.id) },
+          :data_store => { :href => data_store_url(nil, storage.id) },
           :sparse     => true
         }
       )
@@ -780,7 +772,7 @@ describe "Providers API" do
     it 'rejects import without appropriate role' do
       api_basic_authorize
 
-      run_post(provider_url, gen_import_request)
+      run_post(provider_url(nil, provider.id), gen_import_request)
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -788,7 +780,7 @@ describe "Providers API" do
     it 'enqueues a correct import request' do
       api_basic_authorize action_identifier(:providers, :import_vm)
 
-      run_post(provider_url, gen_import_request)
+      run_post(provider_url(nil, provider.id), gen_import_request)
 
       expect_single_action_result(:success => true, :task => true)
       queue_jobs = MiqQueue.where(:method_name => 'import_vm',
@@ -835,11 +827,11 @@ describe "Providers API" do
       api_basic_authorize subcollection_action_identifier(:providers, :load_balancers, :show, :get)
       expected = {
         'resources' => [
-          { 'href' => a_string_matching("#{providers_url(@provider.id)}/load_balancers/#{@load_balancer.id}") }
+          { 'href' => a_string_matching("#{provider_url(nil, @provider.id)}/load_balancers/#{@load_balancer.id}") }
         ]
 
       }
-      run_get("#{providers_url(@provider.id)}/load_balancers")
+      run_get("#{provider_url(nil, @provider.id)}/load_balancers")
 
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body).to include(expected)
@@ -848,7 +840,7 @@ describe "Providers API" do
     it 'queries a single load balancer' do
       api_basic_authorize subcollection_action_identifier(:providers, :load_balancers, :show, :get)
 
-      run_get("#{providers_url(@provider.id)}/load_balancers/#{@load_balancer.id}")
+      run_get("#{provider_url(nil, @provider.id)}/load_balancers/#{@load_balancer.id}")
 
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body).to include('id' => @load_balancer.id)
@@ -861,7 +853,7 @@ describe "Providers API" do
       let(:attr) { FactoryGirl.create(:custom_attribute) }
       let(:url) do
         # TODO: provider_class in params, when supported (https://github.com/brynary/rack-test/issues/150)
-        providers_url(generic_provider.id) + '/custom_attributes' + '?provider_class=provider'
+        provider_url(nil, generic_provider.id) + '/custom_attributes' + '?provider_class=provider'
       end
 
       it 'cannot add a custom_attribute' do
@@ -872,7 +864,7 @@ describe "Providers API" do
 
       it 'cannot edit custom_attribute' do
         api_basic_authorize subcollection_action_identifier(:providers, :custom_attributes, :edit, :post)
-        run_post(url, gen_request(:edit, :href => custom_attributes_url(attr.id)))
+        run_post(url, gen_request(:edit, :href => provider__custom_attribute_url(nil, generic_provider.id, attr.id)))
         expect_bad_request("#{generic_provider.class.name} does not support management of custom attributes")
       end
     end

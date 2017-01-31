@@ -67,7 +67,7 @@ describe "Services API" do
     it "rejects requests without appropriate role" do
       api_basic_authorize
 
-      run_post(services_url(svc.id), gen_request(:edit, "name" => "sample service"))
+      run_post(service_url(nil, svc.id), gen_request(:edit, "name" => "sample service"))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -75,25 +75,25 @@ describe "Services API" do
     it "supports edits of single resource" do
       api_basic_authorize collection_action_identifier(:services, :edit)
 
-      run_post(services_url(svc.id), gen_request(:edit, "name" => "updated svc1"))
+      run_post(service_url(nil, svc.id), gen_request(:edit, "name" => "updated svc1"))
 
-      expect_single_resource_query("id" => svc.id, "href" => services_url(svc.id), "name" => "updated svc1")
+      expect_single_resource_query("id" => svc.id, "href" => service_url(nil, svc.id), "name" => "updated svc1")
       expect(svc.reload.name).to eq("updated svc1")
     end
 
     it "supports edits of single resource via PUT" do
       api_basic_authorize collection_action_identifier(:services, :edit)
 
-      run_put(services_url(svc.id), "name" => "updated svc1")
+      run_put(service_url(nil, svc.id), "name" => "updated svc1")
 
-      expect_single_resource_query("id" => svc.id, "href" => services_url(svc.id), "name" => "updated svc1")
+      expect_single_resource_query("id" => svc.id, "href" => service_url(nil, svc.id), "name" => "updated svc1")
       expect(svc.reload.name).to eq("updated svc1")
     end
 
     it "supports edits of single resource via PATCH" do
       api_basic_authorize collection_action_identifier(:services, :edit)
 
-      run_patch(services_url(svc.id), [{"action" => "edit",   "path" => "name",        "value" => "updated svc1"},
+      run_patch(service_url(nil, svc.id), [{"action" => "edit",   "path" => "name",        "value" => "updated svc1"},
                                        {"action" => "remove", "path" => "description"},
                                        {"action" => "add",    "path" => "display",     "value" => true}])
 
@@ -107,8 +107,8 @@ describe "Services API" do
       api_basic_authorize collection_action_identifier(:services, :edit)
 
       run_post(services_url, gen_request(:edit,
-                                         [{"href" => services_url(svc1.id), "name" => "updated svc1"},
-                                          {"href" => services_url(svc2.id), "name" => "updated svc2"}]))
+                                         [{"href" => service_url(nil, svc1.id), "name" => "updated svc1"},
+                                          {"href" => service_url(nil, svc2.id), "name" => "updated svc2"}]))
 
       expect(response).to have_http_status(:ok)
       expect_results_to_match_hash("results",
@@ -123,7 +123,7 @@ describe "Services API" do
     it "rejects POST delete requests without appropriate role" do
       api_basic_authorize
 
-      run_post(services_url, gen_request(:delete, "href" => services_url(100)))
+      run_post(services_url, gen_request(:delete, "href" => service_url(nil, 100)))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -131,7 +131,7 @@ describe "Services API" do
     it "rejects DELETE requests without appropriate role" do
       api_basic_authorize
 
-      run_delete(services_url(100))
+      run_delete(service_url(nil, 100))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -139,7 +139,7 @@ describe "Services API" do
     it "rejects requests for invalid resources" do
       api_basic_authorize collection_action_identifier(:services, :delete)
 
-      run_delete(services_url(999_999))
+      run_delete(service_url(nil, 999_999))
 
       expect(response).to have_http_status(:not_found)
     end
@@ -147,7 +147,7 @@ describe "Services API" do
     it "supports single resource deletes" do
       api_basic_authorize collection_action_identifier(:services, :delete)
 
-      run_delete(services_url(svc.id))
+      run_delete(service_url(nil, svc.id))
 
       expect(response).to have_http_status(:no_content)
       expect { svc.reload }.to raise_error(ActiveRecord::RecordNotFound)
@@ -157,11 +157,11 @@ describe "Services API" do
       api_basic_authorize collection_action_identifier(:services, :delete)
 
       run_post(services_url, gen_request(:delete,
-                                         [{"href" => services_url(svc1.id)},
-                                          {"href" => services_url(svc2.id)}]))
+                                         [{"href" => service_url(nil, svc1.id)},
+                                          {"href" => service_url(nil, svc2.id)}]))
       expect_multiple_action_result(2)
       expect_result_resources_to_include_hrefs("results",
-                                               [services_url(svc1.id), services_url(svc2.id)])
+                                               [service_url(nil, svc1.id), service_url(nil, svc2.id)])
       expect { svc1.reload }.to raise_error(ActiveRecord::RecordNotFound)
       expect { svc2.reload }.to raise_error(ActiveRecord::RecordNotFound)
     end
@@ -175,7 +175,7 @@ describe "Services API" do
     it "rejects requests without appropriate role" do
       api_basic_authorize
 
-      run_post(services_url(100), gen_request(:retire))
+      run_post(service_url(nil, 100), gen_request(:retire))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -183,7 +183,7 @@ describe "Services API" do
     it "rejects multiple requests without appropriate role" do
       api_basic_authorize
 
-      run_post(services_url, gen_request(:retire, [{"href" => services_url(1)}, {"href" => services_url(2)}]))
+      run_post(services_url, gen_request(:retire, [{"href" => service_url(nil, 1)}, {"href" => service_url(nil, 2)}]))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -193,9 +193,9 @@ describe "Services API" do
 
       expect(MiqEvent).to receive(:raise_evm_event).once
 
-      run_post(services_url(svc.id), gen_request(:retire))
+      run_post(service_url(nil, svc.id), gen_request(:retire))
 
-      expect_single_resource_query("id" => svc.id, "href" => services_url(svc.id))
+      expect_single_resource_query("id" => svc.id, "href" => service_url(nil, svc.id))
     end
 
     it "supports single service retirement in future" do
@@ -203,7 +203,7 @@ describe "Services API" do
 
       ret_date = format_retirement_date(Time.now + 5.days)
 
-      run_post(services_url(svc.id), gen_request(:retire, "date" => ret_date, "warn" => 2))
+      run_post(service_url(nil, svc.id), gen_request(:retire, "date" => ret_date, "warn" => 2))
 
       expect_single_resource_query("id" => svc.id, "retires_on" => ret_date, "retirement_warn" => 2)
       expect(format_retirement_date(svc.reload.retires_on)).to eq(ret_date)
@@ -216,8 +216,8 @@ describe "Services API" do
       expect(MiqEvent).to receive(:raise_evm_event).twice
 
       run_post(services_url, gen_request(:retire,
-                                         [{"href" => services_url(svc1.id)},
-                                          {"href" => services_url(svc2.id)}]))
+                                         [{"href" => service_url(nil, svc1.id)},
+                                          {"href" => service_url(nil, svc2.id)}]))
 
       expect_results_to_match_hash("results", [{"id" => svc1.id}, {"id" => svc2.id}])
     end
@@ -228,8 +228,8 @@ describe "Services API" do
       ret_date = format_retirement_date(Time.now + 2.days)
 
       run_post(services_url, gen_request(:retire,
-                                         [{"href" => services_url(svc1.id), "date" => ret_date, "warn" => 3},
-                                          {"href" => services_url(svc2.id), "date" => ret_date, "warn" => 5}]))
+                                         [{"href" => service_url(nil, svc1.id), "date" => ret_date, "warn" => 3},
+                                          {"href" => service_url(nil, svc2.id), "date" => ret_date, "warn" => 5}]))
 
       expect_results_to_match_hash("results",
                                    [{"id" => svc1.id, "retires_on" => ret_date, "retirement_warn" => 3},
@@ -252,7 +252,7 @@ describe "Services API" do
     it "rejects requests without appropriate role" do
       api_basic_authorize
 
-      run_post(services_url(100), gen_request(:reconfigure))
+      run_post(service_url(nil, 100), gen_request(:reconfigure))
 
       expect(response).to have_http_status(:forbidden)
     end
@@ -262,7 +262,7 @@ describe "Services API" do
                           action_identifier(:services, :retire),
                           action_identifier(:services, :reconfigure))
 
-      run_get services_url(svc1.id)
+      run_get service_url(nil, svc1.id)
 
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body).to declare_actions("retire")
@@ -277,7 +277,7 @@ describe "Services API" do
       svc1.service_template_id = st1.id
       svc1.save
 
-      run_get services_url(svc1.id)
+      run_get service_url(nil, svc1.id)
 
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body).to declare_actions("retire", "reconfigure")
@@ -291,9 +291,9 @@ describe "Services API" do
       svc1.service_template_id = st1.id
       svc1.save
 
-      run_post(services_url(svc1.id), gen_request(:reconfigure, "text1" => "updated_text"))
+      run_post(service_url(nil, svc1.id), gen_request(:reconfigure, "text1" => "updated_text"))
 
-      expect_single_action_result(:success => true, :message => /reconfiguring/i, :href => services_url(svc1.id))
+      expect_single_action_result(:success => true, :message => /reconfiguring/i, :href => service_url(nil, svc1.id))
     end
   end
 
@@ -311,29 +311,29 @@ describe "Services API" do
       svc1 << vm2
       svc1.save
 
-      @svc1_vm_list = ["#{services_url(svc1.id)}/vms/#{vm1.id}", "#{services_url(svc1.id)}/vms/#{vm2.id}"]
+      @svc1_vm_list = ["#{service_url(nil, svc1.id)}/vms/#{vm1.id}", "#{service_url(nil, svc1.id)}/vms/#{vm2.id}"]
     end
 
     def expect_svc_with_vms
-      expect_single_resource_query("href" => services_url(svc1.id))
+      expect_single_resource_query("href" => service_url(nil, svc1.id))
       expect_result_resources_to_include_hrefs("vms", @svc1_vm_list)
     end
 
     it "can query vms as subcollection" do
-      run_get "#{services_url(svc1.id)}/vms"
+      run_get "#{service_url(nil, svc1.id)}/vms"
 
       expect_query_result(:vms, 2, 2)
       expect_result_resources_to_include_hrefs("resources", @svc1_vm_list)
     end
 
     it "can query vms as subcollection via expand" do
-      run_get services_url(svc1.id), :expand => "vms"
+      run_get service_url(nil, svc1.id), :expand => "vms"
 
       expect_svc_with_vms
     end
 
     it "can query vms as subcollection via expand with additional virtual attributes" do
-      run_get services_url(svc1.id), :expand => "vms", :attributes => "vms.cpu_total_cores"
+      run_get service_url(nil, svc1.id), :expand => "vms", :attributes => "vms.cpu_total_cores"
 
       expect_svc_with_vms
       expect_results_to_match_hash("vms", [{"id" => vm1.id, "cpu_total_cores" => 2},
@@ -341,7 +341,7 @@ describe "Services API" do
     end
 
     it "can query vms as subcollection via decorators with additional decorators" do
-      run_get services_url(svc1.id), :expand => "vms", :attributes => "", :decorators => "vms.supports_console?"
+      run_get service_url(nil, svc1.id), :expand => "vms", :attributes => "", :decorators => "vms.supports_console?"
 
       expect_svc_with_vms
       expect_results_to_match_hash("vms", [{"id" => vm1.id, "supports_console?" => true},
@@ -349,7 +349,7 @@ describe "Services API" do
     end
 
     it "cannot query vms via both virtual attribute and subcollection" do
-      run_get services_url(svc1.id), :expand => "vms", :attributes => "vms"
+      run_get service_url(nil, svc1.id), :expand => "vms", :attributes => "vms"
 
       expect_bad_request("Cannot expand subcollection vms by name and virtual attribute")
     end
@@ -361,10 +361,10 @@ describe "Services API" do
         service = FactoryGirl.create(:service)
         api_basic_authorize(action_identifier(:services, :start))
 
-        run_post(services_url(service.id), :action => "start")
+        run_post(service_url(nil, service.id), :action => "start")
 
         expected = {
-          "href"    => a_string_matching(services_url(service.id)),
+          "href"    => a_string_matching(service_url(nil, service.id)),
           "success" => true,
           "message" => a_string_matching("starting")
         }
@@ -384,12 +384,12 @@ describe "Services API" do
                              "message"   => a_string_matching("starting"),
                              "task_id"   => anything,
                              "task_href" => anything,
-                             "href"      => a_string_matching(services_url(service_1.id))),
+                             "href"      => a_string_matching(service_url(nil, service_1.id))),
             a_hash_including("success"   => true,
                              "message"   => a_string_matching("starting"),
                              "task_id"   => anything,
                              "task_href" => anything,
-                             "href"      => a_string_matching(services_url(service_2.id))),
+                             "href"      => a_string_matching(service_url(nil, service_2.id))),
           )
         }
         expect(response.parsed_body).to include(expected)
@@ -400,7 +400,7 @@ describe "Services API" do
         service = FactoryGirl.create(:service)
         api_basic_authorize
 
-        run_post(services_url(service.id), :action => "start")
+        run_post(service_url(nil, service.id), :action => "start")
 
         expect(response).to have_http_status(:forbidden)
       end
@@ -411,10 +411,10 @@ describe "Services API" do
         service = FactoryGirl.create(:service)
         api_basic_authorize(action_identifier(:services, :stop))
 
-        run_post(services_url(service.id), :action => "stop")
+        run_post(service_url(nil, service.id), :action => "stop")
 
         expected = {
-          "href"    => a_string_matching(services_url(service.id)),
+          "href"    => a_string_matching(service_url(nil, service.id)),
           "success" => true,
           "message" => a_string_matching("stopping")
         }
@@ -434,12 +434,12 @@ describe "Services API" do
                              "message"   => a_string_matching("stopping"),
                              "task_id"   => anything,
                              "task_href" => anything,
-                             "href"      => a_string_matching(services_url(service_1.id))),
+                             "href"      => a_string_matching(service_url(nil, service_1.id))),
             a_hash_including("success"   => true,
                              "message"   => a_string_matching("stopping"),
                              "task_id"   => anything,
                              "task_href" => anything,
-                             "href"      => a_string_matching(services_url(service_2.id))),
+                             "href"      => a_string_matching(service_url(nil, service_2.id))),
           )
         }
         expect(response.parsed_body).to include(expected)
@@ -450,7 +450,7 @@ describe "Services API" do
         service = FactoryGirl.create(:service)
         api_basic_authorize
 
-        run_post(services_url(service.id), :action => "stop")
+        run_post(service_url(nil, service.id), :action => "stop")
 
         expect(response).to have_http_status(:forbidden)
       end
@@ -461,10 +461,10 @@ describe "Services API" do
         service = FactoryGirl.create(:service)
         api_basic_authorize(action_identifier(:services, :suspend))
 
-        run_post(services_url(service.id), :action => "suspend")
+        run_post(service_url(nil, service.id), :action => "suspend")
 
         expected = {
-          "href"    => a_string_matching(services_url(service.id)),
+          "href"    => a_string_matching(service_url(nil, service.id)),
           "success" => true,
           "message" => a_string_matching("suspending")
         }
@@ -484,12 +484,12 @@ describe "Services API" do
                              "message"   => a_string_matching("suspending"),
                              "task_id"   => anything,
                              "task_href" => anything,
-                             "href"      => a_string_matching(services_url(service_1.id))),
+                             "href"      => a_string_matching(service_url(nil, service_1.id))),
             a_hash_including("success"   => true,
                              "message"   => a_string_matching("suspending"),
                              "task_id"   => anything,
                              "task_href" => anything,
-                             "href"      => a_string_matching(services_url(service_2.id))),
+                             "href"      => a_string_matching(service_url(nil, service_2.id))),
           )
         }
         expect(response.parsed_body).to include(expected)
@@ -500,7 +500,7 @@ describe "Services API" do
         service = FactoryGirl.create(:service)
         api_basic_authorize
 
-        run_post(services_url(service.id), :action => "suspend")
+        run_post(service_url(nil, service.id), :action => "suspend")
 
         expect(response).to have_http_status(:forbidden)
       end

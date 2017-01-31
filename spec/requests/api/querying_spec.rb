@@ -350,7 +350,7 @@ describe "Querying" do
 
       run_get(vms_url, :filter => ["retires_on = 2016-01-02", "vendor_display = VMware"])
 
-      expected = {"resources" => [{"href" => a_string_matching(vms_url(vm_2.id))}]}
+      expected = {"resources" => [{"href" => a_string_matching(vm_url(nil, vm_2.id))}]}
       expect(response.parsed_body).to include(expected)
       expect(response).to have_http_status(:ok)
     end
@@ -362,7 +362,7 @@ describe "Querying" do
 
       run_get(vms_url, :filter => ["retires_on > 2016-01-01", "vendor_display = VMware"])
 
-      expected = {"resources" => [{"href" => a_string_matching(vms_url(vm_2.id))}]}
+      expected = {"resources" => [{"href" => a_string_matching(vm_url(nil, vm_2.id))}]}
       expect(response.parsed_body).to include(expected)
       expect(response).to have_http_status(:ok)
     end
@@ -374,7 +374,7 @@ describe "Querying" do
 
       run_get(vms_url, :filter => ["last_scan_on > 2016-01-01T07:59:59Z", "vendor_display = VMware"])
 
-      expected = {"resources" => [{"href" => a_string_matching(vms_url(vm_2.id))}]}
+      expected = {"resources" => [{"href" => a_string_matching(vm_url(nil, vm_2.id))}]}
       expect(response.parsed_body).to include(expected)
       expect(response).to have_http_status(:ok)
     end
@@ -386,7 +386,7 @@ describe "Querying" do
 
       run_get(vms_url, :filter => ["retires_on < 2016-01-03", "vendor_display = VMware"])
 
-      expected = {"resources" => [{"href" => a_string_matching(vms_url(vm_2.id))}]}
+      expected = {"resources" => [{"href" => a_string_matching(vm_url(nil, vm_2.id))}]}
       expect(response.parsed_body).to include(expected)
       expect(response).to have_http_status(:ok)
     end
@@ -398,7 +398,7 @@ describe "Querying" do
 
       run_get(vms_url, :filter => ["last_scan_on < 2016-01-01T08:00:00Z", "vendor_display = VMware"])
 
-      expected = {"resources" => [{"href" => a_string_matching(vms_url(vm_2.id))}]}
+      expected = {"resources" => [{"href" => a_string_matching(vm_url(nil, vm_2.id))}]}
       expect(response.parsed_body).to include(expected)
       expect(response).to have_http_status(:ok)
     end
@@ -436,7 +436,7 @@ describe "Querying" do
       service << FactoryGirl.create(:vm_vmware, :name => "foo")
       service << FactoryGirl.create(:vm_vmware, :name => "bar")
 
-      run_get("#{services_url(service.id)}/vms", :filter => ["name=foo"])
+      run_get("#{service_url(nil, service.id)}/vms", :filter => ["name=foo"])
 
       expect(response.parsed_body).to include_error_with_message("Filtering is not supported on vms subcollection")
       expect(response).to have_http_status(:bad_request)
@@ -452,7 +452,7 @@ describe "Querying" do
       expected = {
         "count"     => 2,
         "subcount"  => 1,
-        "resources" => [{"href" => a_string_matching(tags_url(tag_1.id))}]
+        "resources" => [{"href" => a_string_matching(tag_url(nil, tag_1.id))}]
       }
       expect(response.parsed_body).to include(expected)
       expect(response).to have_http_status(:ok)
@@ -515,7 +515,7 @@ describe "Querying" do
         "resources" => [
           {
             "id"     => vm.id,
-            "href"   => a_string_matching(vms_url(vm.id)),
+            "href"   => a_string_matching(vm_url(nil, vm.id)),
             "name"   => "aa",
             "vendor" => anything
           }
@@ -528,7 +528,7 @@ describe "Querying" do
     it "skips requests of invalid attributes" do
       api_basic_authorize action_identifier(:vms, :read, :resource_actions, :get)
 
-      run_get vms_url(vm1.id), :attributes => "bogus"
+      run_get vm_url(nil, vm1.id), :attributes => "bogus"
 
       expect(response).to have_http_status(:ok)
       expect_result_to_have_keys(%w(id href name vendor))
@@ -615,7 +615,7 @@ describe "Querying" do
     it "does not return actions if not entitled" do
       api_basic_authorize action_identifier(:vms, :read, :resource_actions, :get)
 
-      run_get vms_url(vm1.id)
+      run_get vm_url(nil, vm1.id)
 
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body).to_not have_key("actions")
@@ -624,7 +624,7 @@ describe "Querying" do
     it "returns actions if authorized" do
       api_basic_authorize action_identifier(:vms, :edit), action_identifier(:vms, :read, :resource_actions, :get)
 
-      run_get vms_url(vm1.id)
+      run_get vm_url(nil, vm1.id)
 
       expect(response).to have_http_status(:ok)
       expect_result_to_have_keys(%w(id href name vendor actions))
@@ -633,7 +633,7 @@ describe "Querying" do
     it "returns correct actions if authorized as such" do
       api_basic_authorize action_identifier(:vms, :suspend), action_identifier(:vms, :read, :resource_actions, :get)
 
-      run_get vms_url(vm1.id)
+      run_get vm_url(nil, vm1.id)
 
       expect(response).to have_http_status(:ok)
       expect_result_to_have_keys(%w(id href name vendor actions))
@@ -647,7 +647,7 @@ describe "Querying" do
                           action_identifier(:vms, :stop),
                           action_identifier(:vms, :read, :resource_actions, :get))
 
-      run_get vms_url(vm1.id)
+      run_get vm_url(nil, vm1.id)
 
       expect(response).to have_http_status(:ok)
       expect_result_to_have_keys(%w(id href name vendor actions))
@@ -657,7 +657,7 @@ describe "Querying" do
     it "returns actions if asked for with physical attributes" do
       api_basic_authorize action_identifier(:vms, :start), action_identifier(:vms, :read, :resource_actions, :get)
 
-      run_get vms_url(vm1.id), :attributes => "name,vendor,actions"
+      run_get vm_url(nil, vm1.id), :attributes => "name,vendor,actions"
 
       expect(response).to have_http_status(:ok)
       expect_result_to_have_only_keys(%w(id href name vendor actions))
@@ -666,7 +666,7 @@ describe "Querying" do
     it "does not return actions if asking for a physical attribute" do
       api_basic_authorize action_identifier(:vms, :start), action_identifier(:vms, :read, :resource_actions, :get)
 
-      run_get vms_url(vm1.id), :attributes => "name"
+      run_get vm_url(nil, vm1.id), :attributes => "name"
 
       expect(response).to have_http_status(:ok)
       expect_result_to_have_only_keys(%w(id href name))
@@ -675,7 +675,7 @@ describe "Querying" do
     it "does return actions if asking for virtual attributes" do
       api_basic_authorize action_identifier(:vms, :start), action_identifier(:vms, :read, :resource_actions, :get)
 
-      run_get vms_url(vm1.id), :attributes => "disconnected"
+      run_get vm_url(nil, vm1.id), :attributes => "disconnected"
 
       expect(response).to have_http_status(:ok)
       expect_result_to_have_keys(%w(id href name vendor disconnected actions))
@@ -684,7 +684,7 @@ describe "Querying" do
     it "does not return actions if asking for physical and virtual attributes" do
       api_basic_authorize action_identifier(:vms, :start), action_identifier(:vms, :read, :resource_actions, :get)
 
-      run_get vms_url(vm1.id), :attributes => "name,disconnected"
+      run_get vm_url(nil, vm1.id), :attributes => "name,disconnected"
 
       expect(response).to have_http_status(:ok)
       expect_result_to_have_only_keys(%w(id href name disconnected))
