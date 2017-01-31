@@ -8,8 +8,8 @@ module MiqExpression::Component
       visitor.visit(self)
     end
 
-    def arel_attribute
-      target.arel_attribute
+    def sql?
+      raise "Called abstract method: #sql?"
     end
   end
 
@@ -28,6 +28,14 @@ module MiqExpression::Component
     def initialize(target, value)
       @target = target
       @value = value
+    end
+
+    def sql?
+      !!arel_attribute
+    end
+
+    def arel_attribute
+      target.arel_attribute
     end
   end
 
@@ -56,7 +64,13 @@ module MiqExpression::Component
   end
 
   MiqExpression::Component::After = Class.new(MiqExpression::Component::Leaf)
-  MiqExpression::Component::And = Class.new(MiqExpression::Component::Composite)
+
+  class MiqExpression::Component::And < MiqExpression::Component::Composite
+    def sql?
+      sub_expressions.all?(&:sql?)
+    end
+  end
+
   MiqExpression::Component::Before = Class.new(MiqExpression::Component::Leaf)
 
   class MiqExpression::Component::Contains < MiqExpression::Component::Leaf
@@ -106,7 +120,13 @@ module MiqExpression::Component
   MiqExpression::Component::Not = Class.new(MiqExpression::Component::SingleComposite)
   MiqExpression::Component::NotEqual = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::NotLike = Class.new(MiqExpression::Component::Leaf)
-  MiqExpression::Component::Or = Class.new(MiqExpression::Component::Composite)
+
+  class MiqExpression::Component::Or < MiqExpression::Component::Composite
+    def sql?
+      sub_expressions.any?(&:sql?)
+    end
+  end
+
   MiqExpression::Component::StartsWith = Class.new(MiqExpression::Component::Leaf)
 
   TYPES = {

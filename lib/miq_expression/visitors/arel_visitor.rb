@@ -107,12 +107,12 @@ class MiqExpression::Visitors::ArelVisitor
   end
 
   def visit_or(subject)
-    first, *rest = subject.sub_expressions
+    first, *rest = subject.sub_expressions.select(&:sql?)
     rest.inject(first.accept(self)) { |arel, sub_expression| arel.or(sub_expression.accept(self)) }
   end
 
   def visit_and(subject)
-    first, *rest = subject.sub_expressions
+    first, *rest = subject.sub_expressions.select(&:sql?)
     rest.inject(first.accept(self)) { |arel, sub_expression| arel.and(sub_expression.accept(self)) }
   end
 
