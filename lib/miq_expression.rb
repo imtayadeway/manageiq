@@ -454,8 +454,7 @@ class MiqExpression
 
   def to_ruby(tz = nil)
     tz ||= "UTC"
-    @ruby ||= self.class._to_ruby(@exp.deep_clone, @context_type, tz)
-    @ruby.dup
+    components.accept(MiqExpression::Visitors::RubyVisitor.new(tz))
   end
 
   def self._to_ruby(exp, context_type, tz)
