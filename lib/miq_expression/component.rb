@@ -1,21 +1,11 @@
 module MiqExpression::Component
-  class MiqExpression::NoArel
-    def eq(*)
-      nil
-    end
-
-    def matches(*)
-      nil
-    end
-  end
-
   class MiqExpression::Regkey
     def initialize(options)
 
     end
 
     def arel_attribute
-      MiqExpression::NoArel.new
+      nil
     end
   end
 

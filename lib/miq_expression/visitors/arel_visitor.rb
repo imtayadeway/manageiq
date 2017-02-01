@@ -13,7 +13,7 @@ class MiqExpression::Visitors::ArelVisitor
   end
 
   def visit_equal(subject)
-    subject.arel_attribute.eq(subject.value)
+    subject.arel_attribute.eq(subject.value) if subject.arel_attribute
   end
 
   def visit_less_than(subject)
@@ -68,8 +68,8 @@ class MiqExpression::Visitors::ArelVisitor
     when MiqExpression::Field
       raise unless subject.target.associations.one?
       reflection = subject.target.reflections.first
+      return nil unless subject.arel_attribute
       arel = subject.arel_attribute.eq(subject.value)
-      return nil unless arel
       if reflection.scope
         arel = arel.and(Arel::Nodes::SqlLiteral.new(extract_where_values(reflection.klass, reflection.scope)))
       end

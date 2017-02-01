@@ -96,7 +96,7 @@ class MiqExpression::Field
   end
 
   def arel_attribute
-    target.arel_attribute(column) || MiqExpression::NoArel.new
+    target.arel_attribute(column)
   end
 
   def arel_table
