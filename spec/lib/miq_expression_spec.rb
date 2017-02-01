@@ -410,6 +410,7 @@ describe MiqExpression do
           vm1.custom_attributes << custom_attribute
           _vm2 = FactoryGirl.create(:vm, :memory_reserve => 0)
           filter = MiqExpression.new(">" => {"field" => "VmOrTemplate-memory_reserve", "value" => "VmOrTemplate-#{CustomAttributeMixin::CUSTOM_ATTRIBUTES_PREFIX}example"})
+
           result = Rbac.search(:targets => Vm, :filter => filter).first.first
           expect(filter.to_sql.last).to eq(:supported_by_sql => false)
           expect(result).to eq(vm1)

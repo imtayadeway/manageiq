@@ -1,4 +1,20 @@
 module MiqExpression::Component
+  class MiqExpression::NoArel
+    def eq(_)
+      nil
+    end
+  end
+
+  class MiqExpression::Regkey
+    def initialize(options)
+
+    end
+
+    def arel_attribute
+      MiqExpression::NoArel.new
+    end
+  end
+
   class MiqExpression::Component::Base
     def self.build
       raise "Called abtract method: .build"
@@ -15,19 +31,27 @@ module MiqExpression::Component
 
   class MiqExpression::Component::Leaf < MiqExpression::Component::Base
     def self.build(options)
-      value = if MiqExpression::Field.is_field?(options["value"])
-                MiqExpression::Field.parse(options["value"]).arel_attribute
-              else
-                options["value"]
-              end
-      new(MiqExpression::Field.parse(options["field"]), value)
+      target = if options.key?("field")
+                 MiqExpression::Field.parse(options["field"])
+               elsif options.key?("regkey")
+                 MiqExpression::Regkey.new(options)
+               end
+      new(target, options["value"])
     end
 
-    attr_reader :target, :value
+    attr_reader :target
 
     def initialize(target, value)
       @target = target
       @value = value
+    end
+
+    def value
+      if MiqExpression::Field.is_field?(@value)
+        MiqExpression::Field.parse(@value).arel_attribute
+      else
+        @value
+      end
     end
 
     def sql?
@@ -82,6 +106,20 @@ module MiqExpression::Component
                end
       new(target, options["value"])
     end
+
+    def sql?
+      case target
+      when Tag
+        target.associations.one?
+      when Field
+        return false unless target.associations.one?
+        return false unless target.reflections.first.macro.in?(:has_many, :has_one)
+        return false if target.reflections.first.options.key?(:as)
+        super
+      else
+        false
+      end
+    end
   end
 
   MiqExpression::Component::EndsWith = Class.new(MiqExpression::Component::Leaf)
@@ -124,6 +162,12 @@ module MiqExpression::Component
   class MiqExpression::Component::Or < MiqExpression::Component::Composite
     def sql?
       sub_expressions.any?(&:sql?)
+    end
+  end
+
+  class MiqExpression::Component::RegularExpressionMatches < MiqExpression::Component::Leaf
+    def sql?
+      false
     end
   end
 

@@ -69,6 +69,7 @@ class MiqExpression::Visitors::ArelVisitor
       raise unless subject.target.associations.one?
       reflection = subject.target.reflections.first
       arel = subject.arel_attribute.eq(subject.value)
+      return nil unless arel
       if reflection.scope
         arel = arel.and(Arel::Nodes::SqlLiteral.new(extract_where_values(reflection.klass, reflection.scope)))
       end
@@ -107,11 +108,13 @@ class MiqExpression::Visitors::ArelVisitor
   end
 
   def visit_or(subject)
-    first, *rest = subject.sub_expressions.select(&:sql?)
+    return nil unless subject.sub_expressions.all?(&:sql?)
+    first, *rest = subject.sub_expressions
     rest.inject(first.accept(self)) { |arel, sub_expression| arel.or(sub_expression.accept(self)) }
   end
 
   def visit_and(subject)
+    return nil if subject.sub_expressions.none?(&:sql?)
     first, *rest = subject.sub_expressions.select(&:sql?)
     rest.inject(first.accept(self)) { |arel, sub_expression| arel.and(sub_expression.accept(self)) }
   end
