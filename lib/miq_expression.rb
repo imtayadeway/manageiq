@@ -346,6 +346,10 @@ class MiqExpression
     load_virtual_custom_attributes
   end
 
+  def components
+    @components ||= Component.build(@exp)
+  end
+
   def load_virtual_custom_attributes
     return unless @exp
 
@@ -585,7 +589,6 @@ class MiqExpression
   def to_sql(tz = nil)
     tz ||= "UTC"
     attrs = {:supported_by_sql => true}
-    components = Component.build(@exp)
     attrs[:supported_by_sql] = false unless components.sql?
     arel = components.accept(MiqExpression::Visitors::ArelVisitor.new(tz))
     sql = arel && arel.to_sql
