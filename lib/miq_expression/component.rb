@@ -1,6 +1,10 @@
 module MiqExpression::Component
   class MiqExpression::NoArel
-    def eq(_)
+    def eq(*)
+      nil
+    end
+
+    def matches(*)
       nil
     end
   end
@@ -85,6 +89,10 @@ module MiqExpression::Component
     def initialize(sub_expression)
       @sub_expression = sub_expression
     end
+
+    def sql?
+      sub_expression.sql?
+    end
   end
 
   MiqExpression::Component::After = Class.new(MiqExpression::Component::Leaf)
@@ -109,11 +117,11 @@ module MiqExpression::Component
 
     def sql?
       case target
-      when Tag
-        target.associations.one?
-      when Field
+      when MiqExpression::Tag
+        true
+      when MiqExpression::Field
         return false unless target.associations.one?
-        return false unless target.reflections.first.macro.in?(:has_many, :has_one)
+        return false unless target.reflections.first.macro.in?([:has_many, :has_one])
         return false if target.reflections.first.options.key?(:as)
         super
       else
