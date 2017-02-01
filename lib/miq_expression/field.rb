@@ -103,7 +103,22 @@ class MiqExpression::Field
     target.arel_table
   end
 
+  def sql?
+    # => false if operand is from a virtual reflection
+    return false if virtual_reflection?
+    # return false unless attribute_supported_by_sql?(field)
+
+    # => false if excluded by special case defined in preprocess options
+    # return false if self.field_excluded_by_preprocess_options?(field)
+
+    !Field.is_field?(value) || Field.parse(value).attribute_supported_by_sql?
+  end
+
   private
+
+  def virtual_reflection?
+    reflections.any? { |model| model.virtual_reflection? }
+  end
 
   def custom_attribute_column_name
     column.gsub(CustomAttributeMixin::CUSTOM_ATTRIBUTES_PREFIX, "")

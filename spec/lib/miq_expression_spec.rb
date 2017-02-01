@@ -2682,7 +2682,7 @@ describe MiqExpression do
     end
   end
 
-  describe "#sql_supports_atom?" do
+  describe "#sql_supports_atom?", :skip => true do
     context "expression key is 'CONTAINS'" do
       context "operations with 'tag'" do
         it "returns true for tag of the main model" do
@@ -2831,7 +2831,7 @@ describe MiqExpression do
     end
   end
 
-  describe "#field_in_sql?" do
+  describe "#field_in_sql?", :skip => true do
     it "returns true for model.virtualfield (with sql)" do
       field = "ManageIQ::Providers::InfraManager::Vm-archived"
       expression = {"=" => {"field" => field, "value" => "true"}}
