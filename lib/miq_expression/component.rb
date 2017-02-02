@@ -139,6 +139,8 @@ module MiqExpression::Component
 
   MiqExpression::Component::GreaterThan = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::GreaterThanOrEqual = Class.new(MiqExpression::Component::Leaf)
+  MiqExpression::Component::IncludesAll = Class.new(MiqExpression::Component::Leaf)
+  MiqExpression::Component::IncludesAny = Class.new(MiqExpression::Component::Leaf)
 
   class MiqExpression::Component::Is < MiqExpression::Component::Leaf
     def start_value(timezone)
@@ -154,6 +156,7 @@ module MiqExpression::Component
   MiqExpression::Component::IsNotEmpty = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::IsNotNull = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::IsNull = Class.new(MiqExpression::Component::Leaf)
+  MiqExpression::Component::KeyExists = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::LessThan = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::LessThanOrEqual = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::Like = Class.new(MiqExpression::Component::Leaf)
