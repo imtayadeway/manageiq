@@ -34,7 +34,19 @@ module Api
       end
 
       def update
-        render_normal_update @req.collection.to_sym, update_collection(@req.subject.to_sym, @req.subject_id)
+        type = @req.subject
+        action = @req.action
+        target = target_resource_method(type, action)
+        raise BadRequestError,
+              "Unimplemented Action #{action} for #{type} resources" unless respond_to?(target)
+
+        results = if @req.subject_id
+                    get_and_update_one_collection(@req.subcollection?, target, type, @req.subject_id)
+                  else
+                    get_and_update_multiple_collections(@req.subcollection?, target, type)
+                  end
+
+        render_normal_update(@req.collection.to_sym, results)
       end
       alias bulk_update update
 

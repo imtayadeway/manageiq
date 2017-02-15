@@ -15,7 +15,7 @@ module Api
           raise BadRequestError,
                 "Cannot update attributes other than #{editable_attrs.join(', ')} for the authenticated user"
         end
-        render_normal_update :users, update_collection(:users, @req.c_id)
+        render_normal_update :users, get_and_update_one_collection(false, "edit_resource", :users, @req.c_id)
       else
         validate_api_action
         super

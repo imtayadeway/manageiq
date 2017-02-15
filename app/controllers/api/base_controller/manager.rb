@@ -1,19 +1,6 @@
 module Api
   class BaseController
     module Manager
-      def update_collection(type, id)
-        action = @req.action
-        target = target_resource_method(type, action)
-        raise BadRequestError,
-              "Unimplemented Action #{action} for #{type} resources" unless respond_to?(target)
-
-        if id
-          get_and_update_one_collection(@req.subcollection?, target, type, id)
-        else
-          get_and_update_multiple_collections(@req.subcollection?, target, type)
-        end
-      end
-
       def parent_resource_obj
         type = @req.collection.to_sym
         resource_search(@req.c_id, type, collection_class(type))
