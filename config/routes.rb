@@ -54,7 +54,8 @@ Vmdb::Application.routes.draw do
               root :action => :index
               get "/:c_id", :action => :show
             when :post
-              post "(/:c_id)", :action => "update", :constraints => ->(request) { !create?(request) }
+              post "/", :action => "bulk_update", :constraints => ->(request) { !create?(request) }
+              post "/:c_id", :action => "update", :constraints => ->(request) { !create?(request) }
               post "/", :action => "create", :constraints => ->(request) { create?(request) }
             when :put
               put "/:c_id", :action => "update"

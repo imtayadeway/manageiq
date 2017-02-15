@@ -36,6 +36,7 @@ module Api
       def update
         render_normal_update @req.collection.to_sym, update_collection(@req.subject.to_sym, @req.subject_id)
       end
+      alias bulk_update update
 
       def destroy
         if @req.subcollection?
