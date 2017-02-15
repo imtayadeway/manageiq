@@ -11,26 +11,26 @@ class MiqExpression::Visitors::RubyVisitor
   end
 
   def visit_equal(subject)
-    if exp[operator]["field"]
+    operands = case subject
+    when MiqExpression::Field
       if exp[operator]["field"] == "<count>"
         ["<count>", quote(exp[operator]["value"], "integer")]
       else
-        col_type = get_col_type(exp[operator]["field"]) || "string"
+        col_type = subject.column_type
         case context_type
         when "hash"
-          val = exp[operator]["field"].split(".").last.split("-").join(".")
-          fld = "<value type=#{col_type}>#{val}</value>"
+          fld = "<value type=#{col_type}>#{subject.value}</value>"
         else
           ref, val = value2tag(exp[operator]["field"])
           fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
         end
-        [fld, quote(exp[operator]["value"], col_type.to_s)]
+        [fld, subject.value]
       end
-    elsif exp[operator]["count"]
+    when MiqExpression::Count
       ref, count = value2tag(exp[operator]["count"])
       field = "<count ref=#{ref}>#{count}</count>"
       [field, quote(exp[operator]["value"], "integer")]
-    elsif exp[operator]["regkey"]
+    when MiqExpression::Regkey
       fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
       [fld, quote(exp[operator]["value"], "string")]
     end
