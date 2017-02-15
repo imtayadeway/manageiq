@@ -53,13 +53,11 @@ Vmdb::Application.routes.draw do
             when :get
               root :action => :index
               get "/:c_id", :action => :show
+            when :post
+              post "(/:c_id)", :action => "update", :constraints => ->(request) { !create?(request) }
+              post "/", :action => "create", :constraints => ->(request) { create?(request) }
             else
-              if verb == :post
-                post "(/:c_id)", :action => "update", :constraints => ->(request) { !create?(request) }
-                post "/", :action => "create", :constraints => ->(request) { create?(request) }
-              else
-                match "(/:c_id)", :action => API_ACTIONS[verb], :via => verb
-              end
+              match "(/:c_id)", :action => API_ACTIONS[verb], :via => verb
             end
           end
         end
