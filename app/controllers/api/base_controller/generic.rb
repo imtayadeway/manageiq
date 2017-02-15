@@ -34,25 +34,21 @@ module Api
       end
 
       def update
-        type = @req.subject
-        action = @req.action
-        target = target_resource_method(type, action)
+        target = target_resource_method(@req.subject, @req.action)
         raise BadRequestError,
-              "Unimplemented Action #{action} for #{type} resources" unless respond_to?(target)
+              "Unimplemented Action #{@req.action} for #{@req.subject} resources" unless respond_to?(target)
 
-        results = get_and_update_one_collection(@req.subcollection?, target, type, @req.subject_id)
-        render_normal_update(@req.collection.to_sym, results)
+        render_normal_update(@req.collection.to_sym,
+                             get_and_update_one_collection(@req.subcollection?, target, @req.subject, @req.subject_id))
       end
 
       def bulk_update
-        type = @req.subject
-        action = @req.action
-        target = target_resource_method(type, action)
+        target = target_resource_method(@req.subject, @req.action)
         raise BadRequestError,
-              "Unimplemented Action #{action} for #{type} resources" unless respond_to?(target)
+              "Unimplemented Action #{@req.action} for #{@req.subject} resources" unless respond_to?(target)
 
-        results = get_and_update_multiple_collections(@req.subcollection?, target, type)
-        render_normal_update(@req.collection.to_sym, results)
+        render_normal_update(@req.collection.to_sym,
+                             get_and_update_multiple_collections(@req.subcollection?, target, @req.subject))
       end
 
       def put
