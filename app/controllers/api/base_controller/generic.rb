@@ -38,6 +38,47 @@ module Api
       end
       alias bulk_update update
 
+      def put
+        render_normal_update(@req.collection.to_sym,
+                             edit_resource(@req.subject, @req.subject_id, @req.json_body))
+      end
+
+      #
+      # Patching a resource, post syntax
+      #
+      # [
+      #   {
+      #     "action" : "add" | "edit" | "remove"
+      #     "path" : "attribute_name",
+      #     "value" : "value to add or edit"
+      #   }
+      #   ...
+      # ]
+      #
+      def patch
+        type = @req.subject
+        id = @req.subject_id
+        patched_attrs = {}
+        @req.json_body.each do |patch_cmd|
+          action = patch_cmd["action"]
+          path   = patch_cmd["path"]
+          value  = patch_cmd["value"]
+          if action.nil?
+            api_log_info("Must specify an attribute action for each path command for the resource #{type}/#{id}")
+          elsif path.nil?
+            api_log_info("Must specify an attribute path for each patch method action for the resource #{type}/#{id}")
+          elsif path.split('/').size > 1
+            api_log_info("Can only patch attributes of the resource #{type}/#{id}")
+          else
+            attr = path.split('/')[0]
+            patched_attrs[attr] = value if %w(edit add).include?(action)
+            patched_attrs[attr] = nil if action == "remove"
+          end
+        end
+        render_normal_update(@req.collection.to_sym,
+                             edit_resource(type, id, patched_attrs))
+      end
+
       def destroy
         if @req.subcollection?
           delete_subcollection_resource @req.subcollection.to_sym, @req.s_id

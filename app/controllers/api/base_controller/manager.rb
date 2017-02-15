@@ -2,12 +2,6 @@ module Api
   class BaseController
     module Manager
       def update_collection(type, id)
-        if @req.method == :put || @req.method == :patch
-          raise BadRequestError,
-                "Must specify a resource id for the #{@req.method} HTTP method" if id.blank?
-          return send("#{@req.method}_resource", type, id)
-        end
-
         action = @req.action
         target = target_resource_method(type, action)
         raise BadRequestError,
@@ -27,43 +21,6 @@ module Api
 
       def collection_class(type)
         @collection_klasses[type.to_sym] || collection_config.klass(type)
-      end
-
-      def put_resource(type, id)
-        edit_resource(type, id, @req.json_body)
-      end
-
-      #
-      # Patching a resource, post syntax
-      #
-      # [
-      #   {
-      #     "action" : "add" | "edit" | "remove"
-      #     "path" : "attribute_name",
-      #     "value" : "value to add or edit"
-      #   }
-      #   ...
-      # ]
-      #
-      def patch_resource(type, id)
-        patched_attrs = {}
-        @req.json_body.each do |patch_cmd|
-          action = patch_cmd["action"]
-          path   = patch_cmd["path"]
-          value  = patch_cmd["value"]
-          if action.nil?
-            api_log_info("Must specify an attribute action for each path command for the resource #{type}/#{id}")
-          elsif path.nil?
-            api_log_info("Must specify an attribute path for each patch method action for the resource #{type}/#{id}")
-          elsif path.split('/').size > 1
-            api_log_info("Can only patch attributes of the resource #{type}/#{id}")
-          else
-            attr = path.split('/')[0]
-            patched_attrs[attr] = value if %w(edit add).include?(action)
-            patched_attrs[attr] = nil if action == "remove"
-          end
-        end
-        edit_resource(type, id, patched_attrs)
       end
 
       def delete_subcollection_resource(type, id = nil)
