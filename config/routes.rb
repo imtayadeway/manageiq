@@ -73,6 +73,13 @@ Vmdb::Application.routes.draw do
             when :get
               get "/:c_id/#{subcollection_name}", :action => :index
               get "/:c_id/#{subcollection_name}/:s_id", :action => :show
+            when :post
+              post "/:c_id/#{subcollection_name}/", :action => "bulk_update"
+              post "/:c_id/#{subcollection_name}/:s_id", :action => "update"
+            when :put
+              put "/:c_id/#{subcollection_name}/:s_id", :action => "put"
+            when :patch
+              patch "/:c_id/#{subcollection_name}/:s_id", :action => "patch"
             else
               match("/:c_id/#{subcollection_name}(/:s_id)", :action => API_ACTIONS[verb], :via => verb)
             end

@@ -40,12 +40,7 @@ module Api
         raise BadRequestError,
               "Unimplemented Action #{action} for #{type} resources" unless respond_to?(target)
 
-        results = if @req.subject_id
-                    get_and_update_one_collection(@req.subcollection?, target, type, @req.subject_id)
-                  else
-                    get_and_update_multiple_collections(@req.subcollection?, target, type)
-                  end
-
+        results = get_and_update_one_collection(@req.subcollection?, target, type, @req.subject_id)
         render_normal_update(@req.collection.to_sym, results)
       end
 
