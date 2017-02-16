@@ -6,12 +6,19 @@ module MiqExpression::Component
   end
 
   class MiqExpression::Regkey
-    def initialize(options)
+    attr_reader :regkey, :regval
 
+    def initialize(options)
+      @regkey = options["regkey"]
+      @regval = options["regval"]
     end
 
     def arel_attribute
       nil
+    end
+
+    def column_type
+      "string"
     end
   end
 
@@ -159,11 +166,17 @@ module MiqExpression::Component
 
   class MiqExpression::Component::Find < MiqExpression::Component::Base
     def self.build(options)
-      new(MiqExpression::Field.parse(options["field"]), options["value"])
+      check = %w(checkall checkany checkcount).detect { |c| options.include?(c) }
+      raise _("expression malformed,  must contain one of 'checkall', 'checkany', 'checkcount'") unless check
+      new(MiqExpression::Component.build(options[check]), MiqExpression::Component.build(options["search"]), check[5..-1])
     end
 
-    def initialize(target, value)
-      #
+    attr_reader :check, :search, :mode
+
+    def initialize(check, search, mode)
+      @check = check
+      @search = search
+      @mode = mode
     end
   end
 
@@ -181,6 +194,7 @@ module MiqExpression::Component
   MiqExpression::Component::GreaterThanOrEqual = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::IncludesAll = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::IncludesAny = Class.new(MiqExpression::Component::Leaf)
+  MiqExpression::Component::IncludesOnly = Class.new(MiqExpression::Component::Leaf)
 
   class MiqExpression::Component::Is < MiqExpression::Component::Leaf
     def start_value(timezone)
@@ -244,6 +258,7 @@ module MiqExpression::Component
     "includes"                          => Like,
     "includes all"                      => IncludesAll,
     "includes any"                      => IncludesAny,
+    "includes only"                     => IncludesOnly,
     "is empty"                          => IsEmpty,
     "is not empty"                      => IsNotEmpty,
     "is not null"                       => IsNotNull,

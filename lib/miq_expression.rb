@@ -1536,24 +1536,6 @@ class MiqExpression
 
   private
 
-  # example:
-  #   ruby_for_date_compare(:updated_at, :date, tz, "==", Time.now)
-  #   # => "val=update_at; !val.nil? && val.to_date == '2016-10-05'"
-  #
-  #   ruby_for_date_compare(:updated_at, :time, tz, ">", Time.yesterday, "<", Time.now)
-  #   # => "val=update_at; !val.nil? && val.utc > '2016-10-04T13:08:00-04:00' && val.utc < '2016-10-05T13:08:00-04:00'"
-
-  def self.ruby_for_date_compare(col_ruby, col_type, tz, op1, val1, op2 = nil, val2 = nil)
-    val_with_cast = "val.#{col_type == :date ? "to_date" : "to_time"}"
-    val1 = RelativeDatetime.normalize(val1, tz, "beginning", col_type == :date) if val1
-    val2 = RelativeDatetime.normalize(val2, tz, "end",       col_type == :date) if val2
-    [
-      "val=#{col_ruby}; !val.nil?",
-      op1 ? "#{val_with_cast} #{op1} #{quote(val1, col_type)}" : nil,
-      op2 ? "#{val_with_cast} #{op2} #{quote(val2, col_type)}" : nil,
-    ].compact.join(" && ")
-  end
-
   def self.determine_relat_path(ref)
     last_path = ref.name.to_s
     class_from_association_name = model_class(last_path)

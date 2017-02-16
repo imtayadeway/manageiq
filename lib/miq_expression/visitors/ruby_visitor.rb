@@ -71,7 +71,7 @@ class MiqExpression::Visitors::RubyVisitor
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> >= #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> >= #{subject.ruby_value}"
+      "<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> >= #{subject.ruby_value}"
     end
   end
 
@@ -84,7 +84,7 @@ class MiqExpression::Visitors::RubyVisitor
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> == #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> == #{subject.ruby_value}"
+      "<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> == #{subject.ruby_value}"
     end
   end
 
@@ -138,7 +138,7 @@ class MiqExpression::Visitors::RubyVisitor
     when MiqExpression::Count
       "!(<count ref=#{subject.ref}>#{subject.to_tag}</count> =~ #{value})"
     when MiqExpression::Regkey
-      "!(<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> =~ #{value})"
+      "!(<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> =~ #{value})"
     end
   end
 
@@ -152,7 +152,7 @@ class MiqExpression::Visitors::RubyVisitor
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> =~ #{value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> =~ #{value}"
+      "<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> =~ #{value}"
     end
   end
 
@@ -172,7 +172,7 @@ class MiqExpression::Visitors::RubyVisitor
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> =~ #{value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> =~ #{value}"
+      "<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> =~ #{value}"
     end
   end
 
@@ -185,7 +185,7 @@ class MiqExpression::Visitors::RubyVisitor
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> != #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> != #{subject.ruby_value}"
+      "<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> != #{subject.ruby_value}"
     end
   end
 
@@ -198,23 +198,15 @@ class MiqExpression::Visitors::RubyVisitor
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> == #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> == #{subject.ruby_value}"
+      "<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> == #{subject.ruby_value}"
     end
   end
 
   def visit_is(subject)
-    col_name = exp[operator]["field"]
-    col_type = get_col_type(exp[operator]["field"]) || "string"
-
-    ref, val = value2tag(exp[operator]["field"])
-    col_ruby = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-
-    col_type = get_col_type(col_name)
-    value = exp[operator]["value"]
-    if col_type == :date && !RelativeDatetime.relative?(value)
-      ruby_for_date_compare(col_ruby, col_type, tz, "==", value)
+    if subject.target.date? && !RelativeDatetime.relative?(subject.value)
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>'bingof</value> == 'bango'"
     else
-      ruby_for_date_compare(col_ruby, col_type, tz, ">=", value, "<=", value)
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>'bingof</value> >= 'bango' <= 'bongo'"
     end
   end
 
@@ -237,31 +229,16 @@ class MiqExpression::Visitors::RubyVisitor
   end
 
   def visit_before(subject)
-    col_type = get_col_type(exp[operator]["field"])
-    ref, val = value2tag(exp[operator]["field"])
-    col_ruby = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-
-    ruby_for_date_compare(col_ruby, col_type, tz, "<", exp[operator]["value"])
+    value = RelativeDatetime.normalize(subject.value, timezone, "end", subject.target.date?)
+    "<value ref=#{subject.ref}, type=#{subject.column_type}>#{value}</value>"
   end
 
   def visit_after(subject)
-    col_type = get_col_type(exp[operator]["field"])
-    ref, val = value2tag(exp[operator]["field"])
-    col_ruby = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-    ruby_for_date_compare(col_ruby, col_type, tz, nil, nil, ">", exp[operator]["value"])
+    value = RelativeDatetime.normalize(subject.value, timezone, "end", subject.target.date?)
+    "<value ref=#{subject.ref}, type=#{subject.column_type}>#{value}</value>"
   end
 
   def visit_regular_expression_matches(subject)
-    operands = if exp[operator]["field"]
-                 col_type = get_col_type(exp[operator]["field"]) || "string"
-                 ref, val = value2tag(exp[operator]["field"])
-                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 [fld, exp[operator]["value"]]
-               elsif exp[operator]["regkey"]
-                 fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
-                 [fld, exp[operator]["value"]]
-               end
-
     # If it looks like a regular expression, sanitize from forward
     # slashes and interpolation
     #
@@ -271,27 +248,24 @@ class MiqExpression::Visitors::RubyVisitor
     # Otherwise sanitize the whole string and add the delimiters
     #
     # TODO: support regexes with more than one option
-    if operands[1].starts_with?("/") && operands[1].ends_with?("/")
-      operands[1][1..-2] = sanitize_regular_expression(operands[1][1..-2])
-    elsif operands[1].starts_with?("/") && operands[1][-2] == "/"
-      operands[1][1..-3] = sanitize_regular_expression(operands[1][1..-3])
+    value = subject.value
+    if value.starts_with?("/") && value.ends_with?("/")
+      value[1..-2] = sanitize_regular_expression(value[1..-2])
+    elsif value.starts_with?("/") && value[-2] == "/"
+      value[1..-3] = sanitize_regular_expression(value[1..-3])
     else
-      operands[1] = "/" + sanitize_regular_expression(operands[1].to_s) + "/"
+      value = "/" + sanitize_regular_expression(value.to_s) + "/"
     end
-    operands.join(" =~ ")
+
+    case subject.target
+    when MiqExpression::Field
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{value}"
+    when MiqExpression::Regkey
+      "<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> =~ #{value}"
+    end
   end
 
   def visit_regular_expression_does_not_match(subject)
-    operands = if exp[operator]["field"]
-                 col_type = get_col_type(exp[operator]["field"]) || "string"
-                 ref, val = value2tag(exp[operator]["field"])
-                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 [fld, exp[operator]["value"]]
-               elsif exp[operator]["regkey"]
-                 fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
-                 [fld, exp[operator]["value"]]
-               end
-
     # If it looks like a regular expression, sanitize from forward
     # slashes and interpolation
     #
@@ -301,85 +275,62 @@ class MiqExpression::Visitors::RubyVisitor
     # Otherwise sanitize the whole string and add the delimiters
     #
     # TODO: support regexes with more than one option
-    if operands[1].starts_with?("/") && operands[1].ends_with?("/")
-      operands[1][1..-2] = sanitize_regular_expression(operands[1][1..-2])
-    elsif operands[1].starts_with?("/") && operands[1][-2] == "/"
-      operands[1][1..-3] = sanitize_regular_expression(operands[1][1..-3])
+    value = subject.value
+    if value.starts_with?("/") && value.ends_with?("/")
+      value[1..-2] = sanitize_regular_expression(value[1..-2])
+    elsif value.starts_with?("/") && value[-2] == "/"
+      value[1..-3] = sanitize_regular_expression(value[1..-3])
     else
-      operands[1] = "/" + sanitize_regular_expression(operands[1].to_s) + "/"
+      value = "/" + sanitize_regular_expression(value.to_s) + "/"
     end
-    operands.join(" !~ ")
+
+    case subject.target
+    when MiqExpression::Field
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> !~ #{value}"
+    when MiqExpression::Regkey
+      "<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> !~ #{value}"
+    end
   end
 
   def visit_key_exists(subject)
-    "<registry key_exists=1, type=boolean>#{subject.regkey}</registry>  == 'true'"
+    "<registry key_exists=1, type=boolean>#{subject.target.regkey}</registry>  == 'true'"
   end
 
   def visit_value_exists(subject)
-    "<registry value_exists=1, type=boolean>#{subject.regkey} : #{subject.regval}</registry>  == 'true'"
+    "<registry value_exists=1, type=boolean>#{subject.target.regkey} : #{subject.target.regval}</registry>  == 'true'"
   end
 
   def visit_includes_any(subject)
-    col_type = get_col_type(exp[operator]["field"]) || "string"
-    ref, val = value2tag(exp[operator]["field"])
-    fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-    operands = [fld, quote(exp[operator]["value"], col_type.to_s)]
-    "(#{operands[1]} - #{operands[0]}) != #{operands[1]}"
+    "(#{subject.ruby_value} - <value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value>) != #{subject.ruby_value}"
   end
 
   def visit_includes_all(subject)
-    col_type = get_col_type(exp[operator]["field"]) || "string"
-    ref, val = value2tag(exp[operator]["field"])
-    fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-    operands = [fld, quote(exp[operator]["value"], col_type.to_s)]
+    fld = "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value>"
+    operands = [fld, subject.ruby_value]
     "(#{operands[0]} & #{operands[1]}) == #{operands[1]}"
   end
 
   def visit_includes_only(subject)
-    col_type = get_col_type(exp[operator]["field"]) || "string"
-    ref, val = value2tag(exp[operator]["field"])
-    fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-
-    operands = [fld, quote(exp[operator]["value"], col_type.to_s)]
+    fld = "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value>"
+    operands = [fld, subject.ruby_value]
     "(#{operands[0]} - #{operands[1]}) == []"
-
   end
 
   def visit_limited_to(subject)
-    col_type = get_col_type(exp[operator]["field"]) || "string"
-    ref, val = value2tag(exp[operator]["field"])
-    fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-    operands = [fld, quote(exp[operator]["value"], col_type.to_s)]
+    fld = "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value>"
+    operands = [fld, subject.ruby_value]
     "(#{operands[0]} - #{operands[1]}) == []"
-
   end
 
   def visit_find(subject)
-    # FIND Vm.users-name = 'Administrator' CHECKALL Vm.users-enabled = 1
-    check = nil
-    check = "checkall" if exp[operator].include?("checkall")
-    check = "checkany" if exp[operator].include?("checkany")
-    if exp[operator].include?("checkcount")
-      check = "checkcount"
-      op = exp[operator][check].keys.first
-      exp[operator][check][op]["field"] = "<count>"
-    end
-    raise _("expression malformed,  must contain one of 'checkall', 'checkany', 'checkcount'") unless check
-    check =~ /^check(.*)$/; mode = $1.downcase
-    "<find><search>" + _to_ruby(exp[operator]["search"], context_type, tz) + "</search><check mode=#{mode}>" + _to_ruby(exp[operator][check], context_type, tz) + "</check></find>"
+    "<find><search>" + subject.search.accept(self) + "</search><check mode=#{subject.mode}>" + subject.check.accept(self) + "</check></find>"
   end
 
   def visit_from(subject)
-    col_name = exp[operator]["field"]
-
-    col_type = get_col_type(exp[operator]["field"]) || "string"
-    ref, val = value2tag(exp[operator]["field"])
-    col_ruby = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-
-    col_type = get_col_type(col_name)
-
-    start_val, end_val = exp[operator]["value"]
-    ruby_for_date_compare(col_ruby, col_type, tz, ">=", start_val, "<=", end_val)
+    start_val, end_val = subject.value
+    start_val = RelativeDatetime.normalize(start_val, timezone, "beginning", subject.target.date?)
+    end_val = RelativeDatetime.normalize(end_val, timezone, "end", subject.target.date?)
+    "<value ref=#{subject.ref}, type=#{subject.column_type}>'bingo'</value>'bango'"
   end
 
   private

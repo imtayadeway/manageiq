@@ -6,7 +6,7 @@ class MiqExpression::Visitors::RubyHashVisitor < MiqExpression::Visitors::RubyVi
   end
 
   def visit(subject)
-    method_name = :"visit_s#{subject.class.name.split("::").last.underscore}"
+    method_name = :"visit_#{subject.class.name.split("::").last.underscore}"
     public_send(method_name, subject)
   end
 
@@ -108,11 +108,13 @@ class MiqExpression::Visitors::RubyHashVisitor < MiqExpression::Visitors::RubyVi
   end
 
   def visit_before(subject)
-    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> < #{subject.ruby_value}"
+    value = RelativeDatetime.normalize(subject.value, timezone, "end", subject.target.date?)
+    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> < #{value}"
   end
 
   def visit_after(subject)
-    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> > #{subject.ruby_value}"
+    value = RelativeDatetime.normalize(subject.value, timezone, "beginning", subject.target.date?)
+    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> > #{value}"
   end
 
   def visit_regular_expression_matches(subject)
@@ -141,6 +143,6 @@ class MiqExpression::Visitors::RubyHashVisitor < MiqExpression::Visitors::RubyVi
 
   def visit_from(subject)
     ruby_for_date_compare(col_ruby, col_type, tz, ">=", start_val, "<=", end_val)
-    "<value type=#{subject.column_type}>#{subject.ruby_value}</value>"
+    "<value type=#{subject.column_type}>#{subject.value}</value>"
   end
 end
