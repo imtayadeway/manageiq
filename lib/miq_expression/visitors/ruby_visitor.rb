@@ -11,126 +11,126 @@ class MiqExpression::Visitors::RubyVisitor
   end
 
   def visit_equal(subject)
-    case subject
+    case subject.target
     when MiqExpression::Field
-      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> == #{subject.value}"
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> == #{subject.ruby_value}"
     when MiqExpression::CountField
-      "<count> == #{subject.value}"
+      "<count> == #{subject.ruby_value}"
     when MiqExpression::Count
-      "<count ref=#{subject.ref}>#{subject.to_tag}</count> == #{subject.value}"
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> == #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> == #{subject.value}"
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> == #{subject.ruby_value}"
     end
   end
 
   def visit_less_than(subject)
-    case subject
+    case subject.target
     when MiqExpression::Field
-      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> < #{subject.value}"
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> < #{subject.ruby_value}"
     when MiqExpression::CountField
-      "<count> < #{subject.value}"
+      "<count> < #{subject.ruby_value}"
     when MiqExpression::Count
-      "<count ref=#{subject.ref}>#{subject.to_tag}</count> < #{subject.value}"
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> < #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> < #{subject.value}"
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> < #{subject.ruby_value}"
     end
   end
 
   def visit_less_than_or_equal(subject)
-    case subject
+    case subject.target
     when MiqExpression::Field
-      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> <= #{subject.value}"
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> <= #{subject.ruby_value}"
     when MiqExpression::CountField
-      "<count> <= #{subject.value}"
+      "<count> <= #{subject.ruby_value}"
     when MiqExpression::Count
-      "<count ref=#{subject.ref}>#{subject.to_tag}</count> <= #{subject.value}"
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> <= #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> <= #{subject.value}"
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> <= #{subject.ruby_value}"
     end
   end
 
   def visit_greater_than(subject)
-    case subject
+    case subject.target
     when MiqExpression::Field
-      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> > #{subject.value}"
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> > #{subject.ruby_value}"
     when MiqExpression::CountField
-      "<count> > #{subject.value}"
+      "<count> > #{subject.ruby_value}"
     when MiqExpression::Count
-      "<count ref=#{subject.ref}>#{subject.to_tag}</count> > #{subject.value}"
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> > #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> > #{subject.value}"
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> > #{subject.ruby_value}"
     end
   end
 
   def visit_greater_than_or_equal(subject)
-    case subject
+    case subject.target
     when MiqExpression::Field
-      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> >= #{subject.value}"
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> >= #{subject.ruby_value}"
     when MiqExpression::CountField
-      "<count> >= #{subject.value}"
+      "<count> >= #{subject.ruby_value}"
     when MiqExpression::Count
-      "<count ref=#{subject.ref}>#{subject.to_tag}</count> >= #{subject.value}"
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> >= #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> >= #{subject.value}"
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> >= #{subject.ruby_value}"
     end
   end
 
   def visit_is_empty(subject)
-    case subject
+    case subject.target
     when MiqExpression::Field
-      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> == #{subject.value}"
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> == #{subject.ruby_value}"
     when MiqExpression::CountField
-      "<count> == #{subject.value}"
+      "<count> == #{subject.ruby_value}"
     when MiqExpression::Count
-      "<count ref=#{subject.ref}>#{subject.to_tag}</count> == #{subject.value}"
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> == #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> == #{subject.value}"
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> == #{subject.ruby_value}"
     end
   end
 
   def visit_is_not_empty(subject)
-    case subject
+    case subject.target
     when MiqExpression::Field
-      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> != #{subject.value}"
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> != #{subject.ruby_value}"
     when MiqExpression::CountField
-      "<count> != #{subject.value}"
+      "<count> != #{subject.ruby_value}"
     when MiqExpression::Count
-      "<count ref=#{subject.ref}>#{subject.to_tag}</count> != #{subject.value}"
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> != #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> != #{subject.value}"
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> != #{subject.ruby_value}"
     end
   end
 
   def visit_not_equal(subject)
-    case subject
+    case subject.target
     when MiqExpression::Field
-      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> != #{subject.value}"
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> != #{subject.ruby_value}"
     when MiqExpression::CountField
-      "<count> != #{subject.value}"
+      "<count> != #{subject.ruby_value}"
     when MiqExpression::Count
-      "<count ref=#{subject.ref}>#{subject.to_tag}</count> != #{subject.value}"
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> != #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> != #{subject.value}"
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> != #{subject.ruby_value}"
     end
   end
 
   def visit_like(subject)
-    operands[1] = "/" + re_escape(operands[1].to_s) + "/"
-    case subject
+    value = "/" + re_escape(subject.value) + "/"
+    case subject.target
     when MiqExpression::Field
-      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{subject.value}"
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{value}"
     when MiqExpression::CountField
-      "<count> =~ #{subject.value}"
+      "<count> =~ #{value}"
     when MiqExpression::Count
-      "<count ref=#{subject.ref}>#{subject.to_tag}</count> =~ #{subject.value}"
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> =~ #{value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> =~ #{subject.value}"
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> =~ #{value}"
     end
   end
 
   def visit_not_like(subject)
     value = "/" + re_escape(subject.value) + "/"
-    case subject
+    case subject.target
     when MiqExpression::Field
       "!(<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{value})"
     when MiqExpression::CountField
@@ -144,7 +144,7 @@ class MiqExpression::Visitors::RubyVisitor
 
   def visit_starts_with(subject)
     value = "/^" + re_escape(subject.value) + "/"
-    case subject
+    case subject.target
     when MiqExpression::Field
       "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{value}"
     when MiqExpression::CountField
@@ -164,7 +164,7 @@ class MiqExpression::Visitors::RubyVisitor
 
   def visit_ends_with(subject)
     value = "/" + re_escape(subject.value) + "$/"
-    case subject
+    case subject.target
     when MiqExpression::Field
       "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{value}"
     when MiqExpression::CountField
@@ -177,28 +177,28 @@ class MiqExpression::Visitors::RubyVisitor
   end
 
   def visit_is_not_null(subject)
-    case subject
+    case subject.target
     when MiqExpression::Field
-      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> != #{subject.value}"
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> != #{subject.ruby_value}"
     when MiqExpression::CountField
-      "<count> != #{subject.value}"
+      "<count> != #{subject.ruby_value}"
     when MiqExpression::Count
-      "<count ref=#{subject.ref}>#{subject.to_tag}</count> != #{subject.value}"
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> != #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> != #{subject.value}"
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> != #{subject.ruby_value}"
     end
   end
 
   def visit_is_null(subject)
-    case subject
+    case subject.target
     when MiqExpression::Field
-      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> == #{subject.value}"
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> == #{subject.ruby_value}"
     when MiqExpression::CountField
-      "<count> == #{subject.value}"
+      "<count> == #{subject.ruby_value}"
     when MiqExpression::Count
-      "<count ref=#{subject.ref}>#{subject.to_tag}</count> == #{subject.value}"
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> == #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> == #{subject.value}"
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> == #{subject.ruby_value}"
     end
   end
 
@@ -312,11 +312,11 @@ class MiqExpression::Visitors::RubyVisitor
   end
 
   def visit_key_exists(subject)
-    "<registry key_exists=1, type=boolean>#{exp[operator]["regkey"].strip}</registry>  == 'true'"
+    "<registry key_exists=1, type=boolean>#{subject.regkey}</registry>  == 'true'"
   end
 
   def visit_value_exists(subject)
-    "<registry value_exists=1, type=boolean>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>  == 'true'"
+    "<registry value_exists=1, type=boolean>#{subject.regkey} : #{subject.regval}</registry>  == 'true'"
   end
 
   def visit_includes_any(subject)
@@ -380,5 +380,27 @@ class MiqExpression::Visitors::RubyVisitor
 
     start_val, end_val = exp[operator]["value"]
     ruby_for_date_compare(col_ruby, col_type, tz, ">=", start_val, "<=", end_val)
+  end
+
+  private
+
+  # TODO: update this to use the more nuanced
+  # .sanitize_regular_expression after performing Regexp.escape. The
+  # extra substitution is required because, although the result from
+  # Regexp.escape is fine to pass to Regexp.new, it is not when eval'd
+  # as we do:
+  #
+  # ```ruby
+  # regexp_string = Regexp.escape("/") # => "/"
+  # # ...
+  # eval("/" + regexp_string + "/")
+  # ```
+  def re_escape(s)
+    Regexp.escape(s).gsub(/\//, '\/')
+  end
+
+  # Escape any unescaped forward slashes and/or interpolation
+  def sanitize_regular_expression(string)
+    string.gsub(%r{\\*/}, "\\/").gsub(/\\*#/, "\\\#")
   end
 end

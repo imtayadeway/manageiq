@@ -54,6 +54,10 @@ module MiqExpression::Component
       end
     end
 
+    def ruby_value
+      MiqExpression::Coercer.coerce(value, target.column_type)
+    end
+
     def sql?
       !!arel_attribute
     end
@@ -68,6 +72,22 @@ module MiqExpression::Component
 
     def column
       target.column
+    end
+
+    def message_chain
+      target.message_chain
+    end
+
+    def full_message_chain
+      target.full_message_chain
+    end
+
+    def ref
+      target.ref
+    end
+
+    def to_tag
+      target.to_tag
     end
   end
 
@@ -180,6 +200,7 @@ module MiqExpression::Component
   MiqExpression::Component::LessThan = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::LessThanOrEqual = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::Like = Class.new(MiqExpression::Component::Leaf)
+  MiqExpression::Component::LimitedTo = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::Not = Class.new(MiqExpression::Component::SingleComposite)
   MiqExpression::Component::NotEqual = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::NotLike = Class.new(MiqExpression::Component::Leaf)
@@ -230,6 +251,7 @@ module MiqExpression::Component
     "is"                                => Is,
     "key exists"                        => KeyExists,
     "like"                              => Like,
+    "limited to"                        => LimitedTo,
     "not like"                          => NotLike,
     "not"                               => Not,
     "or"                                => Or,

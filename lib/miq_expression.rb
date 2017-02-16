@@ -941,26 +941,6 @@ class MiqExpression
     end
   end
 
-  # TODO: update this to use the more nuanced
-  # .sanitize_regular_expression after performing Regexp.escape. The
-  # extra substitution is required because, although the result from
-  # Regexp.escape is fine to pass to Regexp.new, it is not when eval'd
-  # as we do:
-  #
-  # ```ruby
-  # regexp_string = Regexp.escape("/") # => "/"
-  # # ...
-  # eval("/" + regexp_string + "/")
-  # ```
-  def self.re_escape(s)
-    Regexp.escape(s).gsub(/\//, '\/')
-  end
-
-  # Escape any unescaped forward slashes and/or interpolation
-  def self.sanitize_regular_expression(string)
-    string.gsub(%r{\\*/}, "\\/").gsub(/\\*#/, "\\\#")
-  end
-
   def self.preprocess_managed_tag(tag)
     path, val = tag.split("-")
     path_arr = path.split(".")
