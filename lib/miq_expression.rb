@@ -454,7 +454,8 @@ class MiqExpression
 
   def to_ruby(tz = nil)
     tz ||= "UTC"
-    components.accept(MiqExpression::Visitors::RubyVisitor.new(tz))
+    visitor = context_type == "hash" ? MiqExpression::Visitors::RubyHashVisitor : MiqExpression::Visitors::RubyVisitor
+    components.accept(visitor.new(tz))
   end
 
   def self._to_ruby(exp, context_type, tz)
