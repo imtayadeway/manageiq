@@ -12,28 +12,23 @@ class MiqExpression::Visitors::RubyVisitor
 
   def visit_equal(subject)
     operands = case subject
-    when MiqExpression::Field
-      if exp[operator]["field"] == "<count>"
-        ["<count>", quote(exp[operator]["value"], "integer")]
-      else
-        col_type = subject.column_type
-        case context_type
-        when "hash"
-          fld = "<value type=#{col_type}>#{subject.value}</value>"
-        else
-          ref, val = value2tag(exp[operator]["field"])
-          fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-        end
-        [fld, subject.value]
-      end
-    when MiqExpression::Count
-      ref, count = value2tag(exp[operator]["count"])
-      field = "<count ref=#{ref}>#{count}</count>"
-      [field, quote(exp[operator]["value"], "integer")]
-    when MiqExpression::Regkey
-      fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
-      [fld, quote(exp[operator]["value"], "string")]
-    end
+               when MiqExpression::Field
+                 if exp[operator]["field"] == "<count>"
+                   ["<count>", quote(exp[operator]["value"], "integer")]
+                 else
+                   col_type = subject.column_type
+                   ref, val = value2tag(exp[operator]["field"])
+                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
+                   [fld, subject.value]
+                 end
+               when MiqExpression::Count
+                 ref, count = value2tag(exp[operator]["count"])
+                 field = "<count ref=#{ref}>#{count}</count>"
+                 [field, quote(exp[operator]["value"], "integer")]
+               when MiqExpression::Regkey
+                 fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
+                 [fld, quote(exp[operator]["value"], "string")]
+               end
     operands.join(" == ")
   end
 
@@ -43,14 +38,8 @@ class MiqExpression::Visitors::RubyVisitor
                    ["<count>", quote(exp[operator]["value"], "integer")]
                  else
                    col_type = get_col_type(exp[operator]["field"]) || "string"
-                   case context_type
-                   when "hash"
-                     val = exp[operator]["field"].split(".").last.split("-").join(".")
-                     fld = "<value type=#{col_type}>#{val}</value>"
-                   else
-                     ref, val = value2tag(exp[operator]["field"])
-                     fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                   end
+                   ref, val = value2tag(exp[operator]["field"])
+                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
                    [fld, quote(exp[operator]["value"], col_type.to_s)]
                  end
                elsif exp[operator]["count"]
@@ -67,14 +56,8 @@ class MiqExpression::Visitors::RubyVisitor
                    ["<count>", quote(exp[operator]["value"], "integer")]
                  else
                    col_type = get_col_type(exp[operator]["field"]) || "string"
-                   case context_type
-                   when "hash"
-                     val = exp[operator]["field"].split(".").last.split("-").join(".")
-                     fld = "<value type=#{col_type}>#{val}</value>"
-                   else
-                     ref, val = value2tag(exp[operator]["field"])
-                     fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                   end
+                   ref, val = value2tag(exp[operator]["field"])
+                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
                    [fld, quote(exp[operator]["value"], col_type.to_s)]
                  end
                elsif exp[operator]["count"]
@@ -91,14 +74,8 @@ class MiqExpression::Visitors::RubyVisitor
                    ["<count>", quote(exp[operator]["value"], "integer")]
                  else
                    col_type = get_col_type(exp[operator]["field"]) || "string"
-                   case context_type
-                   when "hash"
-                     val = exp[operator]["field"].split(".").last.split("-").join(".")
-                     fld = "<value type=#{col_type}>#{val}</value>"
-                   else
-                     ref, val = value2tag(exp[operator]["field"])
-                     fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                   end
+                   ref, val = value2tag(exp[operator]["field"])
+                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
                    [fld, quote(exp[operator]["value"], col_type.to_s)]
                  end
                elsif exp[operator]["count"]
@@ -115,14 +92,8 @@ class MiqExpression::Visitors::RubyVisitor
                    ["<count>", quote(exp[operator]["value"], "integer")]
                  else
                    col_type = get_col_type(exp[operator]["field"]) || "string"
-                   case context_type
-                   when "hash"
-                     val = exp[operator]["field"].split(".").last.split("-").join(".")
-                     fld = "<value type=#{col_type}>#{val}</value>"
-                   else
-                     ref, val = value2tag(exp[operator]["field"])
-                     fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                   end
+                   ref, val = value2tag(exp[operator]["field"])
+                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
                    [fld, quote(exp[operator]["value"], col_type.to_s)]
                  end
                elsif exp[operator]["count"]
@@ -136,15 +107,8 @@ class MiqExpression::Visitors::RubyVisitor
   def visit_is_empty(subject)
     operands = if exp[operator]["field"]
                  col_type = get_col_type(exp[operator]["field"]) || "string"
-                 case context_type
-                 when "hash"
-                   val = exp[operator]["field"].split(".").last.split("-").join(".")
-                   fld = "<value type=#{col_type}>#{val}</value>"
-                 else
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 end
-
+                 ref, val = value2tag(exp[operator]["field"])
+                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
                  [fld, quote(exp[operator]["value"], col_type.to_s)]
                elsif exp[operator]["regkey"]
                  fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
@@ -156,14 +120,8 @@ class MiqExpression::Visitors::RubyVisitor
   def visit_is_not_empty(subject)
     operands = if exp[operator]["field"]
                  col_type = get_col_type(exp[operator]["field"]) || "string"
-                 case context_type
-                 when "hash"
-                   val = exp[operator]["field"].split(".").last.split("-").join(".")
-                   fld = "<value type=#{col_type}>#{val}</value>"
-                 else
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 end
+                 ref, val = value2tag(exp[operator]["field"])
+                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
                  [fld, quote(exp[operator]["value"], col_type.to_s)]
                elsif exp[operator]["regkey"]
                  fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
@@ -178,14 +136,8 @@ class MiqExpression::Visitors::RubyVisitor
                    ["<count>", quote(exp[operator]["value"], "integer")]
                  else
                    col_type = get_col_type(exp[operator]["field"]) || "string"
-                   case context_type
-                   when "hash"
-                     val = exp[operator]["field"].split(".").last.split("-").join(".")
-                     fld = "<value type=#{col_type}>#{val}</value>"
-                   else
-                     ref, val = value2tag(exp[operator]["field"])
-                     fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                   end
+                   ref, val = value2tag(exp[operator]["field"])
+                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
                    operands = [fld, quote(exp[operator]["value"], col_type.to_s)]
                  end
                elsif exp[operator]["count"]
@@ -199,15 +151,8 @@ class MiqExpression::Visitors::RubyVisitor
   def visit_like(subject)
     operands = if exp[operator]["field"]
                  col_type = get_col_type(exp[operator]["field"]) || "string"
-                 case context_type
-                 when "hash"
-                   val = exp[operator]["field"].split(".").last.split("-").join(".")
-                   fld = "<value type=#{col_type}>#{val}</value>"
-                 else
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 end
-
+                 ref, val = value2tag(exp[operator]["field"])
+                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
                  [fld, exp[operator]["value"]]
                elsif exp[operator]["regkey"] # hmmm, not in the UI
                  fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
@@ -220,15 +165,8 @@ class MiqExpression::Visitors::RubyVisitor
   def visit_not_like(subject)
     operands = if exp[operator]["field"]
                  col_type = get_col_type(exp[operator]["field"]) || "string"
-                 case context_type
-                 when "hash"
-                   val = exp[operator]["field"].split(".").last.split("-").join(".")
-                   fld = "<value type=#{col_type}>#{val}</value>"
-                 else
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 end
-
+                 ref, val = value2tag(exp[operator]["field"])
+                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
                  [fld, exp[operator]["value"]]
                elsif exp[operator]["regkey"] # hmmm, not in the UI
                  fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
@@ -241,15 +179,8 @@ class MiqExpression::Visitors::RubyVisitor
   def visit_starts_with(subject)
     operands = if exp[operator]["field"]
                  col_type = get_col_type(exp[operator]["field"]) || "string"
-                 case context_type
-                 when "hash"
-                   val = exp[operator]["field"].split(".").last.split("-").join(".")
-                   fld = "<value type=#{col_type}>#{val}</value>"
-                 else
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 end
-
+                 ref, val = value2tag(exp[operator]["field"])
+                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
                  [fld, exp[operator]["value"]]
                elsif exp[operator]["regkey"]
                  fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
@@ -261,36 +192,16 @@ class MiqExpression::Visitors::RubyVisitor
 
   def visit_contains(subject)
     exp[operator]["tag"] ||= exp[operator]["field"]
-    operands = if context_type != "hash"
-                 ref, val = value2tag(preprocess_managed_tag(exp[operator]["tag"]), exp[operator]["value"])
-                 ["<exist ref=#{ref}>#{val}</exist>"]
-               elsif context_type == "hash"
-                 # This is only for supporting reporting "display filters"
-                 # In the report object the tag value is actually the description and not the raw tag name.
-                 # So we have to trick it by replacing the value with the description.
-                 description = MiqExpression.get_entry_details(exp[operator]["tag"]).inject("") do |s, t|
-                   break(t.first) if t.last == exp[operator]["value"]
-                   s
-                 end
-                 val = exp[operator]["tag"].split(".").last.split("-").join(".")
-                 fld = "<value type=string>#{val}</value>"
-                 [fld, quote(description, "string")]
-               end
+    ref, val = value2tag(preprocess_managed_tag(exp[operator]["tag"]), exp[operator]["value"])
+    operands = ["<exist ref=#{ref}>#{val}</exist>"]
     operands.join(" CONTAINS ")
   end
 
   def visit_ends_with(subject)
     operands = if exp[operator]["field"]
                  col_type = get_col_type(exp[operator]["field"]) || "string"
-                 case context_type
-                 when "hash"
-                   val = exp[operator]["field"].split(".").last.split("-").join(".")
-                   fld = "<value type=#{col_type}>#{val}</value>"
-                 else
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 end
-
+                 ref, val = value2tag(exp[operator]["field"])
+                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
                  [fld, exp[operator]["value"]]
                elsif exp[operator]["regkey"]
                  fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
@@ -303,15 +214,8 @@ class MiqExpression::Visitors::RubyVisitor
   def visit_is_not_null(subject)
     operands = if exp[operator]["field"]
                  col_type = get_col_type(exp[operator]["field"]) || "string"
-                 case context_type
-                 when "hash"
-                   val = exp[operator]["field"].split(".").last.split("-").join(".")
-                   fld = "<value type=#{col_type}>#{val}</value>"
-                 else
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 end
-
+                 ref, val = value2tag(exp[operator]["field"])
+                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
                  [fld, quote(exp[operator]["value"], col_type.to_s)]
                elsif exp[operator]["regkey"]
                  fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
@@ -323,15 +227,8 @@ class MiqExpression::Visitors::RubyVisitor
   def visit_is_null(subject)
     operands = if exp[operator]["field"]
                  col_type = get_col_type(exp[operator]["field"]) || "string"
-                 case context_type
-                 when "hash"
-                   val = exp[operator]["field"].split(".").last.split("-").join(".")
-                   fld = "<value type=#{col_type}>#{val}</value>"
-                 else
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 end
-
+                 ref, val = value2tag(exp[operator]["field"])
+                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
                  [fld, quote(exp[operator]["value"], col_type.to_s)]
                elsif exp[operator]["regkey"]
                  fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
@@ -344,14 +241,8 @@ class MiqExpression::Visitors::RubyVisitor
     col_name = exp[operator]["field"]
     col_type = get_col_type(exp[operator]["field"]) || "string"
 
-    col_ruby = case context_type
-               when "hash"
-                 val = exp[operator]["field"].split(".").last.split("-").join(".")
-                 "<value type=#{col_type}>#{val}</value>"
-               else
-                 ref, val = value2tag(exp[operator]["field"])
-                 "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-               end
+    ref, val = value2tag(exp[operator]["field"])
+    col_ruby = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
 
     col_type = get_col_type(col_name)
     value = exp[operator]["value"]
@@ -380,44 +271,24 @@ class MiqExpression::Visitors::RubyVisitor
 
   def visit_before(subject)
     col_type = get_col_type(exp[operator]["field"])
-    col_ruby = case context_type
-               when "hash"
-                 val = exp[operator]["field"].split(".").last.split("-").join(".")
-                 "<value type=#{col_type}>#{val}</value>"
-               else
-                 ref, val = value2tag(exp[operator]["field"])
-                 "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-               end
+    ref, val = value2tag(exp[operator]["field"])
+    col_ruby = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
 
     ruby_for_date_compare(col_ruby, col_type, tz, "<", exp[operator]["value"])
   end
 
   def visit_after(subject)
     col_type = get_col_type(exp[operator]["field"])
-    col_ruby = case context_type
-               when "hash"
-                 val = exp[operator]["field"].split(".").last.split("-").join(".")
-                 "<value type=#{col_type}>#{val}</value>"
-               else
-                 ref, val = value2tag(exp[operator]["field"])
-                 "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-               end
-
+    ref, val = value2tag(exp[operator]["field"])
+    col_ruby = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
     ruby_for_date_compare(col_ruby, col_type, tz, nil, nil, ">", exp[operator]["value"])
   end
 
   def visit_regular_expression_matches(subject)
     operands = if exp[operator]["field"]
                  col_type = get_col_type(exp[operator]["field"]) || "string"
-                 case context_type
-                 when "hash"
-                   val = exp[operator]["field"].split(".").last.split("-").join(".")
-                   fld = "<value type=#{col_type}>#{val}</value>"
-                 else
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 end
-
+                 ref, val = value2tag(exp[operator]["field"])
+                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
                  [fld, exp[operator]["value"]]
                elsif exp[operator]["regkey"]
                  fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
@@ -446,15 +317,8 @@ class MiqExpression::Visitors::RubyVisitor
   def visit_regular_expression_does_not_match(subject)
     operands = if exp[operator]["field"]
                  col_type = get_col_type(exp[operator]["field"]) || "string"
-                 case context_type
-                 when "hash"
-                   val = exp[operator]["field"].split(".").last.split("-").join(".")
-                   fld = "<value type=#{col_type}>#{val}</value>"
-                 else
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 end
-
+                 ref, val = value2tag(exp[operator]["field"])
+                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
                  [fld, exp[operator]["value"]]
                elsif exp[operator]["regkey"]
                  fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
@@ -490,44 +354,24 @@ class MiqExpression::Visitors::RubyVisitor
 
   def visit_includes_any(subject)
     col_type = get_col_type(exp[operator]["field"]) || "string"
-    case context_type
-    when "hash"
-      val = exp[operator]["field"].split(".").last.split("-").join(".")
-      fld = "<value type=#{col_type}>#{val}</value>"
-    else
-      ref, val = value2tag(exp[operator]["field"])
-      fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-    end
-
+    ref, val = value2tag(exp[operator]["field"])
+    fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
     operands = [fld, quote(exp[operator]["value"], col_type.to_s)]
     "(#{operands[1]} - #{operands[0]}) != #{operands[1]}"
   end
 
   def visit_includes_all(subject)
     col_type = get_col_type(exp[operator]["field"]) || "string"
-    case context_type
-    when "hash"
-      val = exp[operator]["field"].split(".").last.split("-").join(".")
-      fld = "<value type=#{col_type}>#{val}</value>"
-    else
-      ref, val = value2tag(exp[operator]["field"])
-      fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-    end
-
+    ref, val = value2tag(exp[operator]["field"])
+    fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
     operands = [fld, quote(exp[operator]["value"], col_type.to_s)]
     "(#{operands[0]} & #{operands[1]}) == #{operands[1]}"
   end
 
   def visit_includes_only(subject)
     col_type = get_col_type(exp[operator]["field"]) || "string"
-    case context_type
-    when "hash"
-      val = exp[operator]["field"].split(".").last.split("-").join(".")
-      fld = "<value type=#{col_type}>#{val}</value>"
-    else
-      ref, val = value2tag(exp[operator]["field"])
-      fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-    end
+    ref, val = value2tag(exp[operator]["field"])
+    fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
 
     operands = [fld, quote(exp[operator]["value"], col_type.to_s)]
     "(#{operands[0]} - #{operands[1]}) == []"
@@ -536,15 +380,8 @@ class MiqExpression::Visitors::RubyVisitor
 
   def visit_limited_to(subject)
     col_type = get_col_type(exp[operator]["field"]) || "string"
-    case context_type
-    when "hash"
-      val = exp[operator]["field"].split(".").last.split("-").join(".")
-      fld = "<value type=#{col_type}>#{val}</value>"
-    else
-      ref, val = value2tag(exp[operator]["field"])
-      fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-    end
-
+    ref, val = value2tag(exp[operator]["field"])
+    fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
     operands = [fld, quote(exp[operator]["value"], col_type.to_s)]
     "(#{operands[0]} - #{operands[1]}) == []"
 
@@ -569,14 +406,8 @@ class MiqExpression::Visitors::RubyVisitor
     col_name = exp[operator]["field"]
 
     col_type = get_col_type(exp[operator]["field"]) || "string"
-    col_ruby = case context_type
-               when "hash"
-                 val = exp[operator]["field"].split(".").last.split("-").join(".")
-                 "<value type=#{col_type}>#{val}</value>"
-               else
-                 ref, val = value2tag(exp[operator]["field"])
-                 "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-               end
+    ref, val = value2tag(exp[operator]["field"])
+    col_ruby = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
 
     col_type = get_col_type(col_name)
 
