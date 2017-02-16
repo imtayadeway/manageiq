@@ -11,230 +11,195 @@ class MiqExpression::Visitors::RubyVisitor
   end
 
   def visit_equal(subject)
-    operands = case subject
-               when MiqExpression::Field
-                 if exp[operator]["field"] == "<count>"
-                   ["<count>", quote(exp[operator]["value"], "integer")]
-                 else
-                   col_type = subject.column_type
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                   [fld, subject.value]
-                 end
-               when MiqExpression::Count
-                 ref, count = value2tag(exp[operator]["count"])
-                 field = "<count ref=#{ref}>#{count}</count>"
-                 [field, quote(exp[operator]["value"], "integer")]
-               when MiqExpression::Regkey
-                 fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
-                 [fld, quote(exp[operator]["value"], "string")]
-               end
-    operands.join(" == ")
+    case subject
+    when MiqExpression::Field
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> == #{subject.value}"
+    when MiqExpression::CountField
+      "<count> == #{subject.value}"
+    when MiqExpression::Count
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> == #{subject.value}"
+    when MiqExpression::Regkey
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> == #{subject.value}"
+    end
   end
 
   def visit_less_than(subject)
-    operands = if exp[operator]["field"]
-                 if exp[operator]["field"] == "<count>"
-                   ["<count>", quote(exp[operator]["value"], "integer")]
-                 else
-                   col_type = get_col_type(exp[operator]["field"]) || "string"
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                   [fld, quote(exp[operator]["value"], col_type.to_s)]
-                 end
-               elsif exp[operator]["count"]
-                 ref, count = value2tag(exp[operator]["count"])
-                 field = "<count ref=#{ref}>#{count}</count>"
-                 [field, quote(exp[operator]["value"], "integer")]
-               end
-    operands.join(" < ")
+    case subject
+    when MiqExpression::Field
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> < #{subject.value}"
+    when MiqExpression::CountField
+      "<count> < #{subject.value}"
+    when MiqExpression::Count
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> < #{subject.value}"
+    when MiqExpression::Regkey
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> < #{subject.value}"
+    end
   end
 
   def visit_less_than_or_equal(subject)
-    operands = if exp[operator]["field"]
-                 if exp[operator]["field"] == "<count>"
-                   ["<count>", quote(exp[operator]["value"], "integer")]
-                 else
-                   col_type = get_col_type(exp[operator]["field"]) || "string"
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                   [fld, quote(exp[operator]["value"], col_type.to_s)]
-                 end
-               elsif exp[operator]["count"]
-                 ref, count = value2tag(exp[operator]["count"])
-                 field = "<count ref=#{ref}>#{count}</count>"
-                 [field, quote(exp[operator]["value"], "integer")]
-               end
-    operands.join(" <= ")
+    case subject
+    when MiqExpression::Field
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> <= #{subject.value}"
+    when MiqExpression::CountField
+      "<count> <= #{subject.value}"
+    when MiqExpression::Count
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> <= #{subject.value}"
+    when MiqExpression::Regkey
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> <= #{subject.value}"
+    end
   end
 
   def visit_greater_than(subject)
-    operands = if exp[operator]["field"]
-                 if exp[operator]["field"] == "<count>"
-                   ["<count>", quote(exp[operator]["value"], "integer")]
-                 else
-                   col_type = get_col_type(exp[operator]["field"]) || "string"
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                   [fld, quote(exp[operator]["value"], col_type.to_s)]
-                 end
-               elsif exp[operator]["count"]
-                 ref, count = value2tag(exp[operator]["count"])
-                 field = "<count ref=#{ref}>#{count}</count>"
-                 [field, quote(exp[operator]["value"], "integer")]
-               end
-    operands.join(" > ")
+    case subject
+    when MiqExpression::Field
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> > #{subject.value}"
+    when MiqExpression::CountField
+      "<count> > #{subject.value}"
+    when MiqExpression::Count
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> > #{subject.value}"
+    when MiqExpression::Regkey
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> > #{subject.value}"
+    end
   end
 
   def visit_greater_than_or_equal(subject)
-    operands = if exp[operator]["field"]
-                 if exp[operator]["field"] == "<count>"
-                   ["<count>", quote(exp[operator]["value"], "integer")]
-                 else
-                   col_type = get_col_type(exp[operator]["field"]) || "string"
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                   [fld, quote(exp[operator]["value"], col_type.to_s)]
-                 end
-               elsif exp[operator]["count"]
-                 ref, count = value2tag(exp[operator]["count"])
-                 field = "<count ref=#{ref}>#{count}</count>"
-                 [field, quote(exp[operator]["value"], "integer")]
-               end
-    operands.join(" >= ")
+    case subject
+    when MiqExpression::Field
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> >= #{subject.value}"
+    when MiqExpression::CountField
+      "<count> >= #{subject.value}"
+    when MiqExpression::Count
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> >= #{subject.value}"
+    when MiqExpression::Regkey
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> >= #{subject.value}"
+    end
   end
 
   def visit_is_empty(subject)
-    operands = if exp[operator]["field"]
-                 col_type = get_col_type(exp[operator]["field"]) || "string"
-                 ref, val = value2tag(exp[operator]["field"])
-                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 [fld, quote(exp[operator]["value"], col_type.to_s)]
-               elsif exp[operator]["regkey"]
-                 fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
-                 [fld, quote(exp[operator]["value"], "string")]
-               end
-    operands.join(" == ")
+    case subject
+    when MiqExpression::Field
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> == #{subject.value}"
+    when MiqExpression::CountField
+      "<count> == #{subject.value}"
+    when MiqExpression::Count
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> == #{subject.value}"
+    when MiqExpression::Regkey
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> == #{subject.value}"
+    end
   end
 
   def visit_is_not_empty(subject)
-    operands = if exp[operator]["field"]
-                 col_type = get_col_type(exp[operator]["field"]) || "string"
-                 ref, val = value2tag(exp[operator]["field"])
-                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 [fld, quote(exp[operator]["value"], col_type.to_s)]
-               elsif exp[operator]["regkey"]
-                 fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
-                 [fld, quote(exp[operator]["value"], "string")]
-               end
-    operands.join(" != ")
+    case subject
+    when MiqExpression::Field
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> != #{subject.value}"
+    when MiqExpression::CountField
+      "<count> != #{subject.value}"
+    when MiqExpression::Count
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> != #{subject.value}"
+    when MiqExpression::Regkey
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> != #{subject.value}"
+    end
   end
 
   def visit_not_equal(subject)
-    operands = if exp[operator]["field"]
-                 if exp[operator]["field"] == "<count>"
-                   ["<count>", quote(exp[operator]["value"], "integer")]
-                 else
-                   col_type = get_col_type(exp[operator]["field"]) || "string"
-                   ref, val = value2tag(exp[operator]["field"])
-                   fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                   operands = [fld, quote(exp[operator]["value"], col_type.to_s)]
-                 end
-               elsif exp[operator]["count"]
-                 ref, count = value2tag(exp[operator]["count"])
-                 field = "<count ref=#{ref}>#{count}</count>"
-                 [field, quote(exp[operator]["value"], "integer")]
-               end
-    operands.join(" != ")
+    case subject
+    when MiqExpression::Field
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> != #{subject.value}"
+    when MiqExpression::CountField
+      "<count> != #{subject.value}"
+    when MiqExpression::Count
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> != #{subject.value}"
+    when MiqExpression::Regkey
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> != #{subject.value}"
+    end
   end
 
   def visit_like(subject)
-    operands = if exp[operator]["field"]
-                 col_type = get_col_type(exp[operator]["field"]) || "string"
-                 ref, val = value2tag(exp[operator]["field"])
-                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 [fld, exp[operator]["value"]]
-               elsif exp[operator]["regkey"] # hmmm, not in the UI
-                 fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
-                 [fld, exp[operator]["value"]]
-               end
     operands[1] = "/" + re_escape(operands[1].to_s) + "/"
-    operands.join(" =~ ")
+    case subject
+    when MiqExpression::Field
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{subject.value}"
+    when MiqExpression::CountField
+      "<count> =~ #{subject.value}"
+    when MiqExpression::Count
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> =~ #{subject.value}"
+    when MiqExpression::Regkey
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> =~ #{subject.value}"
+    end
   end
 
   def visit_not_like(subject)
-    operands = if exp[operator]["field"]
-                 col_type = get_col_type(exp[operator]["field"]) || "string"
-                 ref, val = value2tag(exp[operator]["field"])
-                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 [fld, exp[operator]["value"]]
-               elsif exp[operator]["regkey"] # hmmm, not in the UI
-                 fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
-                 [fld, exp[operator]["value"]]
-               end
-    operands[1] = "/" + re_escape(operands[1].to_s) + "/"
-    "!(" + operands.join(" =~ ") + ")"
+    value = "/" + re_escape(subject.value) + "/"
+    case subject
+    when MiqExpression::Field
+      "!(<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{value})"
+    when MiqExpression::CountField
+      "!(<count> =~ #{value})"
+    when MiqExpression::Count
+      "!(<count ref=#{subject.ref}>#{subject.to_tag}</count> =~ #{value})"
+    when MiqExpression::Regkey
+      "!(<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> =~ #{value})"
+    end
   end
 
   def visit_starts_with(subject)
-    operands = if exp[operator]["field"]
-                 col_type = get_col_type(exp[operator]["field"]) || "string"
-                 ref, val = value2tag(exp[operator]["field"])
-                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 [fld, exp[operator]["value"]]
-               elsif exp[operator]["regkey"]
-                 fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
-                 [fld, exp[operator]["value"]]
-               end
-    operands[1] = "/^" + re_escape(operands[1].to_s) + "/"
-    clause = operands.join(" =~ ")
+    value = "/^" + re_escape(subject.value) + "/"
+    case subject
+    when MiqExpression::Field
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{value}"
+    when MiqExpression::CountField
+      "<count> =~ #{value}"
+    when MiqExpression::Count
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> =~ #{value}"
+    when MiqExpression::Regkey
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> =~ #{value}"
+    end
   end
 
   def visit_contains(subject)
     exp[operator]["tag"] ||= exp[operator]["field"]
     ref, val = value2tag(preprocess_managed_tag(exp[operator]["tag"]), exp[operator]["value"])
-    operands = ["<exist ref=#{ref}>#{val}</exist>"]
-    operands.join(" CONTAINS ")
+    "<exist ref=#{ref}>#{val}</exist>"
   end
 
   def visit_ends_with(subject)
-    operands = if exp[operator]["field"]
-                 col_type = get_col_type(exp[operator]["field"]) || "string"
-                 ref, val = value2tag(exp[operator]["field"])
-                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 [fld, exp[operator]["value"]]
-               elsif exp[operator]["regkey"]
-                 fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
-                 [fld, exp[operator]["value"]]
-               end
-    operands[1] = "/" + re_escape(operands[1].to_s) + "$/"
-    operands.join(" =~ ")
+    value = "/" + re_escape(subject.value) + "$/"
+    case subject
+    when MiqExpression::Field
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{value}"
+    when MiqExpression::CountField
+      "<count> =~ #{value}"
+    when MiqExpression::Count
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> =~ #{value}"
+    when MiqExpression::Regkey
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> =~ #{value}"
+    end
   end
 
   def visit_is_not_null(subject)
-    operands = if exp[operator]["field"]
-                 col_type = get_col_type(exp[operator]["field"]) || "string"
-                 ref, val = value2tag(exp[operator]["field"])
-                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 [fld, quote(exp[operator]["value"], col_type.to_s)]
-               elsif exp[operator]["regkey"]
-                 fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
-                 [fld, quote(exp[operator]["value"], "string")]
-               end
-    operands.join(" != ")
+    case subject
+    when MiqExpression::Field
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> != #{subject.value}"
+    when MiqExpression::CountField
+      "<count> != #{subject.value}"
+    when MiqExpression::Count
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> != #{subject.value}"
+    when MiqExpression::Regkey
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> != #{subject.value}"
+    end
   end
 
   def visit_is_null(subject)
-    operands = if exp[operator]["field"]
-                 col_type = get_col_type(exp[operator]["field"]) || "string"
-                 ref, val = value2tag(exp[operator]["field"])
-                 fld = "<value ref=#{ref}, type=#{col_type}>#{val}</value>"
-                 [fld, quote(exp[operator]["value"], col_type.to_s)]
-               elsif exp[operator]["regkey"]
-                 fld = "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry>"
-                 [fld, quote(exp[operator]["value"], "string")]
-               end
-    operands.join(" == ")
+    case subject
+    when MiqExpression::Field
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> == #{subject.value}"
+    when MiqExpression::CountField
+      "<count> == #{subject.value}"
+    when MiqExpression::Count
+      "<count ref=#{subject.ref}>#{subject.to_tag}</count> == #{subject.value}"
+    when MiqExpression::Regkey
+      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> == #{subject.value}"
+    end
   end
 
   def visit_is(subject)
@@ -258,15 +223,17 @@ class MiqExpression::Visitors::RubyVisitor
   end
 
   def visit_not(subject)
-    "!" + "(" + _to_ruby(exp[operator], context_type, tz) + ")"
+    "!(" + subject.sub_expression.accept(self) + ")"
   end
 
   def visit_or(subject)
-    "(" + exp[operator].collect { |operand| _to_ruby(operand, context_type, tz) }.join(" or ") + ")"
+    first, *rest = subject.sub_expressions
+    "(" + rest.inject(first.accept(self)) { |ruby, sub_expression| "#{ruby} or #{sub_expression.accept(self)}"} + ")"
   end
 
   def visit_and(subject)
-    "(" + exp[operator].collect { |operand| _to_ruby(operand, context_type, tz) }.join(" and ") + ")"
+    first, *rest = subject.sub_expressions
+    "(" + rest.inject(first.accept(self)) { |ruby, sub_expression| "#{ruby} and #{sub_expression.accept(self)}"} + ")"
   end
 
   def visit_before(subject)

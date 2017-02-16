@@ -45,18 +45,18 @@ class MiqExpression::Visitors::RubyHashVisitor
   end
 
   def visit_like(subject)
-    operands[1] = "/" + re_escape(operands[1].to_s) + "/"
-    "<value type=#{subject.column_type}>#{subject.column}</value> =~ #{subject.value}"
+    value = "/" + re_escape(subject.value) + "/"
+    "<value type=#{subject.column_type}>#{subject.column}</value> =~ #{value}"
   end
 
   def visit_not_like(subject)
-    operands[1] = "/" + re_escape(operands[1].to_s) + "/"
-    "!(<value type=#{subject.column_type}>#{subject.column}</value> =~ #{subject.value})"
+    value = "/" + re_escape(subject.value) + "/"
+    "!(<value type=#{subject.column_type}>#{subject.column}</value> =~ #{value})"
   end
 
   def visit_starts_with(subject)
-    operands[1] = "/^" + re_escape(operands[1].to_s) + "/"
-    "<value type=#{subject.column_type}>#{subject.column}</value> =~ #{subject.value}"
+    value = "/^" + re_escape(subject.value) + "/"
+    "<value type=#{subject.column_type}>#{subject.column}</value> =~ #{value}"
   end
 
   def visit_contains(subject)

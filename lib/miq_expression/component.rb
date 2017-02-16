@@ -1,4 +1,10 @@
 module MiqExpression::Component
+  class MiqExpression::Count
+  end
+
+  class MiqExpression::CountField
+  end
+
   class MiqExpression::Regkey
     def initialize(options)
 
@@ -10,7 +16,7 @@ module MiqExpression::Component
   end
 
   class MiqExpression::Component::Base
-    def self.build
+    def self.build(_options)
       raise "Called abtract method: .build"
     end
 
@@ -54,6 +60,14 @@ module MiqExpression::Component
 
     def arel_attribute
       target.arel_attribute
+    end
+
+    def column_type
+      target.column_type
+    end
+
+    def column
+      target.column
     end
   end
 
@@ -124,7 +138,13 @@ module MiqExpression::Component
   MiqExpression::Component::Equal = Class.new(MiqExpression::Component::Leaf)
 
   class MiqExpression::Component::Find < MiqExpression::Component::Base
+    def self.build(options)
+      new(MiqExpression::Field.parse(options["field"]), options["value"])
+    end
 
+    def initialize(target, value)
+      #
+    end
   end
 
   class MiqExpression::Component::From < MiqExpression::Component::Leaf
