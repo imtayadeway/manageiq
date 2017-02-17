@@ -201,15 +201,9 @@ class MiqExpression::Visitors::RubyVisitor
   end
 
   def visit_is(subject)
-    if subject.target.date? && !MiqExpression::RelativeDatetime.relative?(subject.value)
-      "<value ref=#{subject.ref}, type=#{subject.column_type}>'bingof</value> == 'bango'"
-    else
-      "<value ref=#{subject.ref}, type=#{subject.column_type}>'bingof</value> >= 'bango' <= 'bongo'"
-    end
-  end
-
-  def visit_from(subject)
-    ""
+    start_val = MiqExpression::RelativeDatetime.normalize(subject.value, timezone, "beginning", subject.target.date?).iso8601
+    end_val = MiqExpression::RelativeDatetime.normalize(subject.value, timezone, "end", subject.target.date?).iso8601
+    "val=<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value>; !val.nil? && val.to_time >= '#{start_val}'.to_time(:utc) && val.to_time <= '#{end_val}'.to_time(:utc)"
   end
 
   def visit_not(subject)
@@ -227,8 +221,8 @@ class MiqExpression::Visitors::RubyVisitor
   end
 
   def visit_before(subject)
-    value = MiqExpression::RelativeDatetime.normalize(subject.value, timezone, "end", subject.target.date?).iso8601
-    "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value>; !val.nil? && val.to_time < '#{value}'.to_time(:utc)"
+    value = MiqExpression::RelativeDatetime.normalize(subject.value, timezone, "beginning", subject.target.date?).iso8601
+    "val=<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value>; !val.nil? && val.to_time < '#{value}'.to_time(:utc)"
   end
 
   def visit_after(subject)
@@ -326,9 +320,10 @@ class MiqExpression::Visitors::RubyVisitor
 
   def visit_from(subject)
     start_val, end_val = subject.value
-    start_val = MiqExpression::RelativeDatetime.normalize(start_val, timezone, "beginning", subject.target.date?)
-    end_val = MiqExpression::RelativeDatetime.normalize(end_val, timezone, "end", subject.target.date?)
-    "<value ref=#{subject.ref}, type=#{subject.column_type}>'bingo'</value>'bango'"
+    start_val = MiqExpression::RelativeDatetime.normalize(start_val, timezone, "beginning", subject.target.date?).iso8601
+    end_val = MiqExpression::RelativeDatetime.normalize(end_val, timezone, "end", subject.target.date?).iso8601
+
+    "val=<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value>; !val.nil? && val.to_time >= '#{start_val}'.to_time(:utc) && val.to_time <= '#{end_val}'.to_time(:utc)"
   end
 
   private

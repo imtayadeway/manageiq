@@ -86,13 +86,9 @@ class MiqExpression::Visitors::RubyHashVisitor < MiqExpression::Visitors::RubyVi
   end
 
   def visit_is(subject)
-    if col_type == :date && !MiqExpression::RelativeDatetime.relative?(value)
-      ruby_for_date_compare(col_ruby, col_type, tz, "==", value)
-    else
-      ruby_for_date_compare(col_ruby, col_type, tz, ">=", value, "<=", value)
-    end
-
-    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> #{operator} #{subject.ruby_value}"
+    start_val = MiqExpression::RelativeDatetime.normalize(subject.value, timezone, "beginning", subject.target.date?).iso8601
+    end_val = MiqExpression::RelativeDatetime.normalize(subject.value, timezone, "end", subject.target.date?).iso8601
+    "val=<value type=#{subject.column_type}>#{subject.full_message_chain}</value>; !val.nil? && val.to_time >= '#{start_val}'.to_time(:utc) && val.to_time <= '#{end_val}'.to_time(:utc)"
   end
 
   def visit_not(subject)
@@ -176,7 +172,9 @@ class MiqExpression::Visitors::RubyHashVisitor < MiqExpression::Visitors::RubyVi
   end
 
   def visit_from(subject)
-    ruby_for_date_compare(col_ruby, col_type, tz, ">=", start_val, "<=", end_val)
-    "<value type=#{subject.column_type}>#{subject.value}</value>"
+    start_val, end_val = subject.value
+    start_val = MiqExpression::RelativeDatetime.normalize(start_val, timezone, "beginning", subject.target.date?).iso8601
+    end_val = MiqExpression::RelativeDatetime.normalize(end_val, timezone, "end", subject.target.date?).iso8601
+    "val=<value type=#{subject.column_type}>#{subject.full_message_chain}</value>; !val.nil? && val.to_time >= '#{start_val}'.to_time(:utc) && val.to_time <= '#{end_val}'.to_time(:utc)"
   end
 end
