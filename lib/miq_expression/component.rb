@@ -1,5 +1,24 @@
 module MiqExpression::Component
   class MiqExpression::Count
+    def self.parse(field)
+      new(MiqExpression::Field.parse(field))
+    end
+
+    def initialize(field)
+      @field = field
+    end
+
+    def ref
+      @field.ref
+    end
+
+    def to_tag
+      @field.to_tag
+    end
+
+    def column_type
+      @field.column_type
+    end
   end
 
   class MiqExpression::CountField
@@ -40,6 +59,8 @@ module MiqExpression::Component
     def self.build(options)
       target = if options.key?("field")
                  MiqExpression::Field.parse(options["field"])
+               elsif options.key?("count")
+                 MiqExpression::Count.parse(options["count"])
                elsif options.key?("regkey")
                  MiqExpression::Regkey.new(options)
                end

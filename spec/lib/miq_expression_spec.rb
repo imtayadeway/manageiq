@@ -1455,7 +1455,7 @@ describe MiqExpression do
     it "generates the ruby for a FIND expression with checkcount and <" do
       actual = described_class.new(
         "FIND" => {"search"     => {"=" => {"field" => "Vm-name", "value" => "foo"}},
-                   "checkcount" => {"<" => {"field" => "Vm.hardware.cpu_sockets", "value" => "2"}}}
+                   "checkcount" => {"<" => {"field" => "Vm.hardware-cpu_sockets", "value" => "2"}}}
       ).to_ruby
       expected = "<find><search><value ref=vm, type=string>/virtual/name</value> == \"foo\"</search><check mode=count><count> < 2</check></find>"
       expect(actual).to eq(expected)
@@ -1464,7 +1464,7 @@ describe MiqExpression do
     it "generates the ruby for a FIND expression with checkcount and >" do
       actual = described_class.new(
         "FIND" => {"search"     => {"=" => {"field" => "Vm-name", "value" => "foo"}},
-                   "checkcount" => {">" => {"field" => "Vm.hardware.cpu_sockets", "value" => "2"}}}
+                   "checkcount" => {">" => {"field" => "Vm.hardware-cpu_sockets", "value" => "2"}}}
       ).to_ruby
       expected = "<find><search><value ref=vm, type=string>/virtual/name</value> == \"foo\"</search><check mode=count><count> > 2</check></find>"
       expect(actual).to eq(expected)
@@ -1473,7 +1473,7 @@ describe MiqExpression do
     it "generates the ruby for a FIND expression with checkcount and <=" do
       actual = described_class.new(
         "FIND" => {"search"     => {"=" => {"field" => "Vm-name", "value" => "foo"}},
-                   "checkcount" => {"<=" => {"field" => "Vm.hardware.cpu_sockets", "value" => "2"}}}
+                   "checkcount" => {"<=" => {"field" => "Vm.hardware-cpu_sockets", "value" => "2"}}}
       ).to_ruby
       expected = "<find><search><value ref=vm, type=string>/virtual/name</value> == \"foo\"</search><check mode=count><count> <= 2</check></find>"
       expect(actual).to eq(expected)
@@ -1482,7 +1482,7 @@ describe MiqExpression do
     it "generates the ruby for a FIND expression with checkcount and >=" do
       actual = described_class.new(
         "FIND" => {"search"     => {"=" => {"field" => "Vm-name", "value" => "foo"}},
-                   "checkcount" => {">=" => {"field" => "Vm.hardware.cpu_sockets", "value" => "2"}}}
+                   "checkcount" => {">=" => {"field" => "Vm.hardware-cpu_sockets", "value" => "2"}}}
       ).to_ruby
       expected = "<find><search><value ref=vm, type=string>/virtual/name</value> == \"foo\"</search><check mode=count><count> >= 2</check></find>"
       expect(actual).to eq(expected)
