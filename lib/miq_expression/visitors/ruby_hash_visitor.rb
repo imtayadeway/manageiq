@@ -86,7 +86,7 @@ class MiqExpression::Visitors::RubyHashVisitor < MiqExpression::Visitors::RubyVi
   end
 
   def visit_is(subject)
-    if col_type == :date && !RelativeDatetime.relative?(value)
+    if col_type == :date && !MiqExpression::RelativeDatetime.relative?(value)
       ruby_for_date_compare(col_ruby, col_type, tz, "==", value)
     else
       ruby_for_date_compare(col_ruby, col_type, tz, ">=", value, "<=", value)
@@ -108,21 +108,55 @@ class MiqExpression::Visitors::RubyHashVisitor < MiqExpression::Visitors::RubyVi
   end
 
   def visit_before(subject)
-    value = RelativeDatetime.normalize(subject.value, timezone, "end", subject.target.date?)
-    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> < #{value}"
+    value = MiqExpression::RelativeDatetime.normalize(subject.value, timezone, "beginning", subject.target.date?).iso8601
+    "val=<value type=#{subject.column_type}>#{subject.full_message_chain}</value>; !val.nil? && val.to_time < '#{value}'.to_time(:utc)"
   end
 
   def visit_after(subject)
-    value = RelativeDatetime.normalize(subject.value, timezone, "beginning", subject.target.date?)
-    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> > #{value}"
+    value = MiqExpression::RelativeDatetime.normalize(subject.value, timezone, "end", subject.target.date?).iso8601
+    "val=<value type=#{subject.column_type}>#{subject.full_message_chain}</value>; !val.nil? && val.to_time > '#{value}'.to_time(:utc) "
   end
 
   def visit_regular_expression_matches(subject)
-    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> =~ #{subject.ruby_value}"
+    # If it looks like a regular expression, sanitize from forward
+    # slashes and interpolation
+    #
+    # Regular expressions with a single option are also supported,
+    # e.g. "/abc/i"
+    #
+    # Otherwise sanitize the whole string and add the delimiters
+    #
+    # TODO: support regexes with more than one option
+    value = subject.value
+    if value.starts_with?("/") && value.ends_with?("/")
+      value[1..-2] = sanitize_regular_expression(value[1..-2])
+    elsif value.starts_with?("/") && value[-2] == "/"
+      value[1..-3] = sanitize_regular_expression(value[1..-3])
+    else
+      value = "/" + sanitize_regular_expression(value.to_s) + "/"
+    end
+    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> =~ #{value}"
   end
 
   def visit_regular_expression_does_not_match(subject)
-    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> !~ #{subject.ruby_value}"
+# If it looks like a regular expression, sanitize from forward
+    # slashes and interpolation
+    #
+    # Regular expressions with a single option are also supported,
+    # e.g. "/abc/i"
+    #
+    # Otherwise sanitize the whole string and add the delimiters
+    #
+    # TODO: support regexes with more than one option
+    value = subject.value
+    if value.starts_with?("/") && value.ends_with?("/")
+      value[1..-2] = sanitize_regular_expression(value[1..-2])
+    elsif value.starts_with?("/") && value[-2] == "/"
+      value[1..-3] = sanitize_regular_expression(value[1..-3])
+    else
+      value = "/" + sanitize_regular_expression(value.to_s) + "/"
+    end
+    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> !~ #{value}"
   end
 
   def visit_includes_any(subject)

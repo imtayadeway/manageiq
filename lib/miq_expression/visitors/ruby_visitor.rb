@@ -157,9 +157,7 @@ class MiqExpression::Visitors::RubyVisitor
   end
 
   def visit_contains(subject)
-    exp[operator]["tag"] ||= exp[operator]["field"]
-    ref, val = value2tag(preprocess_managed_tag(exp[operator]["tag"]), exp[operator]["value"])
-    "<exist ref=#{ref}>#{val}</exist>"
+    "<exist ref=#{subject.ref}>#{subject.ruby_value}</exist>"
   end
 
   def visit_ends_with(subject)
@@ -203,7 +201,7 @@ class MiqExpression::Visitors::RubyVisitor
   end
 
   def visit_is(subject)
-    if subject.target.date? && !RelativeDatetime.relative?(subject.value)
+    if subject.target.date? && !MiqExpression::RelativeDatetime.relative?(subject.value)
       "<value ref=#{subject.ref}, type=#{subject.column_type}>'bingof</value> == 'bango'"
     else
       "<value ref=#{subject.ref}, type=#{subject.column_type}>'bingof</value> >= 'bango' <= 'bongo'"
@@ -229,13 +227,13 @@ class MiqExpression::Visitors::RubyVisitor
   end
 
   def visit_before(subject)
-    value = RelativeDatetime.normalize(subject.value, timezone, "end", subject.target.date?)
-    "<value ref=#{subject.ref}, type=#{subject.column_type}>#{value}</value>"
+    value = MiqExpression::RelativeDatetime.normalize(subject.value, timezone, "end", subject.target.date?).iso8601
+    "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value>; !val.nil? && val.to_time < '#{value}'.to_time(:utc)"
   end
 
   def visit_after(subject)
-    value = RelativeDatetime.normalize(subject.value, timezone, "end", subject.target.date?)
-    "<value ref=#{subject.ref}, type=#{subject.column_type}>#{value}</value>"
+    value = MiqExpression::RelativeDatetime.normalize(subject.value, timezone, "end", subject.target.date?).iso8601
+    "val=<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value>; !val.nil? && val.to_time > '#{value}'.to_time(:utc)"
   end
 
   def visit_regular_expression_matches(subject)
@@ -328,8 +326,8 @@ class MiqExpression::Visitors::RubyVisitor
 
   def visit_from(subject)
     start_val, end_val = subject.value
-    start_val = RelativeDatetime.normalize(start_val, timezone, "beginning", subject.target.date?)
-    end_val = RelativeDatetime.normalize(end_val, timezone, "end", subject.target.date?)
+    start_val = MiqExpression::RelativeDatetime.normalize(start_val, timezone, "beginning", subject.target.date?)
+    end_val = MiqExpression::RelativeDatetime.normalize(end_val, timezone, "end", subject.target.date?)
     "<value ref=#{subject.ref}, type=#{subject.column_type}>'bingo'</value>'bango'"
   end
 

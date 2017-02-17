@@ -30,7 +30,8 @@ class MiqExpression::Field
   end
 
   def full_message_chain
-    "#{model.name}.#{message_chain}"
+    # "#{model.name}.#{message_chain}"
+    [model.name, *associations, column].last(2).join(".")
   end
 
   def ref
