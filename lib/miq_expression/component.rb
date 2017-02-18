@@ -223,6 +223,10 @@ module MiqExpression::Component
   end
 
   class MiqExpression::Component::From < MiqExpression::Component::Leaf
+    def ruby_operator
+      %w(>= <=)
+    end
+
     def start_value(timezone)
       MiqExpression::RelativeDatetime.normalize(value[0], timezone, "beginning", target.date?)
     end
@@ -238,7 +242,12 @@ module MiqExpression::Component
     end
   end
 
-  MiqExpression::Component::GreaterThanOrEqual = Class.new(MiqExpression::Component::Leaf)
+  class MiqExpression::Component::GreaterThanOrEqual < MiqExpression::Component::Leaf
+    def ruby_operator
+      ">="
+    end
+  end
+
   MiqExpression::Component::IncludesAll = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::IncludesAny = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::IncludesOnly = Class.new(MiqExpression::Component::Leaf)
@@ -255,15 +264,39 @@ module MiqExpression::Component
 
   MiqExpression::Component::IsEmpty = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::IsNotEmpty = Class.new(MiqExpression::Component::Leaf)
-  MiqExpression::Component::IsNotNull = Class.new(MiqExpression::Component::Leaf)
+
+  class MiqExpression::Component::IsNotNull < MiqExpression::Component::Leaf
+    def ruby_operator
+      "!="
+    end
+  end
+
   MiqExpression::Component::IsNull = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::KeyExists = Class.new(MiqExpression::Component::Leaf)
-  MiqExpression::Component::LessThan = Class.new(MiqExpression::Component::Leaf)
-  MiqExpression::Component::LessThanOrEqual = Class.new(MiqExpression::Component::Leaf)
+
+  class MiqExpression::Component::LessThan < MiqExpression::Component::Leaf
+    def ruby_operator
+      "<"
+    end
+  end
+
+  class MiqExpression::Component::LessThanOrEqual < MiqExpression::Component::Leaf
+    def ruby_operator
+      "<="
+    end
+  end
+
   MiqExpression::Component::Like = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::LimitedTo = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::Not = Class.new(MiqExpression::Component::SingleComposite)
   MiqExpression::Component::NotEqual = Class.new(MiqExpression::Component::Leaf)
+
+  class MiqExpression::Component::NotEqual < MiqExpression::Component::Leaf
+    def ruby_operator
+      "!="
+    end
+  end
+
   MiqExpression::Component::NotLike = Class.new(MiqExpression::Component::Leaf)
 
   class MiqExpression::Component::Or < MiqExpression::Component::Composite
@@ -273,12 +306,28 @@ module MiqExpression::Component
   end
 
   class MiqExpression::Component::RegularExpressionMatches < MiqExpression::Component::Leaf
+    def value
+      MiqExpression::RegularExpressionSanitizer.sanitize(@value)
+    end
+
+    def ruby_operator
+      "=~"
+    end
+
     def sql?
       false
     end
   end
 
   class MiqExpression::Component::RegularExpressionDoesNotMatch < MiqExpression::Component::Leaf
+    def value
+      MiqExpression::RegularExpressionSanitizer.sanitize(@value)
+    end
+
+    def ruby_operator
+      "!~"
+    end
+
     def sql?
       false
     end

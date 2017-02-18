@@ -110,49 +110,15 @@ class MiqExpression::Visitors::RubyHashVisitor < MiqExpression::Visitors::RubyVi
 
   def visit_after(subject)
     value = MiqExpression::RelativeDatetime.normalize(subject.value, timezone, "end", subject.target.date?).iso8601
-    "val=<value type=#{subject.column_type}>#{subject.full_message_chain}</value>; !val.nil? && val.to_time > '#{value}'.to_time(:utc) "
+    "val=<value type=#{subject.column_type}>#{subject.full_message_chain}</value>; !val.nil? && val.to_time > '#{value}'.to_time(:utc)"
   end
 
   def visit_regular_expression_matches(subject)
-    # If it looks like a regular expression, sanitize from forward
-    # slashes and interpolation
-    #
-    # Regular expressions with a single option are also supported,
-    # e.g. "/abc/i"
-    #
-    # Otherwise sanitize the whole string and add the delimiters
-    #
-    # TODO: support regexes with more than one option
-    value = subject.value
-    if value.starts_with?("/") && value.ends_with?("/")
-      value[1..-2] = sanitize_regular_expression(value[1..-2])
-    elsif value.starts_with?("/") && value[-2] == "/"
-      value[1..-3] = sanitize_regular_expression(value[1..-3])
-    else
-      value = "/" + sanitize_regular_expression(value.to_s) + "/"
-    end
-    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> =~ #{value}"
+    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> =~ #{subject.value}"
   end
 
   def visit_regular_expression_does_not_match(subject)
-# If it looks like a regular expression, sanitize from forward
-    # slashes and interpolation
-    #
-    # Regular expressions with a single option are also supported,
-    # e.g. "/abc/i"
-    #
-    # Otherwise sanitize the whole string and add the delimiters
-    #
-    # TODO: support regexes with more than one option
-    value = subject.value
-    if value.starts_with?("/") && value.ends_with?("/")
-      value[1..-2] = sanitize_regular_expression(value[1..-2])
-    elsif value.starts_with?("/") && value[-2] == "/"
-      value[1..-3] = sanitize_regular_expression(value[1..-3])
-    else
-      value = "/" + sanitize_regular_expression(value.to_s) + "/"
-    end
-    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> !~ #{value}"
+    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> !~ #{subject.value}"
   end
 
   def visit_includes_any(subject)

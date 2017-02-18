@@ -203,56 +203,20 @@ class MiqExpression::Visitors::RubyVisitor
   end
 
   def visit_regular_expression_matches(subject)
-    # If it looks like a regular expression, sanitize from forward
-    # slashes and interpolation
-    #
-    # Regular expressions with a single option are also supported,
-    # e.g. "/abc/i"
-    #
-    # Otherwise sanitize the whole string and add the delimiters
-    #
-    # TODO: support regexes with more than one option
-    value = subject.value
-    if value.starts_with?("/") && value.ends_with?("/")
-      value[1..-2] = sanitize_regular_expression(value[1..-2])
-    elsif value.starts_with?("/") && value[-2] == "/"
-      value[1..-3] = sanitize_regular_expression(value[1..-3])
-    else
-      value = "/" + sanitize_regular_expression(value.to_s) + "/"
-    end
-
     case subject.target
     when MiqExpression::Field
-      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{value}"
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{subject.value}"
     when MiqExpression::Regkey
-      "<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> =~ #{value}"
+      "<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> =~ #{subject.value}"
     end
   end
 
   def visit_regular_expression_does_not_match(subject)
-    # If it looks like a regular expression, sanitize from forward
-    # slashes and interpolation
-    #
-    # Regular expressions with a single option are also supported,
-    # e.g. "/abc/i"
-    #
-    # Otherwise sanitize the whole string and add the delimiters
-    #
-    # TODO: support regexes with more than one option
-    value = subject.value
-    if value.starts_with?("/") && value.ends_with?("/")
-      value[1..-2] = sanitize_regular_expression(value[1..-2])
-    elsif value.starts_with?("/") && value[-2] == "/"
-      value[1..-3] = sanitize_regular_expression(value[1..-3])
-    else
-      value = "/" + sanitize_regular_expression(value.to_s) + "/"
-    end
-
     case subject.target
     when MiqExpression::Field
-      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> !~ #{value}"
+      "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> !~ #{subject.vlaue}"
     when MiqExpression::Regkey
-      "<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> !~ #{value}"
+      "<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> !~ #{subject.value}"
     end
   end
 
@@ -329,10 +293,5 @@ class MiqExpression::Visitors::RubyVisitor
   # ```
   def re_escape(s)
     Regexp.escape(s).gsub(/\//, '\/')
-  end
-
-  # Escape any unescaped forward slashes and/or interpolation
-  def sanitize_regular_expression(string)
-    string.gsub(%r{\\*/}, "\\/").gsub(/\\*#/, "\\\#")
   end
 end
