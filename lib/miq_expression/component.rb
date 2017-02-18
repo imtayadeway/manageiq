@@ -1,24 +1,5 @@
 module MiqExpression::Component
-  class MiqExpression::Count
-    def self.parse(field)
-      new(MiqExpression::Field.parse(field))
-    end
-
-    def initialize(field)
-      @field = field
-    end
-
-    def ref
-      @field.ref
-    end
-
-    def to_tag
-      @field.to_tag
-    end
-
-    def column_type
-      @field.column_type
-    end
+  class MiqExpression::Count < MiqExpression::Field
   end
 
   class MiqExpression::Regkey
