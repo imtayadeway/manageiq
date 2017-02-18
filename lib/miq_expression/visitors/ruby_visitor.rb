@@ -14,8 +14,6 @@ class MiqExpression::Visitors::RubyVisitor
     case subject.target
     when MiqExpression::Field
       "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> == #{subject.ruby_value}"
-    when MiqExpression::CountField
-      "<count> == #{subject.value}"
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> == #{subject.ruby_value}"
     when MiqExpression::Regkey
@@ -27,8 +25,6 @@ class MiqExpression::Visitors::RubyVisitor
     case subject.target
     when MiqExpression::Field
       "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> < #{subject.ruby_value}"
-    when MiqExpression::CountField
-      "<count> < #{subject.value}"
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> < #{subject.ruby_value}"
     when MiqExpression::Regkey
@@ -40,8 +36,6 @@ class MiqExpression::Visitors::RubyVisitor
     case subject.target
     when MiqExpression::Field
       "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> <= #{subject.ruby_value}"
-    when MiqExpression::CountField
-      "<count> <= #{subject.value}"
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> <= #{subject.ruby_value}"
     when MiqExpression::Regkey
@@ -53,8 +47,6 @@ class MiqExpression::Visitors::RubyVisitor
     case subject.target
     when MiqExpression::Field
       "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> > #{subject.ruby_value}"
-    when MiqExpression::CountField
-      "<count> > #{subject.value}"
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> > #{subject.ruby_value}"
     when MiqExpression::Regkey
@@ -66,8 +58,6 @@ class MiqExpression::Visitors::RubyVisitor
     case subject.target
     when MiqExpression::Field
       "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> >= #{subject.ruby_value}"
-    when MiqExpression::CountField
-      "<count> >= #{subject.value}"
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> >= #{subject.ruby_value}"
     when MiqExpression::Regkey
@@ -79,8 +69,6 @@ class MiqExpression::Visitors::RubyVisitor
     case subject.target
     when MiqExpression::Field
       "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> == #{subject.ruby_value}"
-    when MiqExpression::CountField
-      "<count> == #{subject.value}"
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> == #{subject.ruby_value}"
     when MiqExpression::Regkey
@@ -92,8 +80,6 @@ class MiqExpression::Visitors::RubyVisitor
     case subject.target
     when MiqExpression::Field
       "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> != #{subject.ruby_value}"
-    when MiqExpression::CountField
-      "<count> != #{subject.value}"
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> != #{subject.ruby_value}"
     when MiqExpression::Regkey
@@ -105,8 +91,6 @@ class MiqExpression::Visitors::RubyVisitor
     case subject.target
     when MiqExpression::Field
       "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> != #{subject.ruby_value}"
-    when MiqExpression::CountField
-      "<count> != #{subject.value}"
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> != #{subject.ruby_value}"
     when MiqExpression::Regkey
@@ -119,8 +103,6 @@ class MiqExpression::Visitors::RubyVisitor
     case subject.target
     when MiqExpression::Field
       "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{value}"
-    when MiqExpression::CountField
-      "<count> =~ #{value}"
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> =~ #{value}"
     when MiqExpression::Regkey
@@ -133,8 +115,6 @@ class MiqExpression::Visitors::RubyVisitor
     case subject.target
     when MiqExpression::Field
       "!(<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{value})"
-    when MiqExpression::CountField
-      "!(<count> =~ #{value})"
     when MiqExpression::Count
       "!(<count ref=#{subject.ref}>#{subject.to_tag}</count> =~ #{value})"
     when MiqExpression::Regkey
@@ -147,8 +127,6 @@ class MiqExpression::Visitors::RubyVisitor
     case subject.target
     when MiqExpression::Field
       "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{value}"
-    when MiqExpression::CountField
-      "<count> =~ #{value}"
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> =~ #{value}"
     when MiqExpression::Regkey
@@ -165,8 +143,6 @@ class MiqExpression::Visitors::RubyVisitor
     case subject.target
     when MiqExpression::Field
       "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> =~ #{value}"
-    when MiqExpression::CountField
-      "<count> =~ #{value}"
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> =~ #{value}"
     when MiqExpression::Regkey
@@ -178,8 +154,6 @@ class MiqExpression::Visitors::RubyVisitor
     case subject.target
     when MiqExpression::Field
       "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> != #{subject.ruby_value}"
-    when MiqExpression::CountField
-      "<count> != #{subject.value}"
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> != #{subject.ruby_value}"
     when MiqExpression::Regkey
@@ -191,8 +165,6 @@ class MiqExpression::Visitors::RubyVisitor
     case subject.target
     when MiqExpression::Field
       "<value ref=#{subject.ref}, type=#{subject.column_type}>#{subject.to_tag}</value> == #{subject.ruby_value}"
-    when MiqExpression::CountField
-      "<count> == #{subject.value}"
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> == #{subject.ruby_value}"
     when MiqExpression::Regkey

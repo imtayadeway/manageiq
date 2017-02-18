@@ -21,10 +21,6 @@ module MiqExpression::Component
     end
   end
 
-  class MiqExpression::CountField
-
-  end
-
   class MiqExpression::Regkey
     attr_reader :regkey, :regval
 
