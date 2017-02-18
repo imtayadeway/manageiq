@@ -22,6 +22,7 @@ module MiqExpression::Component
   end
 
   class MiqExpression::CountField
+
   end
 
   class MiqExpression::Regkey
@@ -157,6 +158,12 @@ module MiqExpression::Component
 
   MiqExpression::Component::Before = Class.new(MiqExpression::Component::Leaf)
 
+  class MiqExpression::Component::Checkcount < MiqExpression::Component::SingleComposite
+    def mode
+      "count"
+    end
+  end
+
   class MiqExpression::Component::Contains < MiqExpression::Component::Leaf
     def self.build(options)
       target = if options["tag"]
@@ -189,15 +196,16 @@ module MiqExpression::Component
     def self.build(options)
       check = %w(checkall checkany checkcount).detect { |c| options.include?(c) }
       raise _("expression malformed,  must contain one of 'checkall', 'checkany', 'checkcount'") unless check
-      new(MiqExpression::Component.build(options[check]), MiqExpression::Component.build(options["search"]), check[5..-1])
+
+      new(MiqExpression::Component.build(options.slice(check)),
+          MiqExpression::Component.build(options.slice("search")))
     end
 
-    attr_reader :check, :search, :mode
+    attr_reader :check, :search
 
-    def initialize(check, search, mode)
+    def initialize(check, search)
       @check = check
       @search = search
-      @mode = mode
     end
   end
 
@@ -258,6 +266,7 @@ module MiqExpression::Component
     end
   end
 
+  MiqExpression::Component::Search = Class.new(MiqExpression::Component::SingleComposite)
   MiqExpression::Component::StartsWith = Class.new(MiqExpression::Component::Leaf)
 
   TYPES = {
@@ -271,6 +280,7 @@ module MiqExpression::Component
     "after"                             => After,
     "and"                               => And,
     "before"                            => Before,
+    "checkcount"                        => Checkcount,
     "contains"                          => Contains,
     "ends with"                         => EndsWith,
     "equal"                             => Equal,
@@ -293,6 +303,7 @@ module MiqExpression::Component
     "or"                                => Or,
     "regular expression matches"        => RegularExpressionMatches,
     "regular expression does not match" => RegularExpressionDoesNotMatch,
+    "search"                            => Search,
     "starts with"                       => StartsWith
   }.freeze
 
