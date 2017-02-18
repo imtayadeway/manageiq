@@ -12,7 +12,7 @@ class MiqExpression::Visitors::RubyHashVisitor < MiqExpression::Visitors::RubyVi
 
 
   def visit_equal(subject)
-    "<value type=#{subject.column_type}>#{subject.column}</value> == #{subject.ruby_value}"
+    "<value type=#{subject.column_type}>#{subject.full_message_chain}</value> == #{subject.ruby_value}"
   end
 
   def visit_less_than(subject)
