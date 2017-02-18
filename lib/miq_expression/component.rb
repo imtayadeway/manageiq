@@ -280,6 +280,7 @@ module MiqExpression::Component
 
   MiqExpression::Component::Search = Class.new(MiqExpression::Component::SingleComposite)
   MiqExpression::Component::StartsWith = Class.new(MiqExpression::Component::Leaf)
+  MiqExpression::Component::ValueExists = Class.new(MiqExpression::Component::Leaf)
 
   TYPES = {
     "!"                                 => Not,
@@ -318,7 +319,8 @@ module MiqExpression::Component
     "regular expression matches"        => RegularExpressionMatches,
     "regular expression does not match" => RegularExpressionDoesNotMatch,
     "search"                            => Search,
-    "starts with"                       => StartsWith
+    "starts with"                       => StartsWith,
+    "value exists"                      => ValueExists
   }.freeze
 
   def self.for_operator(operator)

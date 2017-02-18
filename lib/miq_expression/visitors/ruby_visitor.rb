@@ -97,7 +97,7 @@ class MiqExpression::Visitors::RubyVisitor
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> != #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> != #{subject.ruby_value}"
+      "<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> != #{subject.ruby_value}"
     end
   end
 
@@ -110,7 +110,7 @@ class MiqExpression::Visitors::RubyVisitor
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> != #{subject.ruby_value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> != #{subject.ruby_value}"
+      "<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> != #{subject.ruby_value}"
     end
   end
 
@@ -124,7 +124,7 @@ class MiqExpression::Visitors::RubyVisitor
     when MiqExpression::Count
       "<count ref=#{subject.ref}>#{subject.to_tag}</count> =~ #{value}"
     when MiqExpression::Regkey
-      "<registry>#{exp[operator]["regkey"].strip} : #{exp[operator]["regval"]}</registry> =~ #{value}"
+      "<registry>#{subject.target.regkey} : #{subject.target.regval}</registry> =~ #{value}"
     end
   end
 
