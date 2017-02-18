@@ -25,23 +25,6 @@ class MiqExpression::Field
     @column = column
   end
 
-  def message_chain
-    [*associations, column].join(".")
-  end
-
-  def full_message_chain
-    # "#{model.name}.#{message_chain}"
-    [model.name, *associations, column].last(2).join(".")
-  end
-
-  def ref
-    model.name.downcase
-  end
-
-  def to_tag
-    ["/virtual", *associations, column].join("/")
-  end
-
   def date?
     column_type == :date
   end

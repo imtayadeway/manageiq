@@ -81,19 +81,19 @@ module MiqExpression::Component
     end
 
     def message_chain
-      target.message_chain
+      [*target.associations, column].join(".")
     end
 
     def full_message_chain
-      target.full_message_chain
+      [target.model.name, *target.associations, column].last(2).join(".")
     end
 
     def ref
-      target.ref
+      target.model.name.underscore
     end
 
     def to_tag
-      target.to_tag
+      ["/virtual", *target.associations, column].join("/")
     end
   end
 
