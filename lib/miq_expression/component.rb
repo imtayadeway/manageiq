@@ -158,6 +158,18 @@ module MiqExpression::Component
 
   MiqExpression::Component::Before = Class.new(MiqExpression::Component::Leaf)
 
+  class MiqExpression::Component::Checkall < MiqExpression::Component::SingleComposite
+    def mode
+      "all"
+    end
+  end
+
+  class MiqExpression::Component::Checkany < MiqExpression::Component::SingleComposite
+    def mode
+      "any"
+    end
+  end
+
   class MiqExpression::Component::Checkcount < MiqExpression::Component::SingleComposite
     def mode
       "count"
@@ -280,6 +292,8 @@ module MiqExpression::Component
     "after"                             => After,
     "and"                               => And,
     "before"                            => Before,
+    "checkall"                          => Checkall,
+    "checkany"                          => Checkany,
     "checkcount"                        => Checkcount,
     "contains"                          => Contains,
     "ends with"                         => EndsWith,

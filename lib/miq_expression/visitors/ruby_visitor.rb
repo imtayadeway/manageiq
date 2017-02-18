@@ -330,6 +330,14 @@ class MiqExpression::Visitors::RubyVisitor
     subject.sub_expression.accept(self)
   end
 
+  def visit_checkall(subject)
+    subject.sub_expression.accept(self)
+  end
+
+  def visit_checkany(subject)
+    subject.sub_expression.accept(self)
+  end
+
   def visit_checkcount(subject)
     sub_expression = subject.sub_expression.class.new(MiqExpression::CountField.new, subject.sub_expression.value)
     sub_expression.accept(self)
