@@ -331,16 +331,15 @@ class MiqExpression::Visitors::RubyVisitor
   end
 
   def visit_checkall(subject)
-    subject.sub_expression.accept(self)
+    "<value ref=#{subject.sub_expression.ref}, type=string>#{subject.sub_expression.to_tag}</value> #{subject.sub_expression.ruby_operator} #{MiqExpression::Coercer.coerce(subject.sub_expression.value, :string)}"
   end
 
   def visit_checkany(subject)
-    subject.sub_expression.accept(self)
+    "<value ref=#{subject.sub_expression.ref}, type=string>#{subject.sub_expression.to_tag}</value> #{subject.sub_expression.ruby_operator} #{MiqExpression::Coercer.coerce(subject.sub_expression.value, :string)}"
   end
 
   def visit_checkcount(subject)
-    sub_expression = subject.sub_expression.class.new(MiqExpression::CountField.new, subject.sub_expression.value)
-    sub_expression.accept(self)
+    "<count> #{subject.sub_expression.ruby_operator} #{MiqExpression::Coercer.coerce(subject.sub_expression.value, :integer)}"
   end
 
   private

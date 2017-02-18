@@ -202,7 +202,12 @@ module MiqExpression::Component
   end
 
   MiqExpression::Component::EndsWith = Class.new(MiqExpression::Component::Leaf)
-  MiqExpression::Component::Equal = Class.new(MiqExpression::Component::Leaf)
+
+  class MiqExpression::Component::Equal < MiqExpression::Component::Leaf
+    def ruby_operator
+      "=="
+    end
+  end
 
   class MiqExpression::Component::Find < MiqExpression::Component::Base
     def self.build(options)
@@ -231,7 +236,12 @@ module MiqExpression::Component
     end
   end
 
-  MiqExpression::Component::GreaterThan = Class.new(MiqExpression::Component::Leaf)
+  class MiqExpression::Component::GreaterThan < MiqExpression::Component::Leaf
+    def ruby_operator
+      ">"
+    end
+  end
+
   MiqExpression::Component::GreaterThanOrEqual = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::IncludesAll = Class.new(MiqExpression::Component::Leaf)
   MiqExpression::Component::IncludesAny = Class.new(MiqExpression::Component::Leaf)
