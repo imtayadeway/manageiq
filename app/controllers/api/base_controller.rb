@@ -37,7 +37,8 @@ module Api
     after_action :log_api_response
 
     respond_to :json
-    rescue_from_api_errors
+
+    ERROR_MAPPING.each { |error, type| rescue_from(error) { |e| api_exception_type(type, e) } }
 
     private
 
@@ -59,6 +60,23 @@ module Api
 
     def collection_config
       @collection_config ||= CollectionConfig.new
+    end
+
+    def api_exception_type(type, error)
+      backtrace = error.backtrace.join("\n")
+      err = {
+        :kind    => type,
+        :message => error.message,
+        :klass   => error.class.name
+      }
+      err[:backtrace] = backtrace if Rails.env.test?
+
+      api_log_error("#{klass}: #{message}")
+      # We don't want to return the stack trace, but only log it in case of an internal error
+      api_log_error("\n\n#{backtrace}") if kind == :internal_server_error && !backtrace.empty?
+
+      render :json => {:error => err}, :status => Rack::Utils.status_code(type)
+      log_api_response
     end
   end
 end
