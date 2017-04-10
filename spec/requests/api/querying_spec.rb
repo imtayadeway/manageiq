@@ -526,6 +526,31 @@ describe "Querying" do
       expect(response).to have_http_status(:ok)
     end
 
+    it "does something" do
+      api_basic_authorize collection_action_identifier(:vms, :read, :get)
+      nic1, nic2 = FactoryGirl.create_list(:guest_device_nic, 2)
+      hardware = FactoryGirl.create(:hardware, :nics => [nic1, nic2])
+      _network1 = FactoryGirl.create(:network, :hardware => hardware, :guest_device => nic1)
+      _network2 = FactoryGirl.create(:network, :hardware => hardware, :guest_device => nic2)
+      _vm = FactoryGirl.create(:vm_vmware, :hardware => hardware)
+
+      run_get(vms_url, :expand => "resources", :attributes => "hardware.networks")
+
+      expected = {
+        "resources" => [
+          a_hash_including(
+            "hardware" => a_hash_including(
+              "networks" => a_collection_containing_exactly(
+                a_hash_including("device_id" => nic1.id),
+                a_hash_including("device_id" => nic2.id)
+              )
+            )
+          )
+        ]
+      }
+      expect(response.parsed_body).to include(expected)
+    end
+
     it "skips requests of invalid attributes" do
       api_basic_authorize action_identifier(:vms, :read, :resource_actions, :get)
 
