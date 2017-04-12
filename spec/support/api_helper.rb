@@ -149,6 +149,12 @@ module Spec
         include("error" => hash_including("message" => a_string_matching(error_message)))
       end
 
+      def transform_hrefs(hash)
+        hash.each_with_object({}) do |(k, v), result|
+          result[k] = k == "href" || k.ends_with?("_href") ? a_string_matching(v) : v
+        end
+      end
+
       # Rest API Expects
 
       def expect_bad_request(error_message)
@@ -185,10 +191,7 @@ module Spec
       end
 
       def expect_result_to_match_hash(result, attr_hash)
-        attr_hash.each do |key, value|
-          attr_hash[key] = (key == "href" || key.ends_with?("_href")) ? a_string_matching(value) : value
-        end
-        expect(result).to include(attr_hash)
+        expect(result).to include(transform_hrefs(attr_hash))
       end
 
       def expect_results_to_match_hash(collection, result_hash)
