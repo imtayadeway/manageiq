@@ -195,10 +195,12 @@ module Spec
       end
 
       def expect_results_to_match_hash(collection, result_hash)
-        expect(response.parsed_body).to have_key(collection)
-        result_hash.zip(response.parsed_body[collection]) do |expected, actual|
-          expect_result_to_match_hash(actual, expected)
-        end
+        expected = {
+          collection => a_collection_containing_exactly(
+            *result_hash.collect { |rh| a_hash_including(transform_hrefs(rh)) }
+          )
+        }
+        expect(response.parsed_body).to include(expected)
       end
 
       def expect_result_resources_to_match_hash(result_hash)
