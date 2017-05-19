@@ -3,8 +3,6 @@ module Api
     INVALID_USER_ATTRS = %w(id href current_group_id settings).freeze # Cannot update other people's settings
     INVALID_SELF_USER_ATTRS = %w(id href current_group_id).freeze
 
-    include Subcollections::Tags
-
     skip_before_action :validate_api_action, :only => :update
 
     def update

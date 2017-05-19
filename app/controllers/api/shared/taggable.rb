@@ -1,28 +1,6 @@
 module Api
-  module Subcollections
-    module Tags
-      def assign_tags_resource(type, id, data)
-        resource = resource_search(id, type, collection_class(type))
-        data['tags'].collect do |tag|
-          tags_assign_resource(resource, type, tag['id'], tag)
-        end
-      rescue => err
-        action_result(false, err.to_s)
-      end
-
-      def unassign_tags_resource(type, id, data)
-        resource = resource_search(id, type, collection_class(type))
-        data['tags'].collect do |tag|
-          tags_unassign_resource(resource, type, tag['id'], tag)
-        end
-      rescue => err
-        action_result(false, err.to_s)
-      end
-
-      def tags_query_resource(object)
-        object ? object.tags.where(Tag.arel_table[:name].matches "#{Api::BaseController::TAG_NAMESPACE}%") : {}
-      end
-
+  module Shared
+    module Taggable
       def tags_assign_resource(object, _type, id = nil, data = nil)
         tag_spec = tag_specified(id, data)
         tag_subcollection_action(tag_spec) do
@@ -39,32 +17,22 @@ module Api
         end
       end
 
-      def tags_create_resource(parent, _type, _id, data)
-        entry = parent.add_entry(data)
-        raise BadRequestError, entry.errors.full_messages.join(', ') unless entry.valid?
-        entry.tag
-      rescue => err
-        raise BadRequestError, "Could not create a new tag - #{err}"
-      end
-
-      def tags_delete_resource(_parent, _type, id, data)
-        id ||= parse_id(data, :tags) || parse_by_attr(data, :tags, %w(name))
-        raise BadRequestError, "Tag id, href or name needs to be specified for deleting a tag resource" unless id
-        destroy_tag_and_classification(id)
-        action_result(true, "tags id: #{id} deleting")
+      def assign_tags_resource(type, id, data)
+        resource = resource_search(id, type, collection_class(type))
+        data['tags'].collect do |tag|
+          tags_assign_resource(resource, type, tag['id'], tag)
+        end
       rescue => err
         action_result(false, err.to_s)
       end
 
-      private
-
-      def destroy_tag_and_classification(tag_id)
-        entry_or_tag = Classification.find_by(:tag_id => tag_id) || Tag.find(tag_id)
-        entry_or_tag.destroy!
-      end
-
-      def tag_ident(tag_spec)
-        "Tag: category:'#{tag_spec[:category]}' name:'#{tag_spec[:name]}'"
+      def unassign_tags_resource(type, id, data)
+        resource = resource_search(id, type, collection_class(type))
+        data['tags'].collect do |tag|
+          tags_unassign_resource(resource, type, tag['id'], tag)
+        end
+      rescue => err
+        action_result(false, err.to_s)
       end
 
       def tag_subcollection_action(tag_spec)
@@ -109,10 +77,8 @@ module Api
         tag.present? ? tag_path_to_spec(tag.name).merge(:id => tag.id) : {}
       end
 
-      def tag_path_to_spec(path)
-        tag_path = (path[0..7] == Api::BaseController::TAG_NAMESPACE) ? path[8..-1] : path
-        parts    = tag_path.split('/')
-        {:category => parts[1], :name => parts[2]}
+      def tag_ident(tag_spec)
+        "Tag: category:'#{tag_spec[:category]}' name:'#{tag_spec[:name]}'"
       end
 
       def ci_set_tag(ci, tag_spec)
@@ -145,6 +111,12 @@ module Api
 
       def ci_is_tagged_with?(ci, tag_spec)
         ci.is_tagged_with?(tag_spec[:name], :ns => "#{Api::BaseController::TAG_NAMESPACE}/#{tag_spec[:category]}")
+      end
+
+      def tag_path_to_spec(path)
+        tag_path = (path[0..7] == Api::BaseController::TAG_NAMESPACE) ? path[8..-1] : path
+        parts    = tag_path.split('/')
+        {:category => parts[1], :name => parts[2]}
       end
     end
   end

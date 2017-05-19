@@ -38,6 +38,17 @@ module Api
       render_options(:authentications, build_additional_fields)
     end
 
+    def authentications_query_resource(object)
+      object.respond_to?(:authentications) ? object.authentications : []
+    end
+
+    def authentications_create_resource(parent, _type, _id, data)
+      task_id = AuthenticationService.create_authentication_task(parent.manager, data)
+      action_result(true, 'Creating Authentication', :task_id => task_id)
+    rescue => err
+      action_result(false, err.to_s)
+    end
+
     private
 
     def authentication_ident(auth)

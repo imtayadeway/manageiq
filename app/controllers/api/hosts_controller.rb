@@ -4,9 +4,7 @@ module Api
     AUTH_TYPE_ATTR = "auth_type".freeze
     DEFAULT_AUTH_TYPE = "default".freeze
 
-    include Subcollections::Policies
-    include Subcollections::PolicyProfiles
-    include Subcollections::Tags
+    include Shared::Taggable
 
     def edit_resource(type, id, data = {})
       credentials = data.delete(CREDENTIALS_ATTR)

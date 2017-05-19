@@ -57,10 +57,10 @@ Vmdb::Application.routes.draw do
           Api::ApiConfig.collections[subcollection_name].verbs.each do |verb|
             case verb
             when :get
-              get "/:c_id/#{subcollection_name}", :action => :index
-              get "/:c_id/#{subcollection_name}/:s_id", :action => :show
+              get "/:c_id/#{subcollection_name}", :controller => subcollection_name, :action => :index
+              get "/:c_id/#{subcollection_name}/:s_id", :controller => subcollection_name, :action => :show
             else
-              match("/:c_id/#{subcollection_name}(/:s_id)", :action => API_ACTIONS[verb], :via => verb)
+              match("/:c_id/#{subcollection_name}(/:s_id)", :controller => subcollection_name, :action => API_ACTIONS[verb], :via => verb)
             end
           end
         end

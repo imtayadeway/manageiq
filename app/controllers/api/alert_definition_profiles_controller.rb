@@ -1,7 +1,5 @@
 module Api
   class AlertDefinitionProfilesController < BaseController
-    include Subcollections::AlertDefinitions
-
     REQUIRED_FIELDS = %w(description mode).freeze
 
     def create_resource(type, id, data = {})

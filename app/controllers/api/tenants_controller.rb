@@ -2,8 +2,7 @@ module Api
   class TenantsController < BaseController
     INVALID_TENANT_ATTRS = %w(id href ancestry).freeze
 
-    include Subcollections::Tags
-    include Subcollections::Quotas
+    include Shared::Taggable
 
     def create_resource(_type, _id, data)
       bad_attrs = data_includes_invalid_attrs(data)

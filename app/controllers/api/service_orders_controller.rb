@@ -1,6 +1,5 @@
 module Api
   class ServiceOrdersController < BaseController
-    include Subcollections::ServiceRequests
     USER_CART_ID = 'cart'.freeze
 
     def create_resource(type, id, data)

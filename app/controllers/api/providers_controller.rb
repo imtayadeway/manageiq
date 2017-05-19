@@ -10,13 +10,7 @@ module Api
     ENDPOINT_ATTRS    = %w(hostname url ipaddress port security_protocol certificate_authority).freeze
     RESTRICTED_ATTRS  = [TYPE_ATTR, CREDENTIALS_ATTR, ZONE_ATTR, "zone_id"].freeze
 
-    include Subcollections::Policies
-    include Subcollections::PolicyProfiles
-    include Subcollections::Tags
-    include Subcollections::CloudNetworks
-    include Subcollections::CloudTenants
-    include Subcollections::CustomAttributes
-    include Subcollections::LoadBalancers
+    include Shared::Taggable
 
     def create_resource(type, _id, data = {})
       assert_id_not_specified(data, type)
@@ -219,3 +213,5 @@ module Api
     end
   end
 end
+# ~> -:3:in `<module:Api>': uninitialized constant Api::BaseController (NameError)
+# ~> 	from -:2:in `<main>'

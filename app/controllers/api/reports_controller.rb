@@ -2,9 +2,6 @@ module Api
   class ReportsController < BaseController
     SCHEDULE_ATTRS_TO_TRANSFORM = %w(start_date interval time_zone send_email).freeze
 
-    include Subcollections::Results
-    include Subcollections::Schedules
-
     before_action :set_additional_attributes, :only => [:index, :show]
 
     def run_resource(_type, id, _data)

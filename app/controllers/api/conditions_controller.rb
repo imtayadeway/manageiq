@@ -19,5 +19,10 @@ module Api
         raise BadRequestError, "Failed to update condition - #{err}"
       end
     end
+
+    def conditions_query_resource(object)
+      return {} unless object.respond_to?(:conditions)
+      object.conditions
+    end
   end
 end

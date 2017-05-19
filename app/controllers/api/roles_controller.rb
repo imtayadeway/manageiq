@@ -1,7 +1,5 @@
 module Api
   class RolesController < BaseController
-    include Subcollections::Features
-
     def create_resource(type, _id = nil, data = {})
       assert_id_not_specified(data, type)
 
@@ -65,6 +63,25 @@ module Api
       restrictions = {:vms => data['settings']['restrictions']['vms'].to_sym}
       data['settings'].delete('restrictions')
       restrictions
+    end
+
+
+    def get_product_features(features_ids)
+      feature_klass = collection_class(:features)
+
+      new_features = features_ids.map do |feature|
+        # Look for the feature identifier field first as this will remain constant
+        if feature.key?('identifier') && !feature['identifier'].nil?
+          resource_search_by_criteria('identifier', feature['identifier'], feature_klass)
+        else # Fallback to a feature id or href field.
+          resource_search(parse_id(feature, 'features'), 'features', feature_klass)
+        end
+      end
+      new_features.compact
+    end
+
+    def resource_search_by_criteria(criteria, search_val, klass)
+      Rbac.filtered(klass.where(criteria => search_val), :user => User.current_user).first
     end
   end
 end

@@ -1,5 +1,5 @@
 module Api
   class DataStoresController < BaseController
-    include Subcollections::Tags
+    include Shared::Taggable
   end
 end

@@ -23,5 +23,9 @@ module Api
         raise BadRequestError, "Failed to update alert definition - #{err}"
       end
     end
+
+    def alert_definitions_query_resource(object)
+      object.respond_to?(:miq_alerts) ? object.miq_alerts : []
+    end
   end
 end

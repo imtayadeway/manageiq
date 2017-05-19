@@ -1,7 +1,5 @@
 module Api
   class CategoriesController < BaseController
-    include Subcollections::Tags
-
     before_action :set_additional_attributes, :only => [:index, :show, :update]
 
     def edit_resource(type, id, data = {})
