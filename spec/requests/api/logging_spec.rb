@@ -63,7 +63,7 @@ describe "Logging" do
 
       log_request_expectations = EXPECTED_LOGGED_PARAMETERS.merge(
         "Parameters" => a_hash_including(
-          "action"     => "update",
+          "action"     => "create",
           "format"     => "json",
           "controller" => "api/services",
           "body"       => a_hash_including(

@@ -26,6 +26,10 @@ module Api
         render_resource(@req.subject, resource_search(@req.subject_id, @req.subject, klass), opts)
       end
 
+      def create
+        render_normal_update @req.collection.to_sym, update_collection(@req.subject.to_sym, @req.subject_id)
+      end
+
       def update
         render_normal_update @req.collection.to_sym, update_collection(@req.subject.to_sym, @req.subject_id)
       end

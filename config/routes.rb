@@ -24,6 +24,15 @@ Vmdb::Application.routes.draw do
       }.freeze
     end
 
+    class CreateConstraint
+      def matches?(request)
+        return unless request.request_method == "POST"
+        JSON.parse(request.body.read).fetch("action", "create") == "create"
+      ensure
+        request.body.rewind
+      end
+    end
+
     Api::ApiConfig.collections.each do |collection_name, collection|
       # OPTIONS action for each collection
       match collection_name.to_s, :controller => collection_name, :action => :options, :via => :options
@@ -48,6 +57,9 @@ Vmdb::Application.routes.draw do
               root :action => :index
               get "/:c_id", :action => :show
             else
+              if verb == :post
+                post "(/:c_id)", :action => :create, :constraints => CreateConstraint.new
+              end
               match "(/:c_id)", :action => API_ACTIONS[verb], :via => verb
             end
           end
@@ -60,6 +72,9 @@ Vmdb::Application.routes.draw do
               get "/:c_id/#{subcollection_name}", :action => :index
               get "/:c_id/#{subcollection_name}/:s_id", :action => :show
             else
+              if verb == :post
+                post "/:c_id/#{subcollection_name}(/:s_id)", :action => :create, :constraints => CreateConstraint.new
+              end
               match("/:c_id/#{subcollection_name}(/:s_id)", :action => API_ACTIONS[verb], :via => verb)
             end
           end
