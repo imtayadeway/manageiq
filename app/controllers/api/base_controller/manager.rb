@@ -123,8 +123,7 @@ module Api
 
       def create_one_collection(is_subcollection, target, type, resource)
         if is_subcollection
-          parent_resource = parent_resource_obj
-          send(target, parent_resource, type, nil, resource)
+          send(target, parent_resource_obj, type, nil, resource)
         else
           create_resource(type, nil, resource)
         end
