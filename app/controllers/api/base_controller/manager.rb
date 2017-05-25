@@ -151,13 +151,9 @@ module Api
           next if r.blank?
 
           rid = parse_id(r, type)
-          create_or_add_action = %w(create add).include?(action)
-          if rid && create_or_add_action
+          if rid
             raise BadRequestError, "Resource id or href should not be specified for creating a new #{type}"
-          elsif !rid && !create_or_add_action
-            rid = parse_by_attr(r, type)
           end
-          r.except!(*ID_ATTRS) if rid
           processed += 1
           update_one_collection(is_subcollection, target, type, rid, r)
         end.flatten
