@@ -101,13 +101,11 @@ module Api
         end
 
         def resources
-          resources = []
           if json_body.key?("resources")
-            resources += json_body["resources"]
+            json_body["resources"]
           else
-            resources << resource
+            [resource]
           end
-          resources
         end
 
         def resource
