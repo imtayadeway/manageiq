@@ -111,7 +111,7 @@ module Api
         end
 
         def resource
-          @req.json_body["resource"] || @req.json_body.except("action")
+          json_body["resource"] || json_body.except("action")
         end
 
         def method
