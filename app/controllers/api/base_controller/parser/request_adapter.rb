@@ -102,8 +102,8 @@ module Api
 
         def resources
           resources = []
-          if @req.json_body.key?("resources")
-            resources += @req.json_body["resources"]
+          if json_body.key?("resources")
+            resources += json_body["resources"]
           else
             resources << resource
           end
