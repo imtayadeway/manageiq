@@ -163,7 +163,7 @@ module Api
             raise BadRequestError, "Resource id or href should not be specified for creating a new #{type}"
           end
           processed += 1
-          create_one_collection(is_subcollection, target, type, rid, r)
+          create_one_collection(is_subcollection, target, type, nil, r)
         end.flatten
         raise BadRequestError, "No #{type} resources were specified for the #{action} action" if processed == 0
         {"results" => results}
