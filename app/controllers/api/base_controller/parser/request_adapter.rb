@@ -100,6 +100,16 @@ module Api
                          end
         end
 
+        def resources
+          resources = []
+          if @req.json_body.key?("resources")
+            resources += @req.json_body["resources"]
+          else
+            resources << (@req.json_body["resource"] || @req.json_body.except("action"))
+          end
+          resources
+        end
+
         def method
           @method ||= @request.request_method.downcase.to_sym # :get, :patch, ...
         end

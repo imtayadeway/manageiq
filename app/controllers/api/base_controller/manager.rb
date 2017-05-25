@@ -98,13 +98,7 @@ module Api
       end
 
       def get_and_update_multiple_collections(is_subcollection, target, type)
-        resources = []
-        if @req.json_body.key?("resources")
-          resources += @req.json_body["resources"]
-        else
-          resources << json_body_resource
-        end
-        update_multiple_collections(is_subcollection, target, type, resources)
+        update_multiple_collections(is_subcollection, target, type, @req.resources)
       end
 
       def json_body_resource
