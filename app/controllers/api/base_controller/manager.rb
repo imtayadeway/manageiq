@@ -121,14 +121,6 @@ module Api
         end
       end
 
-      def create_one_collection(is_subcollection, target, type, resource)
-        if is_subcollection
-          send(target, parent_resource_obj, type, nil, resource)
-        else
-          create_resource(type, nil, resource)
-        end
-      end
-
       def update_multiple_collections(is_subcollection, target, type, resources)
         action = @req.action
 
@@ -161,7 +153,12 @@ module Api
             raise BadRequestError, "Resource id or href should not be specified for creating a new #{type}"
           end
           processed += 1
-          create_one_collection(is_subcollection, target, type, r)
+
+          if is_subcollection
+            send(target, parent_resource_obj, type, nil, r)
+          else
+            create_resource(type, nil, r)
+          end
         end.flatten
         raise BadRequestError, "No #{type} resources were specified for the #{action} action" if processed == 0
         {"results" => results}
