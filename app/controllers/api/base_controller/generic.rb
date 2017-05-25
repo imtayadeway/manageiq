@@ -34,8 +34,8 @@ module Api
         else
           resources << (@req.json_body["resource"] || @req.json_body.except("action"))
         end
-        resource = create_multiple_collections(@req.subcollection?, target, @req.subject.to_sym, resources)
-        render_resource(@req.collection.to_sym, resource)
+        results = create_multiple_collections(@req.subcollection?, target, @req.subject.to_sym, resources)
+        render_resource(@req.collection.to_sym, results)
       end
 
       def update
