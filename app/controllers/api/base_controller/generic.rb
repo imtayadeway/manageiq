@@ -28,14 +28,7 @@ module Api
 
       def create
         target = target_resource_method(@req.subject.to_sym, @req.action)
-        resources = []
-        if @req.json_body.key?("resources")
-          resources += @req.json_body["resources"]
-        else
-          resources << (@req.json_body["resource"] || @req.json_body.except("action"))
-        end
-
-        results = resources.each.reject(&:blank?).flat_map do |r|
+        results = @req.resources.each.reject(&:blank?).flat_map do |r|
           if parse_id(r, @req.subject.to_sym)
             raise BadRequestError, "Resource id or href should not be specified for creating a new #{@req.subject.to_sym}"
           end
