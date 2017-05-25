@@ -28,7 +28,13 @@ module Api
 
       def create
         target = target_resource_method(@req.subject.to_sym, "create")
-        resource = get_and_update_multiple_collections(@req.subcollection?, target, @req.subject.to_sym)
+        resources = []
+        if @req.json_body.key?("resources")
+          resources += @req.json_body["resources"]
+        else
+          resources << (@req.json_body["resource"] || @req.json_body.except("action"))
+        end
+        resource = update_multiple_collections(@req.subcollection?, target, @req.subject.to_sym, resources)
         render_resource(@req.collection.to_sym, resource)
       end
 
