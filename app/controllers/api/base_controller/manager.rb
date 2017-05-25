@@ -126,7 +126,7 @@ module Api
           parent_resource = parent_resource_obj
           send(target, parent_resource, type, nil, resource)
         else
-          send(target, type, nil, resource)
+          create_resource(type, nil, resource)
         end
       end
 
