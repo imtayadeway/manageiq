@@ -105,9 +105,13 @@ module Api
           if @req.json_body.key?("resources")
             resources += @req.json_body["resources"]
           else
-            resources << (@req.json_body["resource"] || @req.json_body.except("action"))
+            resources << resource
           end
           resources
+        end
+
+        def resource
+          @req.json_body["resource"] || @req.json_body.except("action")
         end
 
         def method
