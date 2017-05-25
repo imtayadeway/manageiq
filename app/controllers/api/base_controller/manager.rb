@@ -146,21 +146,19 @@ module Api
       def create_multiple_collections(is_subcollection, target, type, resources)
         action = @req.action
 
-        processed = 0
         results = resources.each.flat_map do |r|
           next if r.blank?
           if parse_id(r, type)
             raise BadRequestError, "Resource id or href should not be specified for creating a new #{type}"
           end
-          processed += 1
 
           if is_subcollection
             send(target, parent_resource_obj, type, nil, r)
           else
             create_resource(type, nil, r)
           end
-        end
-        raise BadRequestError, "No #{type} resources were specified for the #{action} action" if processed == 0
+        end.compact
+        raise BadRequestError, "No #{type} resources were specified for the #{action} action" if results.none?
         {"results" => results}
       end
     end
