@@ -27,7 +27,8 @@ module Api
       end
 
       def create
-        resource = update_collection(@req.subject.to_sym, @req.subject_id)
+        target = target_resource_method(@req.subject.to_sym, "create")
+        resource = get_and_update_multiple_collections(@req.subcollection?, target, @req.subject.to_sym)
         render_resource(@req.collection.to_sym, resource)
       end
 
