@@ -149,9 +149,7 @@ module Api
         processed = 0
         results = resources.each.collect do |r|
           next if r.blank?
-
-          rid = parse_id(r, type)
-          if rid
+          if parse_id(r, type)
             raise BadRequestError, "Resource id or href should not be specified for creating a new #{type}"
           end
           processed += 1
