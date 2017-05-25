@@ -147,7 +147,7 @@ module Api
         action = @req.action
 
         processed = 0
-        results = resources.each.collect do |r|
+        results = resources.each.flat_map do |r|
           next if r.blank?
           if parse_id(r, type)
             raise BadRequestError, "Resource id or href should not be specified for creating a new #{type}"
@@ -159,7 +159,7 @@ module Api
           else
             create_resource(type, nil, r)
           end
-        end.flatten
+        end
         raise BadRequestError, "No #{type} resources were specified for the #{action} action" if processed == 0
         {"results" => results}
       end
