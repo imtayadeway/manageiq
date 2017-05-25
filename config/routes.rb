@@ -27,7 +27,7 @@ Vmdb::Application.routes.draw do
     class CreateConstraint
       def matches?(request)
         return unless request.request_method == "POST"
-        JSON.parse(request.body.read).fetch("action", "create") == "create"
+        JSON.parse(request.body.read).fetch("action", "create").in?(%w(create add))
       ensure
         request.body.rewind
       end

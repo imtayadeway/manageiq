@@ -27,7 +27,7 @@ module Api
       end
 
       def create
-        target = target_resource_method(@req.subject.to_sym, "create")
+        target = target_resource_method(@req.subject.to_sym, @req.action)
         resources = []
         if @req.json_body.key?("resources")
           resources += @req.json_body["resources"]
