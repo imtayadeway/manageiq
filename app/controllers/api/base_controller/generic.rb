@@ -27,7 +27,8 @@ module Api
       end
 
       def create
-        render_resource(@req.collection.to_sym, update_collection(@req.subject.to_sym, @req.subject_id))
+        resource = update_collection(@req.subject.to_sym, @req.subject_id)
+        render_resource(@req.collection.to_sym, resource)
       end
 
       def update
