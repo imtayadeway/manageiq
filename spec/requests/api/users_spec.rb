@@ -181,8 +181,8 @@ RSpec.describe "users API" do
       user1_hash, user2_hash = results.first, results.second
       expect(User.exists?(user1_hash["id"])).to be_truthy
       expect(User.exists?(user2_hash["id"])).to be_truthy
-      expect(user1_hash["current_group_id"]).to eq(group1.id)
-      expect(user2_hash["current_group_id"]).to eq(group2.id)
+      expect(user1_hash["current_group_id"]).to eq(group1.id.to_s)
+      expect(user2_hash["current_group_id"]).to eq(group2.id.to_s)
     end
   end
 
@@ -208,7 +208,7 @@ RSpec.describe "users API" do
 
       run_post(users_url(user1.id), gen_request(:edit, "name" => "updated name"))
 
-      expect_single_resource_query("id" => user1.id, "name" => "updated name")
+      expect_single_resource_query("id" => user1.id.to_s, "name" => "updated name")
       expect(user1.reload.name).to eq("updated name")
     end
 
@@ -219,7 +219,7 @@ RSpec.describe "users API" do
                                                 "email" => "user1@email.com",
                                                 "group" => {"description" => group2.description}))
 
-      expect_single_resource_query("id" => user1.id, "email" => "user1@email.com", "current_group_id" => group2.id)
+      expect_single_resource_query("id" => user1.id.to_s, "email" => "user1@email.com", "current_group_id" => group2.id.to_s)
       expect(user1.reload.email).to eq("user1@email.com")
       expect(user1.reload.current_group_id).to eq(group2.id)
     end
@@ -232,8 +232,8 @@ RSpec.describe "users API" do
                                        {"href" => users_url(user2.id), "first_name" => "Jane"}]))
 
       expect_results_to_match_hash("results",
-                                   [{"id" => user1.id, "first_name" => "John"},
-                                    {"id" => user2.id, "first_name" => "Jane"}])
+                                   [{"id" => user1.id.to_s, "first_name" => "John"},
+                                    {"id" => user2.id.to_s, "first_name" => "Jane"}])
 
       expect(user1.reload.first_name).to eq("John")
       expect(user2.reload.first_name).to eq("Jane")

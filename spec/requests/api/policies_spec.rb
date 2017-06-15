@@ -359,7 +359,7 @@ describe "Policies API" do
     let(:miq_policy) { FactoryGirl.create(:miq_policy) }
     let(:miq_policy_contents) do
       {"policy_contents" => [{'event_id' => event.id,
-                              "actions"  => [{"action_id" => action.id, "opts" => { :qualifier => "failure" }}] }]}
+                              "actions"  => [{"action_id" => action.id.to_s, "opts" => { :qualifier => "failure" }}] }]}
     end
     let(:sample_policy) do
       {

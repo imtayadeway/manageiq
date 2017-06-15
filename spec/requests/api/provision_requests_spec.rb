@@ -110,7 +110,7 @@ describe "Provision Requests API" do
         run_post(provision_requests_url(provision_request.id), :action => "edit", :options => {:baz => "qux"})
 
         expected = {
-          "id"      => provision_request.id,
+          "id"      => provision_request.id.to_s,
           "options" => a_hash_including("foo" => "bar", "baz" => "qux")
         }
         expect(response).to have_http_status(:ok)

@@ -47,7 +47,7 @@ describe "Alerts Definitions API" do
     expect(response).to have_http_status(:ok)
     expect(response.parsed_body).to include(
       "href"        => a_string_matching(alert_definitions_url(alert_definition.id)),
-      "id"          => alert_definition.id,
+      "id"          => alert_definition.id.to_s,
       "description" => alert_definition.description,
       "guid"        => alert_definition.guid
     )

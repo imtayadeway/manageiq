@@ -40,7 +40,7 @@ describe "Service Templates API" do
               :filter => ["action='Provision'"]
 
       expect_query_result(:resource_actions, 1, 2)
-      expect_result_resources_to_match_hash(["id" => ra1.id, "action" => ra1.action, "dialog_id" => dialog1.id])
+      expect_result_resources_to_match_hash(["id" => ra1.id.to_s, "action" => ra1.action, "dialog_id" => dialog1.id.to_s])
     end
 
     it "allows queries of the related picture" do
@@ -49,7 +49,7 @@ describe "Service Templates API" do
       run_get service_templates_url(template.id), :attributes => "picture"
 
       expect_result_to_have_keys(%w(id href picture))
-      expected = {"id" => template.id, "href" => service_templates_url(template.id)}
+      expected = {"id" => template.id.to_s, "href" => service_templates_url(template.id)}
       expect_result_to_match_hash(response.parsed_body, expected)
     end
 
@@ -60,8 +60,8 @@ describe "Service Templates API" do
 
       expect_result_to_have_keys(%w(id href picture))
       expect_result_to_match_hash(response.parsed_body["picture"],
-                                  "id"          => picture.id,
-                                  "resource_id" => template.id,
+                                  "id"          => picture.id.to_s,
+                                  "resource_id" => template.id.to_s,
                                   "image_href"  => /^http:.*#{picture.image_href}$/)
     end
 
@@ -71,7 +71,14 @@ describe "Service Templates API" do
       run_get(service_templates_url(template.id))
 
       expected = {
-        'config_info' => template.config_info.deep_stringify_keys
+        'config_info' => a_hash_including(
+          "provision" => a_hash_including(
+            "dialog_id" => dialog1.id.to_s
+          ),
+          "retirement" => a_hash_including(
+            "dialog_id" => dialog2.id.to_s
+          )
+        )
       }
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body).to include(expected)
@@ -127,7 +134,7 @@ describe "Service Templates API" do
       st = FactoryGirl.create(:service_template, :name => "st1")
       run_post(service_templates_url(st.id), gen_request(:edit, updated_catalog_item_options))
 
-      expect_single_resource_query("id" => st.id, "href" => service_templates_url(st.id), "name" => "Updated Template Name")
+      expect_single_resource_query("id" => st.id.to_s, "href" => service_templates_url(st.id), "name" => "Updated Template Name")
       expect(st.reload.name).to eq("Updated Template Name")
     end
 
@@ -142,8 +149,8 @@ describe "Service Templates API" do
 
       expect(response).to have_http_status(:ok)
       expect_results_to_match_hash("results",
-                                   [{"id" => st1.id, "name" => "Updated Template Name"},
-                                    {"id" => st2.id, "name" => "Updated Template Name"}])
+                                   [{"id" => st1.id.to_s, "name" => "Updated Template Name"},
+                                    {"id" => st2.id.to_s, "name" => "Updated Template Name"}])
       expect(st1.reload.name).to eq("Updated Template Name")
       expect(st2.reload.name).to eq("Updated Template Name")
     end
@@ -155,7 +162,7 @@ describe "Service Templates API" do
       run_post(service_templates_url(st1.id), gen_request(:edit, 'name' => 'updated template'))
 
       expected = {
-        'id'   => st1.id,
+        'id'   => st1.id.to_s,
         'name' => 'updated template'
       }
       expect(response).to have_http_status(:ok)

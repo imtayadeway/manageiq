@@ -529,7 +529,7 @@ describe "Querying" do
         "subcount"  => 1,
         "resources" => [
           {
-            "id"        => vm.id,
+            "id"        => vm.id.to_s,
             "href"      => a_string_matching(vms_url(vm.id)),
             "href_slug" => "vms/#{vm.id}",
             "name"      => "aa",

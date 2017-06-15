@@ -41,7 +41,7 @@ RSpec.describe "categories API" do
       response.parsed_body,
       "description" => category.description,
       "href"        => categories_url(category.id),
-      "id"          => category.id
+      "id"          => category.id.to_s
     )
     expect(response).to have_http_status(:ok)
   end

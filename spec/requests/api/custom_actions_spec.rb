@@ -212,7 +212,7 @@ describe "Custom Actions API" do
           "buttons"       => [
             hash_including(
               "id"              => anything,
-              "resource_action" => hash_including("id" => ra2.id, "dialog_id" => ra2.dialog_id)
+              "resource_action" => hash_including("id" => ra2.id.to_s, "dialog_id" => ra2.dialog_id.to_s)
             )
           ]
         }

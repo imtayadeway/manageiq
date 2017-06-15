@@ -84,7 +84,7 @@ describe "Automation Requests API" do
       run_post(automation_requests_url(automation_request.id), :action => "edit", :options => {:baz => "qux"})
 
       expected = {
-        "id"      => automation_request.id,
+        "id"      => automation_request.id.to_s,
         "options" => a_hash_including("foo" => "bar", "baz" => "qux")
       }
       expect(response).to have_http_status(:ok)

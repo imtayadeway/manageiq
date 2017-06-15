@@ -157,11 +157,11 @@ RSpec.describe "Blueprints API" do
       expected = {
         "results" => a_collection_containing_exactly(
           a_hash_including(
-            "id"   => blueprint1.id,
+            "id"   => blueprint1.id.to_s,
             "name" => "baz"
           ),
           a_hash_including(
-            "id"   => blueprint2.id,
+            "id"   => blueprint2.id.to_s,
             "name" => "qux"
           )
         )
@@ -203,10 +203,10 @@ RSpec.describe "Blueprints API" do
       service_template = FactoryGirl.create(:service_template)
       dialog = FactoryGirl.create(:dialog_with_tab_and_group_and_field)
       ui_properties = {
-        "service_dialog"        => {"id" => dialog.id},
+        "service_dialog"        => {"id" => dialog.id.to_s},
         "chart_data_model"      => {
           "nodes" => [{
-            "id"   => service_template.id,
+            "id"   => service_template.id.to_s,
             "tags" => []
           }]},
         "automate_entry_points" => {
@@ -222,8 +222,8 @@ RSpec.describe "Blueprints API" do
 
       expected = {
         "results" => a_collection_containing_exactly(
-          a_hash_including("id" => blueprint1.id, "status" => "published"),
-          a_hash_including("id" => blueprint2.id, "status" => "published")
+          a_hash_including("id" => blueprint1.id.to_s, "status" => "published"),
+          a_hash_including("id" => blueprint2.id.to_s, "status" => "published")
         )
       }
 
@@ -264,10 +264,10 @@ RSpec.describe "Blueprints API" do
       service_template = FactoryGirl.create(:service_template)
       dialog = FactoryGirl.create(:dialog_with_tab_and_group_and_field)
       ui_properties = {
-        "service_dialog"        => {"id" => dialog.id},
+        "service_dialog"        => {"id" => dialog.id.to_s},
         "chart_data_model"      => {
           "nodes" => [{
-            "id"   => service_template.id,
+            "id"   => service_template.id.to_s,
             "tags" => []
           }]},
         "automate_entry_points" => {
@@ -281,7 +281,7 @@ RSpec.describe "Blueprints API" do
       run_post(blueprints_url(blueprint.id), :action => "publish")
 
       expected = {
-        "id"     => blueprint.id,
+        "id"     => blueprint.id.to_s,
         "status" => "published"
       }
       expect(response.parsed_body).to include(expected)

@@ -186,7 +186,7 @@ describe "Roles API" do
       run_post(roles_url(role.id), gen_request(:edit, "name"     => "updated role",
                                                       "settings" => {"restrictions"  => {"vms" => "user_or_group"}}))
 
-      expect_single_resource_query("id"       => role.id,
+      expect_single_resource_query("id"       => role.id.to_s,
                                    "name"     => "updated role",
                                    "settings" => {"restrictions" => {"vms" => "user_or_group"}})
       expect(role.reload.name).to eq("updated role")
@@ -204,8 +204,8 @@ describe "Roles API" do
                                        {"href" => roles_url(r2.id), "name" => "updated role2"}]))
 
       expect_results_to_match_hash("results",
-                                   [{"id" => r1.id, "name" => "updated role1"},
-                                    {"id" => r2.id, "name" => "updated role2"}])
+                                   [{"id" => r1.id.to_s, "name" => "updated role1"},
+                                    {"id" => r2.id.to_s, "name" => "updated role2"}])
 
       expect(r1.reload.name).to eq("updated role1")
       expect(r2.reload.name).to eq("updated role2")

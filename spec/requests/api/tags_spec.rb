@@ -271,7 +271,7 @@ describe "Tags API" do
 
       expect_single_resource_query(
         "href"           => tags_url(tag.id),
-        "id"             => tag.id,
+        "id"             => tag.id.to_s,
         "name"           => tag.name,
         "category"       => {"name" => tag.category.name,       "description" => tag.category.description},
         "classification" => {"name" => tag.classification.name, "description" => tag.classification.description}
@@ -286,7 +286,7 @@ describe "Tags API" do
 
       expect_single_resource_query(
         "href"           => tags_url(tag.id),
-        "id"             => tag.id,
+        "id"             => tag.id.to_s,
         "name"           => tag.name,
         "categorization" => {
           "name"         => tag.classification.name,

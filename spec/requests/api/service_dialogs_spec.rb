@@ -43,7 +43,7 @@ describe "Service Dialogs API" do
       run_get service_dialogs_url(dialog1.id)
 
       expect_single_resource_query(
-        "id"    => dialog1.id,
+        "id"    => dialog1.id.to_s,
         "href"  => service_dialogs_url(dialog1.id),
         "label" => dialog1.label
       )
@@ -122,13 +122,13 @@ describe "Service Dialogs API" do
           'label'   => 'updated label',
           'content' => {
             'dialog_tabs' => [
-              'id'            => dialog_tab.id,
+              'id'            => dialog_tab.id.to_s,
               'label'         => 'updated tab label',
               'dialog_groups' => [
                 {
-                  'id'            => dialog_group.id,
+                  'id'            => dialog_group.id.to_s,
                   'dialog_fields' => [
-                    { 'id' => dialog_field.id }
+                    { 'id' => dialog_field.id.to_s }
                   ]
                 }
               ]
@@ -138,7 +138,7 @@ describe "Service Dialogs API" do
 
         expected = {
           'href'  => a_string_including(service_dialogs_url(dialog.id)),
-          'id'    => dialog.id,
+          'id'    => dialog.id.to_s,
           'label' => 'updated label'
         }
 
@@ -162,11 +162,11 @@ describe "Service Dialogs API" do
         expected = {
           'results' => a_collection_containing_exactly(
             a_hash_including(
-              'id'    => dialog.id,
+              'id'    => dialog.id.to_s,
               'label' => 'foo bar'
             ),
             a_hash_including(
-              'id'    => dialog2.id,
+              'id'    => dialog2.id.to_s,
               'label' => 'bar'
             )
           )
@@ -271,7 +271,7 @@ describe "Service Dialogs API" do
       run_get "#{service_templates_url(template.id)}/service_dialogs/#{dialog1.id}", :attributes => "content"
       expected = {
         'content' => a_collection_including(
-          a_hash_including('id' => dialog1.id)
+          a_hash_including('id' => dialog1.id.to_s)
         )}
 
       expect(response).to have_http_status(:ok)

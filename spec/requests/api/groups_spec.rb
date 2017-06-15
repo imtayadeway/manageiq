@@ -105,7 +105,7 @@ describe "Groups API" do
 
       expect_result_to_match_hash(result,
                                   "description"      => "sample_group3",
-                                  "tenant_id"        => tenant3.id)
+                                  "tenant_id"        => tenant3.id.to_s)
     end
 
     it "supports single group creation with filters specified" do
@@ -169,7 +169,7 @@ describe "Groups API" do
 
       run_post(groups_url(group1.id), gen_request(:edit, "description" => "updated_group"))
 
-      expect_single_resource_query("id"          => group1.id,
+      expect_single_resource_query("id"          => group1.id.to_s,
                                    "description" => "updated_group")
       expect(group1.reload.description).to eq("updated_group")
     end
@@ -182,8 +182,8 @@ describe "Groups API" do
                                         {"href" => groups_url(group2.id), "description" => "updated_group2"}]))
 
       expect_results_to_match_hash("results",
-                                   [{"id" => group1.id, "description" => "updated_group1"},
-                                    {"id" => group2.id, "description" => "updated_group2"}])
+                                   [{"id" => group1.id.to_s, "description" => "updated_group1"},
+                                    {"id" => group2.id.to_s, "description" => "updated_group2"}])
 
       expect(group1.reload.name).to eq("updated_group1")
       expect(group2.reload.name).to eq("updated_group2")
