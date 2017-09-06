@@ -45,6 +45,8 @@ class MiqAlert < ApplicationRecord
   virtual_column :notify_evm_event,       :type => :boolean
   virtual_column :notify_snmp,            :type => :boolean
 
+  virtual_has_one :expression, :class_name => "Hash"
+
   def based_on
     Dictionary.gettext(db, :type => :model)
   end
